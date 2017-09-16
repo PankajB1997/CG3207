@@ -54,12 +54,12 @@ architecture Decoder_arch of Decoder is
     signal ALUOp 			   : std_logic;
     signal Branch 			   : std_logic;
     signal RdEquals15          : std_logic;
-    signal RegW_Internal       : std_logic;
-    signal MemW_Internal       : std_logic;
-    signal FlagW_Internal      : std_logic_vector (1 downto 0);
-    signal Illegal_MainDecoder : std_logic;
-    signal Illegal_ALUDecoder  : std_logic;
-    signal Illegal_Instruction : std_logic;
+    signal RegWInternal       : std_logic;
+    signal MemWInternal       : std_logic;
+    signal FlagWInternal      : std_logic_vector (1 downto 0);
+    signal IllegalMainDecoder : std_logic;
+    signal IllegalALUDecoder  : std_logic;
+    signal IllegalInstruction : std_logic;
 begin
 
     -- Logic for Main Decoder
@@ -69,36 +69,36 @@ begin
            when "10" => 
                Branch <= '1';
                MemtoReg <= '0';
-               MemW_Internal <= '0';
+               MemWInternal <= '0';
                ALUSrc <= '1';
                ImmSrc <= "10";
-               RegW_Internal <= '0';
+               RegWInternal <= '0';
                RegSrc(0) <= '1';
                ALUOp <= '0';
-               Illegal_MainDecoder <= '0';
+               IllegalMainDecoder <= '0';
            -- Memory Instruction
            when "01" => 
                -- STR
                if Funct(0) = '0' then
                    Branch <= '0';
-                   MemW_Internal <= '1';
+                   MemWInternal <= '1';
                    ALUSrc <= '1';
                    ImmSrc <= "01";
-                   RegW_Internal <= '0';
+                   RegWInternal <= '0';
                    RegSrc <= "10";
                    ALUOp <= '0';
-                   Illegal_MainDecoder <= '0';
+                   IllegalMainDecoder <= '0';
                -- LDR
                else
                    Branch <= '0';
                    MemtoReg <= '1';
-                   MemW_Internal <= '0';
+                   MemWInternal <= '0';
                    ALUSrc <= '1';
                    ImmSrc <= "01";
-                   RegW_Internal <= '1';
+                   RegWInternal <= '1';
                    RegSrc(0) <= '0';
                    ALUOp <= '0';
-                   Illegal_MainDecoder <= '0';
+                   IllegalMainDecoder <= '0';
                end if;
            -- Data Processing Instruction
            when "00" => 
@@ -106,24 +106,24 @@ begin
                if Funct(5) = '0' then
                    Branch <= '0';
                    MemtoReg <= '0';
-                   MemW_Internal <= '0';
+                   MemWInternal <= '0';
                    ALUSrc <= '0';
                    RegW <= '1';
-                   RegW_Internal <= '1';
+                   RegWInternal <= '1';
                    RegSrc <= "00";
                    ALUOp <= '1';
-                   Illegal_MainDecoder <= '0';
+                   IllegalMainDecoder <= '0';
                -- DP Imm
                else
                    Branch <= '0';
                    MemtoReg <= '0';
-                   MemW_Internal <= '0';
+                   MemWInternal <= '0';
                    ALUSrc <= '1';
                    ImmSrc <= "00";
-                   RegW_Internal <= '1';
+                   RegWInternal <= '1';
                    RegSrc(0) <= '0';
                    ALUOp <= '1';
-                   Illegal_MainDecoder <= '0';
+                   IllegalMainDecoder <= '0';
                end if;
            when others =>
                PCS <= '-';
@@ -133,7 +133,7 @@ begin
                RegSrc <= "--";
                NoWrite <= '-';
                ALUControl  <= "--";
-               Illegal_MainDecoder <= '1';
+               IllegalMainDecoder <= '1';
         end case;
     end process;
     
@@ -143,50 +143,50 @@ begin
             -- Not a DP Instruction
             when '0' =>
                 ALUControl <= "00";
-                FlagW_Internal <= "00";
-                Illegal_ALUDecoder <= '0';
+                FlagWInternal <= "00";
+                IllegalALUDecoder <= '0';
             -- DP Instruction
             when '1' =>
                 case Funct (4 downto 1) is
                     -- ADD Instruction
                     when "0100" =>
-                        Illegal_ALUDecoder <= '0';
+                        IllegalALUDecoder <= '0';
                         ALUControl <= "00";
                         -- ALU flags should be saved
                         if Funct(0)='1' then
-                            FlagW_Internal <= "11";
+                            FlagWInternal <= "11";
                         -- ALU flags should not be saved
-                        else FlagW_Internal <= "00";
+                        else FlagWInternal <= "00";
                         end if;
                     -- SUB Instruction
                     when "0010" =>
-                        Illegal_ALUDecoder <= '0';
+                        IllegalALUDecoder <= '0';
                         ALUControl <= "01";
                         -- ALU flags should be saved
                         if Funct(0)='1' then
-                            FlagW_Internal <= "11";
+                            FlagWInternal <= "11";
                         -- ALU flags should not be saved                            
-                        else FlagW_Internal <= "00";
+                        else FlagWInternal <= "00";
                         end if;
                     -- AND Instruction
                     when "0000" =>
-                        Illegal_ALUDecoder <= '0';
+                        IllegalALUDecoder <= '0';
                         ALUControl <= "10";
                         -- ALU flags should be saved
                         if Funct(0)='1' then
-                            FlagW_Internal <= "10";
+                            FlagWInternal <= "10";
                         -- ALU flags should not be saved
-                        else FlagW_Internal <= "00";
+                        else FlagWInternal <= "00";
                         end if;
                     -- ORR Instruction
                     when "1100" =>
-                        Illegal_ALUDecoder <= '0';
+                        IllegalALUDecoder <= '0';
                         ALUControl <= "11";
                         -- ALU flags should be saved
                         if Funct(0)='1' then
-                            FlagW_Internal <= "10";
+                            FlagWInternal <= "10";
                         -- ALU flags should not be saved
-                        else FlagW_Internal <= "00";
+                        else FlagWInternal <= "00";
                         end if;
                     when others => 
                         PCS <= '-';
@@ -196,7 +196,7 @@ begin
                         RegSrc <= "--";
                         NoWrite <= '-';
                         ALUControl  <= "--";
-                        Illegal_ALUDecoder <= '1';
+                        IllegalALUDecoder <= '1';
                 end case;
             when others => 
                 PCS <= '-';
@@ -206,7 +206,7 @@ begin
                 RegSrc <= "--";
                 NoWrite <= '-';
                 ALUControl  <= "--";
-                Illegal_ALUDecoder <= '1';
+                IllegalALUDecoder <= '1';
         end case;    
     end process;
     
@@ -216,14 +216,14 @@ begin
             RdEquals15 <= '1';
         else RdEquals15 <= '0';
         end if;
-        PCS <= ((RdEquals15 and RegW_Internal) or Branch) and (not Illegal_Instruction);
+        PCS <= ((RdEquals15 and RegWInternal) or Branch) and (not IllegalInstruction);
     end process;
     
-    Illegal_Instruction <= Illegal_MainDecoder or Illegal_ALUDecoder;
+    IllegalInstruction <= IllegalMainDecoder or IllegalALUDecoder;
 
-    -- If instruction is not illegal, then store the write values
-    RegW <= RegW_Internal and (not Illegal_Instruction);
-    MemW <= MemW_Internal and (not Illegal_Instruction);
-    FlagW <= FlagW_Internal when (Illegal_Instruction = '0') else "00";
+    -- If instruction is illegal, don't write any values
+    RegW <= RegWInternal and (not IllegalInstruction);
+    MemW <= MemWInternal and (not IllegalInstruction);
+    FlagW <= FlagWInternal when (IllegalInstruction = '0') else "00";
     
 end Decoder_arch;

@@ -2020,3 +2020,35 @@ selectCodeEditor("Decoder.vhd", 150, 162); // bI:J (JPanel:JComponent, cg:JFrame
 selectCodeEditor("Decoder.vhd", 321, 194); // bI:J (JPanel:JComponent, cg:JFrame)
 selectCodeEditor("Decoder.vhd", 93, 92); // bI:J (JPanel:JComponent, cg:JFrame)
 selectCodeEditor("Decoder.vhd", 340, 192); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 319 seconds
+selectCodeEditor("Decoder.vhd", 230, 222); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 63, 211); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 29 seconds
+selectCodeEditor("Decoder.vhd", 61, 214); // bI:J (JPanel:JComponent, cg:JFrame)
+// [GUI Memory]: 145 MB (+195kb) [07:24:13]
+// Elapsed time: 17 seconds
+selectCodeEditor("Decoder.vhd", 150, 211); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 260 seconds
+selectCodeEditor("Decoder.vhd", 138, 214); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 138, 226); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 73 MB. Current time: 9/16/17 6:35:05 PM SGT
+// Elapsed time: 1496 seconds
+selectCodeEditor("Decoder.vhd", 166, 213); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 50, 198); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 16 seconds
+selectCodeEditor("Decoder.vhd", 167, 269); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 112, 112); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 121 seconds
+selectCodeEditor("Decoder.vhd", 134, 286); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 12 seconds
+selectCodeEditor("Decoder.vhd", 138, 186); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 141, 182); // bI:J (JPanel:JComponent, cg:JFrame)
