@@ -53,6 +53,8 @@ end Decoder;
 architecture Decoder_arch of Decoder is
 	signal ALUOp 			: std_logic;
 	signal Branch 			: std_logic;
+	signal RegW_Result      : std_logic;
+	signal RdEquals15       : std_logic;
 begin
 
 	process (Op, Funct) begin
@@ -66,6 +68,7 @@ begin
                ALUSrc <= '1';
                ImmSrc <= "10";
                RegW <= '0';
+               RegW_Result <= '0';
                RegSrc(0) <= '1';
                ALUOp <= '0';
            when "01" => 
@@ -75,6 +78,7 @@ begin
                    ALUSrc <= '1';
                    ImmSrc <= "01";
                    RegW <= '0';
+                   RegW_Result <= '0';
                    RegSrc <= "10";
                    ALUOp <= '0';
                else
@@ -84,6 +88,7 @@ begin
                    ALUSrc <= '1';
                    ImmSrc <= "01";
                    RegW <= '1';
+                   RegW_Result <= '1';
                    RegSrc(0) <= '0';
                    ALUOp <= '0';
                end if;
@@ -94,6 +99,7 @@ begin
                    MemW <= '0';
                    ALUSrc <= '0';
                    RegW <= '1';
+                   RegW_Result <= '1';
                    RegSrc <= "00";
                    ALUOp <= '1';
                else
@@ -103,9 +109,11 @@ begin
                    ALUSrc <= '1';
                    ImmSrc <= "00";
                    RegW <= '1';
+                   RegW_Result <= '1';
                    RegSrc(0) <= '0';
                    ALUOp <= '1';
                end if;
+           when others => null;
         end case;
     
         -- logic for ALU Decoder
@@ -139,10 +147,16 @@ begin
                             FlagW <= "10";
                         else FlagW <= "00";
                         end if;
+                    when others => null;
                 end case;
+            when others => null;
         end case;    
         
-        -- logic for PC logic
-        
+        -- PC Logic
+        if Rd = "1111" then
+            RdEquals15 <= '1';
+        else RdEquals15 <= '0';
+        end if;
+        PCS <= (RdEquals15 and RegW_Result) or Branch;
     end process;
 end Decoder_arch;
