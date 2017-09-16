@@ -2052,3 +2052,53 @@ selectCodeEditor("Decoder.vhd", 134, 286); // bI:J (JPanel:JComponent, cg:JFrame
 // Elapsed time: 12 seconds
 selectCodeEditor("Decoder.vhd", 138, 186); // bI:J (JPanel:JComponent, cg:JFrame)
 selectCodeEditor("Decoder.vhd", 141, 182); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 60 seconds
+selectCodeEditor("Decoder.vhd", 214, 156); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 85 seconds
+selectCodeEditor("Decoder.vhd", 333, 194); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 61 MB. Current time: 9/16/17 7:05:07 PM SGT
+// Elapsed time: 24 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Project Manager, Language Templates]", 3, false); // u:M (JViewport:JComponent, cg:JFrame)
+expandTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator]", 1); // u:M (JViewport:JComponent, cg:JFrame)
+// Run Command: PAResourceCommand.PACommandNames_LANGUAGE_TEMPLATES
+// a:p (cg:JFrame): Language Templates: addNotify
+selectTree(PAResourceItoN.LanguageTemplatesDialog_TEMPLATES_TREE, "[Templates, VHDL]", 1, true); // i:JTree (JViewport:JComponent, a:p) - Node
+expandTree(PAResourceItoN.LanguageTemplatesDialog_TEMPLATES_TREE, "[Templates, VHDL]", 1); // i:JTree (JViewport:JComponent, a:p)
+dismissDialog("Language Templates"); // a:p (cg:JFrame)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Project Manager, Settings]", 1, false); // u:M (JViewport:JComponent, cg:JFrame)
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// u:p (cg:JFrame): Settings: addNotify
+selectButton(PAResourceAtoD.CommonOptionsChooserPanel_SPECIFY_GENERICS_PARAMETERS, (String) null); // q:a (a:r, u:p)
+// b:p (u:p): Generics/Parameters: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a:JButton (JPanel:JComponent, b:p)
+dismissDialog("Generics/Parameters"); // b:p (u:p)
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a:JButton (JPanel:JComponent, u:p)
+dismissDialog("Settings"); // u:p (cg:JFrame)
+selectCodeEditor("Decoder.vhd", 193, 186); // bI:J (JPanel:JComponent, cg:JFrame)
+// [GUI Memory]: 156 MB (+4116kb) [07:59:51]
+// Elapsed time: 106 seconds
+selectCodeEditor("Decoder.vhd", 142, 128); // bI:J (JPanel:JComponent, cg:JFrame)
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "test_decoder.vhd", 1); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+selectCodeEditor("test_decoder.vhd", 241, 76); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 26 seconds
+selectCodeEditor("test_decoder.vhd", 161, 41); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 707 seconds
+selectCodeEditor("test_decoder.vhd", 279, 102); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Decoder.vhd", 0); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+// Elapsed time: 88 seconds
+selectCodeEditor("Decoder.vhd", 223, 61); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 14 seconds
+selectCodeEditor("Decoder.vhd", 202, 127); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 204, 196); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 202, 162); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 205, 158); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectCodeEditor("Decoder.vhd", 94, 80); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// [GUI Memory]: 164 MB (+19kb) [08:16:21]
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 24 seconds
+selectCodeEditor("Decoder.vhd", 291, 213); // bI:J (JPanel:JComponent, cg:JFrame)

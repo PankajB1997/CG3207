@@ -156,7 +156,8 @@ begin
                         if Funct(0)='1' then
                             FlagWInternal <= "11";
                         -- ALU flags should not be saved
-                        else FlagWInternal <= "00";
+                        else 
+                            FlagWInternal <= "00";
                         end if;
                     -- SUB Instruction
                     when "0010" =>
@@ -166,7 +167,8 @@ begin
                         if Funct(0)='1' then
                             FlagWInternal <= "11";
                         -- ALU flags should not be saved                            
-                        else FlagWInternal <= "00";
+                        else 
+                            FlagWInternal <= "00";
                         end if;
                     -- AND Instruction
                     when "0000" =>
@@ -176,7 +178,8 @@ begin
                         if Funct(0)='1' then
                             FlagWInternal <= "10";
                         -- ALU flags should not be saved
-                        else FlagWInternal <= "00";
+                        else 
+                            FlagWInternal <= "00";
                         end if;
                     -- ORR Instruction
                     when "1100" =>
@@ -186,7 +189,8 @@ begin
                         if Funct(0)='1' then
                             FlagWInternal <= "10";
                         -- ALU flags should not be saved
-                        else FlagWInternal <= "00";
+                        else 
+                            FlagWInternal <= "00";
                         end if;
                     when others => 
                         PCS <= '-';
@@ -214,7 +218,8 @@ begin
     pc_logic: process (Rd) begin
         if Rd = "1111" then
             RdEquals15 <= '1';
-        else RdEquals15 <= '0';
+        else 
+            RdEquals15 <= '0';
         end if;
         PCS <= ((RdEquals15 and RegWInternal) or Branch) and (not IllegalInstruction);
     end process;
