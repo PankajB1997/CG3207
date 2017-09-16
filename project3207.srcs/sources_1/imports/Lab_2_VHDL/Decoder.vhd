@@ -55,7 +55,8 @@ architecture Decoder_arch of Decoder is
 	signal Branch 			: std_logic;
 begin
 
-	process (Op, Funct(5), Funct(0)) begin
+	process (Op, Funct) begin
+	
         -- logic for Main Decoder
         case Op is
            when "10" => 
@@ -108,9 +109,40 @@ begin
         end case;
     
         -- logic for ALU Decoder
-    
-    
+        case ALUOp is 
+            when '0' =>
+                ALUControl <= "00";
+                FlagW <= "00";
+            when '1' =>
+                case Funct (4 downto 1) is
+                    when "0100" =>
+                        ALUControl <= "00";
+                        if Funct(0)='1' then
+                            FlagW <= "11";
+                        else FlagW <= "00";
+                        end if;
+                    when "0010" =>
+                        ALUControl <= "01";
+                        if Funct(0)='1' then
+                            FlagW <= "11";
+                        else FlagW <= "00";
+                        end if;
+                    when "0000" =>
+                        ALUControl <= "10";
+                        if Funct(0)='1' then
+                            FlagW <= "10";
+                        else FlagW <= "00";
+                        end if;
+                    when "1100" =>
+                        ALUControl <= "11";
+                        if Funct(0)='1' then
+                            FlagW <= "10";
+                        else FlagW <= "00";
+                        end if;
+                end case;
+        end case;    
+        
         -- logic for PC logic
-
+        
     end process;
 end Decoder_arch;

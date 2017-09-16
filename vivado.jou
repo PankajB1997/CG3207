@@ -12,3 +12,7 @@
 start_gui
 open_project C:/Users/pankaj/Documents/cg3207/project3207.xpr
 update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
