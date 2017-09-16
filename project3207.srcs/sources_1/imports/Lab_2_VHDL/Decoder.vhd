@@ -61,6 +61,7 @@ begin
 	
         -- logic for Main Decoder
         case Op is
+           -- if Branch instruction
            when "10" => 
                Branch <= '1';
                MemtoReg <= '0';
@@ -71,7 +72,9 @@ begin
                RegW_Result <= '0';
                RegSrc(0) <= '1';
                ALUOp <= '0';
+           -- if Memory Instruction
            when "01" => 
+               -- if STR
                if Funct(0) = '0' then
                    Branch <= '0';
                    MemW <= '1';
@@ -81,6 +84,7 @@ begin
                    RegW_Result <= '0';
                    RegSrc <= "10";
                    ALUOp <= '0';
+               -- else if LDR
                else
                    Branch <= '0';
                    MemtoReg <= '1';
@@ -92,7 +96,9 @@ begin
                    RegSrc(0) <= '0';
                    ALUOp <= '0';
                end if;
+           -- if Data Processing Instruction
            when "00" => 
+               -- if DP Reg
                if Funct(5) = '0' then
                    Branch <= '0';
                    MemtoReg <= '0';
@@ -102,6 +108,7 @@ begin
                    RegW_Result <= '1';
                    RegSrc <= "00";
                    ALUOp <= '1';
+               -- else if DP Imm
                else
                    Branch <= '0';
                    MemtoReg <= '0';
@@ -118,33 +125,47 @@ begin
     
         -- logic for ALU Decoder
         case ALUOp is 
+            -- if not a DP Instruction
             when '0' =>
                 ALUControl <= "00";
                 FlagW <= "00";
+            -- if DP Instruction
             when '1' =>
                 case Funct (4 downto 1) is
+                    -- if ADD Instruction
                     when "0100" =>
                         ALUControl <= "00";
+                        -- if ALU flags should be saved
                         if Funct(0)='1' then
                             FlagW <= "11";
+                        -- else if ALU flags should not be saved
                         else FlagW <= "00";
                         end if;
+                    -- if SUB Instruction
                     when "0010" =>
                         ALUControl <= "01";
+                        -- if ALU flags should be saved
                         if Funct(0)='1' then
                             FlagW <= "11";
+                        -- else if ALU flags should not be saved                            
                         else FlagW <= "00";
                         end if;
+                    -- if AND Instruction
                     when "0000" =>
                         ALUControl <= "10";
+                        -- if ALU flags should be saved
                         if Funct(0)='1' then
                             FlagW <= "10";
+                        -- else if ALU flags should not be saved
                         else FlagW <= "00";
                         end if;
+                    -- if ORR Instruction
                     when "1100" =>
                         ALUControl <= "11";
+                        -- if ALU flags should be saved
                         if Funct(0)='1' then
                             FlagW <= "10";
+                        -- else if ALU flags should not be saved
                         else FlagW <= "00";
                         end if;
                     when others => null;

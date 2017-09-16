@@ -589,3 +589,131 @@ selectCodeEditor("Decoder.vhd", 30, 250); // bI:J (JPanel:JComponent, cg:JFrame)
 // TclEventType: FILE_SET_CHANGE
 // TclEventType: DG_ANALYSIS_MSG_RESET
 // TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 198 seconds
+selectCodeEditor("Decoder.vhd", 310, 202); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 33 seconds
+selectCodeEditor("Decoder.vhd", 134, 266); // bI:J (JPanel:JComponent, cg:JFrame)
+closeView(PAResourceOtoP.PAViews_PROJECT_SUMMARY, "Project Summary"); // y:aJ
+selectCodeEditor("Decoder.vhd", 141, 236); // bI:J (JPanel:JComponent, cg:JFrame)
+// [GUI Memory]: 131 MB (+1315kb) [01:02:44]
+selectCodeEditor("Decoder.vhd", 125, 248); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 603 MB. GUI used memory: 52 MB. Current time: 9/16/17 12:13:49 PM SGT
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking too long to process. Increasing delay to 3000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 603 MB. GUI used memory: 37 MB. Current time: 9/16/17 12:43:50 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 603 MB. GUI used memory: 36 MB. Current time: 9/16/17 1:13:50 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 603 MB. GUI used memory: 37 MB. Current time: 9/16/17 1:43:50 PM SGT
+// Elapsed time: 7306 seconds
+selectCodeEditor("Decoder.vhd", 178, 227); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 24 seconds
+selectCodeEditor("Decoder.vhd", 48, 154); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 215, 166); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 57, 127); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 38 seconds
+selectCodeEditor("Decoder.vhd", 246, 227); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 110, 178); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 54 seconds
+selectCodeEditor("Decoder.vhd", 134, 145); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 13 seconds
+selectCodeEditor("Decoder.vhd", 84, 166); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 21 seconds
+selectCodeEditor("Decoder.vhd", 122, 166); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 119, 161); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 202, 208); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 14 seconds
+selectCodeEditor("Decoder.vhd", 170, 231); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 125, 45); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 178, 127); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectCodeEditor("Decoder.vhd", 186, 145); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 603 MB. GUI used memory: 43 MB. Current time: 9/16/17 2:13:51 PM SGT
+selectCodeEditor("Decoder.vhd", 216, 158); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 211, 130); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 13 seconds
+selectCodeEditor("Decoder.vhd", 152, 134); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 13 seconds
+selectCodeEditor("Decoder.vhd", 215, 194); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 15 seconds
+selectCodeEditor("Decoder.vhd", 142, 79); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 231, 126); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 209, 154); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectCodeEditor("Decoder.vhd", 257, 97); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 174, 78); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 24 seconds
+selectCodeEditor("Decoder.vhd", 254, 60); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 11 seconds
+selectCodeEditor("Decoder.vhd", 249, 126); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 249, 126); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 21 seconds
+selectCodeEditor("Decoder.vhd", 186, 77); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 176, 77); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 15 seconds
+selectCodeEditor("Decoder.vhd", 236, 247); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 13 seconds
+selectCodeEditor("Decoder.vhd", 254, 238); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 166, 77); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 17 seconds
+selectCodeEditor("Decoder.vhd", 169, 94); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 103, 262); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 15 seconds
+selectCodeEditor("Decoder.vhd", 248, 240); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 11 seconds
+selectCodeEditor("Decoder.vhd", 311, 127); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 28 seconds
+selectCodeEditor("Decoder.vhd", 142, 148); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 220, 182); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectCodeEditor("Decoder.vhd", 215, 195); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 226, 220); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 226, 230); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 245, 215); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+selectCodeEditor("Decoder.vhd", 238, 230); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 51 seconds
+selectCodeEditor("Decoder.vhd", 250, 142); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 30 seconds
+selectCodeEditor("Decoder.vhd", 307, 61); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 31 seconds
+typeControlKey((HResource) null, "Decoder.vhd", 'c'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey(null, null, 'z');
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'c'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 10 seconds
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 28 seconds
+selectCodeEditor("Decoder.vhd", 149, 215); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 163 seconds
+selectCodeEditor("Decoder.vhd", 164, 110); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 239 seconds
+selectCodeEditor("Decoder.vhd", 147, 266); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 381, 231); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 226, 192); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// HMemoryUtils.trashcanNow. Engine heap size: 621 MB. GUI used memory: 54 MB. Current time: 9/16/17 2:29:37 PM SGT
+// Elapsed time: 65 seconds
+selectCodeEditor("Decoder.vhd", 153, 214); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
