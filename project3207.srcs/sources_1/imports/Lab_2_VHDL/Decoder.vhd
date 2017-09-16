@@ -132,7 +132,7 @@ begin
                ImmSrc <= "--";
                RegSrc <= "--";
                NoWrite <= '-';
-               ALUControl  <= "--";
+               ALUControl <= "--";
                IllegalMainDecoder <= '1';
         end case;
     end process;
@@ -145,6 +145,7 @@ begin
                 ALUControl <= "00";
                 FlagWInternal <= "00";
                 IllegalALUDecoder <= '0';
+                NoWrite <= '0';
             -- DP Instruction
             when '1' =>
                 case Funct (4 downto 1) is
