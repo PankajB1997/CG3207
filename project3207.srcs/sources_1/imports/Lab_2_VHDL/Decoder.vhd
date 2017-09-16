@@ -34,30 +34,30 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity Decoder is port(
-			Rd			: in 	std_logic_vector(3 downto 0);
-			Op			: in 	std_logic_vector(1 downto 0);
-			Funct		: in 	std_logic_vector(5 downto 0);
-			PCS			: out	std_logic;
-			RegW		: out	std_logic;
-			MemW		: out	std_logic;
-			MemtoReg	: out	std_logic;
-			ALUSrc		: out	std_logic;
-			ImmSrc		: out	std_logic_vector(1 downto 0);
-			RegSrc		: out	std_logic_vector(1 downto 0);
-			NoWrite		: out	std_logic;
-			ALUControl	: out	std_logic_vector(1 downto 0);
-			FlagW		: out	std_logic_vector(1 downto 0)
-			);
+    Rd         : in 	std_logic_vector(3 downto 0);
+    Op         : in 	std_logic_vector(1 downto 0);
+    Funct      : in 	std_logic_vector(5 downto 0);
+    PCS        : out	std_logic;
+    RegW       : out	std_logic;
+    MemW       : out	std_logic;
+    MemtoReg   : out	std_logic;
+    ALUSrc     : out	std_logic;
+    ImmSrc     : out	std_logic_vector(1 downto 0);
+    RegSrc     : out	std_logic_vector(1 downto 0);
+    NoWrite    : out	std_logic;
+    ALUControl : out	std_logic_vector(1 downto 0);
+    FlagW      : out	std_logic_vector(1 downto 0)
+);
 end Decoder;
 
 architecture Decoder_arch of Decoder is
-	signal ALUOp 			: std_logic;
-	signal Branch 			: std_logic;
-	signal RegW_Result      : std_logic;
-	signal RdEquals15       : std_logic;
+    signal ALUOp 			: std_logic;
+    signal Branch 			: std_logic;
+    signal RegW_Result      : std_logic;
+    signal RdEquals15       : std_logic;
 begin
 
-	process (Op, Funct) begin
+    process (Op, Funct) begin
 	
         -- logic for Main Decoder
         case Op is
