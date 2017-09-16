@@ -2102,3 +2102,116 @@ selectCodeEditor("Decoder.vhd", 94, 80); // bI:J (JPanel:JComponent, cg:JFrame)
 // TclEventType: DG_GRAPH_GENERATED
 // Elapsed time: 24 seconds
 selectCodeEditor("Decoder.vhd", 291, 213); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 61 MB. Current time: 9/16/17 7:35:10 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 56 MB. Current time: 9/16/17 8:05:10 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 57 MB. Current time: 9/16/17 8:35:11 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 56 MB. Current time: 9/16/17 9:05:11 PM SGT
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 56 MB. Current time: 9/16/17 9:35:11 PM SGT
+// Elapsed time: 8939 seconds
+selectCodeEditor("Decoder.vhd", 98, 170); // bI:J (JPanel:JComponent, cg:JFrame)
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "test_decoder.vhd", 1); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+// Elapsed time: 223 seconds
+selectCodeEditor("test_decoder.vhd", 149, 216); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 136 seconds
+selectCodeEditor("test_decoder.vhd", 138, 162); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 354 seconds
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Decoder.vhd", 0); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 157, 194); // bI:J (JPanel:JComponent, cg:JFrame)
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "test_decoder.vhd", 1); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+// Elapsed time: 71 seconds
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Decoder.vhd", 0); // k:TdiGroup (j:CodeEditorDocumentPane, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 270, 215); // bI:J (JPanel:JComponent, cg:JFrame)
+// HMemoryUtils.trashcanNow. Engine heap size: 727 MB. GUI used memory: 59 MB. Current time: 9/16/17 10:05:11 PM SGT
+// Elapsed time: 145 seconds
+selectCodeEditor("Decoder.vhd", 262, 146); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 390, 158); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 375, 108); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 131 seconds
+selectCodeEditor("Decoder.vhd", 361, 106); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 24 seconds
+selectCodeEditor("Decoder.vhd", 170, 111); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 14 seconds
+selectCodeEditor("Decoder.vhd", 170, 111); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 285, 109); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'c'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 285, 109); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 24 seconds
+selectCodeEditor("Decoder.vhd", 262, 247); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 290, 40); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 273, 245); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 270, 231); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 17 seconds
+selectCodeEditor("Decoder.vhd", 360, 181); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 330, 215); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 12 seconds
+selectCodeEditor("Decoder.vhd", 251, 228); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 19 seconds
+selectCodeEditor("Decoder.vhd", 222, 264); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 194 seconds
+selectCodeEditor("Decoder.vhd", 171, 282); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 15 seconds
+selectCodeEditor("Decoder.vhd", 273, 280); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 16 seconds
+selectCodeEditor("Decoder.vhd", 171, 162); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 91 seconds
+selectCodeEditor("Decoder.vhd", 177, 60); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 54 seconds
+selectCodeEditor("Decoder.vhd", 290, 74); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 184, 58); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 19 seconds
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 26 seconds
+selectCodeEditor("Decoder.vhd", 171, 95); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'c'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 222, 58); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 519, 178); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 337, 83); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: update_compile_order -fileset sources_1 
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+selectCodeEditor("Decoder.vhd", 382, 194); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: update_compile_order -fileset sources_1 
+selectCodeEditor("Decoder.vhd", 364, 111); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+// Elapsed time: 16 seconds
+selectCodeEditor("Decoder.vhd", 231, 228); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'c'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 201, 45); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 179, 213); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 181, 48); // bI:J (JPanel:JComponent, cg:JFrame)
+typeControlKey((HResource) null, "Decoder.vhd", 'v'); // bI:J (JPanel:JComponent, cg:JFrame)
+selectCodeEditor("Decoder.vhd", 156, 79); // bI:J (JPanel:JComponent, cg:JFrame)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_GRAPH_GENERATED
+selectCodeEditor("Decoder.vhd", 202, 98); // bI:J (JPanel:JComponent, cg:JFrame)
+// Elapsed time: 16 seconds
+selectCodeEditor("Decoder.vhd", 186, 57); // bI:J (JPanel:JComponent, cg:JFrame)

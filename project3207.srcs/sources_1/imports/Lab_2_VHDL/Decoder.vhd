@@ -65,7 +65,7 @@ begin
     -- Logic for Main Decoder
     main_decoder: process (Op) begin    
         case Op is
-           -- Branch instruction
+           -- Branch Instruction
            when "10" => 
                Branch <= '1';
                MemtoReg <= '0';
@@ -78,7 +78,7 @@ begin
                IllegalMainDecoder <= '0';
            -- Memory Instruction
            when "01" => 
-               -- STR
+               -- STR Instruction
                if Funct(0) = '0' then
                    Branch <= '0';
                    MemWInternal <= '1';
@@ -88,7 +88,7 @@ begin
                    RegSrc <= "10";
                    ALUOp <= '0';
                    IllegalMainDecoder <= '0';
-               -- LDR
+               -- LDR Instruction
                else
                    Branch <= '0';
                    MemtoReg <= '1';
@@ -102,7 +102,7 @@ begin
                end if;
            -- Data Processing Instruction
            when "00" => 
-               -- DP Reg
+               -- DP Reg Instruction
                if Funct(5) = '0' then
                    Branch <= '0';
                    MemtoReg <= '0';
@@ -113,7 +113,7 @@ begin
                    RegSrc <= "00";
                    ALUOp <= '1';
                    IllegalMainDecoder <= '0';
-               -- DP Imm
+               -- DP Imm Instruction
                else
                    Branch <= '0';
                    MemtoReg <= '0';
@@ -150,6 +150,7 @@ begin
                 case Funct (4 downto 1) is
                     -- ADD Instruction
                     when "0100" =>
+                        NoWrite <= '0';
                         IllegalALUDecoder <= '0';
                         ALUControl <= "00";
                         -- ALU flags should be saved
@@ -161,6 +162,7 @@ begin
                         end if;
                     -- SUB Instruction
                     when "0010" =>
+                        NoWrite <= '0';
                         IllegalALUDecoder <= '0';
                         ALUControl <= "01";
                         -- ALU flags should be saved
@@ -172,6 +174,7 @@ begin
                         end if;
                     -- AND Instruction
                     when "0000" =>
+                        NoWrite <= '0';
                         IllegalALUDecoder <= '0';
                         ALUControl <= "10";
                         -- ALU flags should be saved
@@ -183,6 +186,7 @@ begin
                         end if;
                     -- ORR Instruction
                     when "1100" =>
+                        NoWrite <= '0';
                         IllegalALUDecoder <= '0';
                         ALUControl <= "11";
                         -- ALU flags should be saved
@@ -191,6 +195,22 @@ begin
                         -- ALU flags should not be saved
                         else 
                             FlagWInternal <= "00";
+                        end if;
+                    -- CMP Instruction
+                    when "1010" =>
+                        if Funct(0)='1' then
+                            NoWrite <= '1';
+                            ALUControl <= "01";
+                            FlagWInternal <= "11";
+                        else
+                            PCS <= '-';
+                            MemtoReg <= '-';
+                            ALUSrc <= '-';
+                            ImmSrc <= "--";
+                            RegSrc <= "--";
+                            NoWrite <= '-';
+                            ALUControl  <= "--";
+                            IllegalALUDecoder <= '1';
                         end if;
                     when others => 
                         PCS <= '-';
