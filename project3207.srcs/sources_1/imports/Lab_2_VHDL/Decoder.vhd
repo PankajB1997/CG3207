@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS	
+-- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date: 09/23/2015 06:49:10 PM
 -- Module Name: Decoder
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: Decoder Module
--- 
+--
 -- Dependencies: NIL
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -53,9 +53,64 @@ end Decoder;
 architecture Decoder_arch of Decoder is
 	signal ALUOp 			: std_logic;
 	signal Branch 			: std_logic;
-	--<extra signals, if any>
 begin
 
---<decoding logic here>
+	process (Op, Funct(5), Funct(0)) begin
+        -- logic for Main Decoder
+        case Op is
+           when "10" => 
+               Branch <= '1';
+               MemtoReg <= '0';
+               MemW <= '0';
+               ALUSrc <= '1';
+               ImmSrc <= "10";
+               RegW <= '0';
+               RegSrc(0) <= '1';
+               ALUOp <= '0';
+           when "01" => 
+               if Funct(0) = '0' then
+                   Branch <= '0';
+                   MemW <= '1';
+                   ALUSrc <= '1';
+                   ImmSrc <= "01";
+                   RegW <= '0';
+                   RegSrc <= "10";
+                   ALUOp <= '0';
+               else
+                   Branch <= '0';
+                   MemtoReg <= '1';
+                   MemW <= '0';
+                   ALUSrc <= '1';
+                   ImmSrc <= "01";
+                   RegW <= '1';
+                   RegSrc(0) <= '0';
+                   ALUOp <= '0';
+               end if;
+           when "00" => 
+               if Funct(5) = '0' then
+                   Branch <= '0';
+                   MemtoReg <= '0';
+                   MemW <= '0';
+                   ALUSrc <= '0';
+                   RegW <= '1';
+                   RegSrc <= "00";
+                   ALUOp <= '1';
+               else
+                   Branch <= '0';
+                   MemtoReg <= '0';
+                   MemW <= '0';
+                   ALUSrc <= '1';
+                   ImmSrc <= "00";
+                   RegW <= '1';
+                   RegSrc(0) <= '0';
+                   ALUOp <= '1';
+               end if;
+        end case;
+    
+        -- logic for ALU Decoder
+    
+    
+        -- logic for PC logic
 
+    end process;
 end Decoder_arch;
