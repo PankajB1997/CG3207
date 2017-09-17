@@ -2,31 +2,13 @@
 # Vivado v2017.2 (64-bit)
 # SW Build 1909853 on Thu Jun 15 18:39:09 MDT 2017
 # IP Build 1909766 on Thu Jun 15 19:58:00 MDT 2017
-# Start of session at: Sun Sep 17 16:51:03 2017
-# Process ID: 1788
-# Current directory: C:/Users/pankaj/Documents/cg3207
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent10668 C:\Users\pankaj\Documents\cg3207\project3207.xpr
-# Log file: C:/Users/pankaj/Documents/cg3207/vivado.log
-# Journal file: C:/Users/pankaj/Documents/cg3207\vivado.jou
+# Start of session at: Sun Sep 17 19:05:39 2017
+# Process ID: 15424
+# Current directory: C:/Users/pankaj/Documents/3207master
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent12552 C:\Users\pankaj\Documents\3207master\project3207.xpr
+# Log file: C:/Users/pankaj/Documents/3207master/vivado.log
+# Journal file: C:/Users/pankaj/Documents/3207master\vivado.jou
 #-----------------------------------------------------------
 start_gui
-open_project C:/Users/pankaj/Documents/cg3207/project3207.xpr
+open_project C:/Users/pankaj/Documents/3207master/project3207.xpr
 update_compile_order -fileset sources_1
-launch_simulation
-source test_decoder.tcl
-close_sim
-launch_simulation
-source test_decoder.tcl
-close_sim
-launch_simulation
-launch_simulation
-source test_decoder.tcl
-close_sim
-launch_simulation
-source test_decoder.tcl
-close_sim
-launch_simulation
-source test_decoder.tcl
-close_sim
-launch_simulation
-source test_decoder.tcl
