@@ -2,47 +2,23 @@
 # Vivado v2017.2 (64-bit)
 # SW Build 1909853 on Thu Jun 15 18:39:09 MDT 2017
 # IP Build 1909766 on Thu Jun 15 19:58:00 MDT 2017
-# Start of session at: Sat Sep 16 11:05:40 2017
-# Process ID: 12068
+# Start of session at: Sun Sep 17 16:51:03 2017
+# Process ID: 1788
 # Current directory: C:/Users/pankaj/Documents/cg3207
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent8348 C:\Users\pankaj\Documents\cg3207\project3207.xpr
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent10668 C:\Users\pankaj\Documents\cg3207\project3207.xpr
 # Log file: C:/Users/pankaj/Documents/cg3207/vivado.log
 # Journal file: C:/Users/pankaj/Documents/cg3207\vivado.jou
 #-----------------------------------------------------------
 start_gui
 open_project C:/Users/pankaj/Documents/cg3207/project3207.xpr
 update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-file mkdir C:/Users/pankaj/Documents/cg3207/project3207.srcs/sim_1/new
-set_property SOURCE_SET sources_1 [get_filesets sim_1]
-close [ open C:/Users/pankaj/Documents/cg3207/project3207.srcs/sim_1/new/test_decoder.vhd w ]
-add_files -fileset sim_1 C:/Users/pankaj/Documents/cg3207/project3207.srcs/sim_1/new/test_decoder.vhd
-update_compile_order -fileset sim_1
-# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
-set_property source_mgmt_mode None [current_project]
-set_property top test_decoder [get_filesets sim_1]
-set_property top_lib xil_defaultlib [get_filesets sim_1]
-# Re-enabling previously disabled source management mode.
-set_property source_mgmt_mode All [current_project]
-update_compile_order -fileset sim_1
-launch_simulation
-launch_simulation
-launch_runs synth_1 -jobs 2
-wait_on_run synth_1
-launch_simulation
-launch_simulation
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-update_compile_order -fileset sources_1
-launch_simulation
-launch_simulation
 launch_simulation
 source test_decoder.tcl
 close_sim
+launch_simulation
+source test_decoder.tcl
+close_sim
+launch_simulation
 launch_simulation
 source test_decoder.tcl
 close_sim

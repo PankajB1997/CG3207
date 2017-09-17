@@ -97,7 +97,6 @@ begin
         t_Rd <= "0000";
         t_Op <= "00";
         t_Funct <= "000000";
-        wait for 5 ns;
 
         -- Test case 1
         t_Op <= "10";
