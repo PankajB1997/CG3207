@@ -134,7 +134,7 @@ begin
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (Funct) begin
+    alu_decoder: process (ALUOp, Funct) begin
         case ALUOp is
             -- Not a DP Instruction
             when '0' =>
@@ -217,14 +217,14 @@ begin
     end process;
 
     -- PC Logic
-    pc_logic: process (Rd) begin
+     pc_logic: process (RdEquals15, RegWInternal, Branch, IllegalInstruction) begin
         if Rd = "1111" then
             RdEquals15 <= '1';
         else
             RdEquals15 <= '0';
         end if;
         PCS <= ((RdEquals15 and RegWInternal) or Branch) and (not IllegalInstruction);
-    end process;
+     end process;
 
     IllegalInstruction <= IllegalMainDecoder or IllegalALUDecoder;
 
