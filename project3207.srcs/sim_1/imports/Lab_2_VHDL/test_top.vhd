@@ -39,6 +39,9 @@ ARCHITECTURE behavior OF test_top IS
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT TOP
+    GENERIC(
+         CLK_DIV_BITS : integer
+        );
     PORT(
          DIP : IN  std_logic_vector(15 downto 0);
          PB : IN  std_logic_vector(3 downto 0);
@@ -70,7 +73,11 @@ ARCHITECTURE behavior OF test_top IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: TOP PORT MAP (
+   uut: TOP 
+        GENERIC MAP (
+          CLK_DIV_BITS => 1
+        )
+        PORT MAP (
           DIP => DIP,
           PB => PB,
           LED => LED,

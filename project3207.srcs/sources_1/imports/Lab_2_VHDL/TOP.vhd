@@ -35,6 +35,11 @@ use IEEE.STD_LOGIC_unsigned.ALL;
 entity TOP is
 		Generic 
 		(
+            -- 1 for a 50MHz clock.
+            -- 26 for ~1Hz clock.
+            -- Will synthesize with default value given here. A different value can be passed in for simulation.
+            -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
+		    constant CLK_DIV_BITS	: integer := 26;
 			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
 			-- LED(15-N_LEDs_OUT) showing the divided clock. 
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
@@ -64,10 +69,7 @@ architecture arch_TOP of TOP is
 
 ----------------------------------------------------------------
 -- Constants
-----------------------------------------------------------------
-constant CLK_DIV_BITS	: integer := 1; --26 for a clock of the order of 1Hz. >>>>>>>>>>>>>>>>>>>>>>>>>> Important : Use 1 for simulation and 26 for synthesis. <<<<<<<<<<<<<<<<<<<<<<<<<<<<
--- 1 for a 50MHz clock.
--- See the notes in CLK_DIV_PROCESS for SIMULATION or for obtaining a 100MHz clock frequency, 
+---------------------------------------------------------------- 
 
 ----------------------------------------------------------------
 -- ARM component declaration
