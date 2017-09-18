@@ -51,10 +51,9 @@ end CondLogic;
 architecture CondLogic_arch of CondLogic is
 	signal CondEx		: std_logic;
 	signal N, Z, C, V	: std_logic := '0';
-	--<extra signals, if any>
+	signal FlagWrite    : std_logic_vector(1 downto 0);
 begin
 	
-	--<additional logic here>
 	with Cond select CondEx <= 	Z						when "0000",	-- EQ
 								not Z					when "0001",	-- NE
 								C						when "0010",	-- CS / HS
@@ -71,5 +70,31 @@ begin
 								Z or (N xor V)			when "1101",	-- LE
 								'1'						when "1110",	-- AL
 								'-'						when others;	-- unpredictable
-								
+	
+	-- Outputs
+	PCSrc <= PCS and CondEx;
+	RegWrite <= RegW and CondEx and (not NoWrite);
+	MemWrite <= MemW and CondEx;
+	
+	-- Flag write logic
+	FlagWrite <= FlagW when CondEx = '1' else "00";
+	
+	flag_write: process (CLK) begin
+	   if CLK'event and CLK = '1' then
+	       -- Flags are ordered as NZCV
+	       
+	       -- Write to C and V
+	       if FlagWrite(0) = '1' then
+	           V <= ALUFlags(0);
+	           C <= ALUFlags(1);
+	       end if;
+	       
+	       -- Write to N and Z
+	       if FlagWrite(1) = '1' then
+	           Z <= ALUFlags(2);
+	           V <= ALUFlags(3);
+	       end if;
+	   end if;
+	end process;
+
 end CondLogic_arch;
