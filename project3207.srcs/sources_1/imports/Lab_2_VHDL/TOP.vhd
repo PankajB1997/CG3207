@@ -35,6 +35,11 @@ use IEEE.STD_LOGIC_unsigned.ALL;
 entity TOP is
 		Generic 
 		(
+            -- 1 for a 50MHz clock.
+            -- 26 for ~1Hz clock.
+            -- Will synthesize with default value given here. A different value can be passed in for simulation.
+            -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
+		    constant CLK_DIV_BITS	: integer := 26;
 			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
 			-- LED(15-N_LEDs_OUT) showing the divided clock. 
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
@@ -64,10 +69,7 @@ architecture arch_TOP of TOP is
 
 ----------------------------------------------------------------
 -- Constants
-----------------------------------------------------------------
-constant CLK_DIV_BITS	: integer := 1; --26 for a clock of the order of 1Hz. >>>>>>>>>>>>>>>>>>>>>>>>>> Important : Use 1 for simulation and 26 for synthesis. <<<<<<<<<<<<<<<<<<<<<<<<<<<<
--- 1 for a 50MHz clock.
--- See the notes in CLK_DIV_PROCESS for SIMULATION or for obtaining a 100MHz clock frequency, 
+---------------------------------------------------------------- 
 
 ----------------------------------------------------------------
 -- ARM component declaration
@@ -88,7 +90,7 @@ end component ARM;
 ----------------------------------------------------------------
 -- ARM signals
 ----------------------------------------------------------------
-signal PC 	             : STD_LOGIC_VECTOR (31 downto 0);
+signal PC 	            : STD_LOGIC_VECTOR (31 downto 0);
 signal Instr 			: STD_LOGIC_VECTOR (31 downto 0);
 signal ReadData			: STD_LOGIC_VECTOR (31 downto 0);
 signal ALUResult		: STD_LOGIC_VECTOR (31 downto 0);
@@ -249,11 +251,11 @@ dec_CONSOLE	    <= '1' 	when ALUResult=x"00000C0C" else '0';
 ----------------------------------------------------------------
 -- Data memory read
 ----------------------------------------------------------------
-ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1' 
-                else (31-N_PBs downto 0 => '0') & PB						    when dec_PB = '1' 
-				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	when dec_DATA_VAR = '1'
-				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2)))when dec_DATA_CONST = '1'
-				else x"000000" & CONSOLE_IN 							when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
+ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						 when dec_DIP = '1' 
+                else (31-N_PBs downto 0 => '0') & PB					 when dec_PB = '1' 
+				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	 when dec_DATA_VAR = '1'
+				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2))) when dec_DATA_CONST = '1'
+				else x"000000" & CONSOLE_IN 							 when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
 				else (others=>'-');
 				
 ----------------------------------------------------------------
@@ -288,10 +290,10 @@ if CLK_uart'event and CLK_uart = '1' then
 
    if RESET_EXT = '1' then
 		uart_data_in_stb        <= '0';
-      uart_data_out_ack       <= '0';
-      uart_data_in            <= (others => '0');
-		recv_state			  <= WAITING;
-		uart_data_out_stb_prev <= '0';
+		uart_data_out_ack       <= '0';
+		uart_data_in            <= (others => '0');
+		recv_state			    <= WAITING;
+		uart_data_out_stb_prev  <= '0';
    else
 		---------------------
 		-- Sending
@@ -340,7 +342,7 @@ begin
 	if CLK'event and CLK = '1' then
 		if RESET_EXT = '1' then
 			LED(15 downto 15-N_LEDs_OUT+1) <= (others=> '0');
-		elsif MemWrite = '1' and  dec_LED = '1' then
+		elsif MemWrite = '1' and dec_LED = '1' then
 			LED(15 downto 15-N_LEDs_OUT+1) <= WriteData(N_LEDs_OUT-1 downto 0);
 		end if;
 	end if;
