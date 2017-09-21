@@ -50,6 +50,7 @@ end CondLogic;
 
 architecture CondLogic_arch of CondLogic is
 	signal CondEx		: std_logic;
+	-- Flags are ordered as NZCV
 	signal N, Z, C, V	: std_logic := '0';
 	signal FlagWrite    : std_logic_vector(1 downto 0);
 begin
@@ -81,8 +82,6 @@ begin
 	
 	flag_write: process (CLK) begin
 	   if CLK'event and CLK = '1' then
-	       -- Flags are ordered as NZCV
-	       
 	       -- Write to C and V
 	       if FlagWrite(0) = '1' then
 	           V <= ALUFlags(0);
