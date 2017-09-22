@@ -91,7 +91,7 @@ begin
 	       -- Write to N and Z
 	       if FlagWrite(1) = '1' then
 	           Z <= ALUFlags(2);
-	           V <= ALUFlags(3);
+	           N <= ALUFlags(3);
 	       end if;
 	   end if;
 	end process;
