@@ -89,7 +89,7 @@ begin
                    ALUOp <= '0';
                    IllegalMainDecoder <= '0';
                -- LDR Instruction
-               else
+               elsif Funct(0) = '1' then
                    Branch <= '0';
                    MemtoReg <= '1';
                    MemWInternal <= '0';
@@ -113,7 +113,7 @@ begin
                    ALUOp <= '1';
                    IllegalMainDecoder <= '0';
                -- DP Imm Instruction
-               else
+               elsif Funct(5) = '1' then
                    Branch <= '0';
                    MemtoReg <= '0';
                    MemWInternal <= '0';

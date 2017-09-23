@@ -38,7 +38,7 @@ entity test_decoder is
 --  Port ( );
 end test_decoder;
 
-architecture decoder_test_behavioral of test_decoder is
+architecture test_decoder_behavioral of test_decoder is
 
     component Decoder is port(
         Rd         : in 	std_logic_vector(3 downto 0);
@@ -73,7 +73,8 @@ architecture decoder_test_behavioral of test_decoder is
 
 begin
 
-    test_decoder_module: Decoder port map (
+    test_decoder_module: Decoder 
+    port map (
         --Inputs
         Rd         => t_Rd,
         Op         => t_Op,
@@ -94,129 +95,35 @@ begin
     process begin
 
         -- Set initial values for inputs
-        t_Rd <= "0000";
-        t_Op <= "00";
-        t_Funct <= "000000";
+        t_Rd <= "0000"; t_Op <= "00"; t_Funct <= "000000";
+        wait for 5 ns;
 
-        -- Test case 1
+        -- Test case 1: Branch Instruction
         t_Op <= "10";
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='0' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="10" and t_RegSrc(0)='1' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 1" severity error;
 
-        -- Test case 2
+        -- Test case 2: Memory (STR) Instruction
         t_Op <= "01";
         t_Funct(0) <= '0';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='0' and t_MemW='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc="10" and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 2" severity error;
 
-        -- Test case 3
+        -- Test case 3: Memory (LDR) Instruction
         t_Op <= "01";
         t_Funct(0) <= '1';
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW = "00") report "Failed Decoder Test Case 3" severity error;
-
-        -- Test case 4
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 3" severity error;
+      
+        -- Test case 4: Memory (LDR) Instruction with Rd = 15
         t_Rd <= "1111";
         t_Op <= "01";
         t_Funct(0) <= '1';
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 4" severity error;
 
-        -- -- Test case 5
-        -- t_Op <= "00";
-        -- t_Funct(5) <= '0';
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 5" severity error;
-        --
-        -- -- Test case 6
-        -- t_ALUOp <= '0';
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 6" severity error;
-        --
-        -- -- Test case 7
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "01000";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 7" severity error;
-        --
-        -- -- Test case 8
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "01001";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 8" severity error;
-        --
-        -- -- Test case 9
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "00100";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 9" severity error;
-        --
-        -- -- Test case 10
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "00101";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 10" severity error;
-        --
-        -- -- Test case 11
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "00000";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 11" severity error;
-        --
-        -- -- Test case 12
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "00001";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 12" severity error;
-        --
-        -- -- Test case 13
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "11000";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 13" severity error;
-        --
-        -- -- Test case 14
-        -- t_ALUOp <= '1';
-        -- t_Funct(4 downto 0) <= "11001";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 14" severity error;
-        --
-        -- -- Test case 15
-        -- t_Op <= "10";
-        -- wait for 1 ns;
-        -- assert () report "Failed Decoder Test Case 15" severity error;
-        --
-        -- t_Op <= "01";
-        --
-        -- -- Test case 16
-        -- t_Rd <= "1111";
-        -- t_RegW <= '0';
-        -- assert () report "Failed Decoder Test Case 16" severity error;
-        --
-        -- -- Test case 17
-        -- t_Rd <= "1111";
-        -- t_RegW <= '1';
-        -- assert () report "Failed Decoder Test Case 17" severity error;
-        --
-        -- -- Test case 18
-        -- t_Rd <= "1101";
-        -- t_RegW <= '1';
-        -- assert () report "Failed Decoder Test Case 18" severity error;
-        --
-        -- t_Op <= "10";
-        --
-        -- -- Test case 19
-        -- t_Rd <= "1101";
-        -- t_RegW <= '1';
-        -- assert () report "Failed Decoder Test Case 19" severity error;
-        --
-        -- -- Test case 20
-        -- t_Rd <= "1111";
-        -- t_RegW <= '1';
-        -- assert () report "Failed Decoder Test Case 20" severity error;
-
         wait;
 
     end process;
 
-end decoder_test_behavioral;
+end test_decoder_behavioral;
