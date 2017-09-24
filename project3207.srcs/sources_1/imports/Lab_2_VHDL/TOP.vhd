@@ -90,7 +90,7 @@ end component ARM;
 ----------------------------------------------------------------
 -- ARM signals
 ----------------------------------------------------------------
-signal PC 	            : STD_LOGIC_VECTOR (31 downto 0);
+signal PC 	             : STD_LOGIC_VECTOR (31 downto 0);
 signal Instr 			: STD_LOGIC_VECTOR (31 downto 0);
 signal ReadData			: STD_LOGIC_VECTOR (31 downto 0);
 signal ALUResult		: STD_LOGIC_VECTOR (31 downto 0);
@@ -251,11 +251,11 @@ dec_CONSOLE	    <= '1' 	when ALUResult=x"00000C0C" else '0';
 ----------------------------------------------------------------
 -- Data memory read
 ----------------------------------------------------------------
-ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						 when dec_DIP = '1' 
-                else (31-N_PBs downto 0 => '0') & PB					 when dec_PB = '1' 
-				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	 when dec_DATA_VAR = '1'
-				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2))) when dec_DATA_CONST = '1'
-				else x"000000" & CONSOLE_IN 							 when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
+ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1' 
+                else (31-N_PBs downto 0 => '0') & PB						    when dec_PB = '1' 
+				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	when dec_DATA_VAR = '1'
+				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2)))when dec_DATA_CONST = '1'
+				else x"000000" & CONSOLE_IN 							when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
 				else (others=>'-');
 				
 ----------------------------------------------------------------
@@ -290,10 +290,10 @@ if CLK_uart'event and CLK_uart = '1' then
 
    if RESET_EXT = '1' then
 		uart_data_in_stb        <= '0';
-		uart_data_out_ack       <= '0';
-		uart_data_in            <= (others => '0');
-		recv_state			    <= WAITING;
-		uart_data_out_stb_prev  <= '0';
+      uart_data_out_ack       <= '0';
+      uart_data_in            <= (others => '0');
+		recv_state			  <= WAITING;
+		uart_data_out_stb_prev <= '0';
    else
 		---------------------
 		-- Sending
@@ -342,7 +342,7 @@ begin
 	if CLK'event and CLK = '1' then
 		if RESET_EXT = '1' then
 			LED(15 downto 15-N_LEDs_OUT+1) <= (others=> '0');
-		elsif MemWrite = '1' and dec_LED = '1' then
+		elsif MemWrite = '1' and  dec_LED = '1' then
 			LED(15 downto 15-N_LEDs_OUT+1) <= WriteData(N_LEDs_OUT-1 downto 0);
 		end if;
 	end if;

@@ -35,15 +35,15 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity Extend is port(
 			ImmSrc		: in	std_logic_vector(1 downto 0);
-			InstrImm    : in	std_logic_vector(23 downto 0);
+			InstrImm		: in	std_logic_vector(23 downto 0);
 			ExtImm		: out	std_logic_vector(31 downto 0)
 			);
 end Extend;
 
 architecture Extend_arch of Extend is
 begin
-	with ImmSrc select ExtImm <=	(23 downto 0 => '0') & InstrImm(7 downto 0)				    when "00", -- DP Instructions
+	with ImmSrc select ExtImm <=	(23 downto 0 => '0') & InstrImm(7 downto 0)				when "00", -- DP Instructions
 									(19 downto 0 => '0') & InstrImm(11 downto 0)				when "01", -- LDR/STR. Did I mention sign extend for negative offsets in the class?
 									(5 downto 0 => InstrImm(23)) & InstrImm(23 downto 0) & "00"	when "10", -- B
-									(others => '-')											    when others;
+									(others => '-')											when others;
 end Extend_arch;
