@@ -216,11 +216,11 @@ PC <= PC_sig;
 
 -- Reg file inputs
 A1 <= x"F" when RegSrc(0) = '1' else Instr(19 downto 16);
-A2 <= Instr(15 downto 12) when RegSrc(0) = '1' else Instr(3 downto 0);
+A2 <= Instr(15 downto 12) when RegSrc(1) = '1' else Instr(3 downto 0);
 A3 <= Instr(15 downto 12);
 WD3 <= Result;
 R15 <= PCPlus8;
--- RegWrite connected already
+WE3 <= RegW;
 
 -- Extend inputs
 InstrImm <= Instr(23 downto 0);
@@ -234,13 +234,13 @@ Src_B <= ExtImm when ALUSrc = '1' else RD2;
 -- Data Memory inputs
 ALUResult <= ALUResult_sig;
 WriteData <= RD2;
-MemWrite <= MemW;
+-- MemW connected already
 
 -- Data Memory outputs
 Result <= ReadData when MemToReg = '1' else ALUResult_sig;
 
 -- Decoder inputs
-Op <= Instr(26 downto 26);
+Op <= Instr(27 downto 26);
 Funct <= Instr(25 downto 20);
 Rd <= Instr(15 downto 12);
 

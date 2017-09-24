@@ -41,15 +41,15 @@ begin
     test_arm_module : ARM
     port map (
         -- Inputs
-        CLK       => CLK,
-        RESET     => RESET,
-        Instr     => Instr,
-        ReadData  => ReadData,
+        CLK       => t_CLK,
+        RESET     => t_RESET,
+        Instr     => t_Instr,
+        ReadData  => t_ReadData,
         -- Output
-        MemWrite  => MemWrite,
-        PC        => PC,
-        ALUResult => ALUResult,
-        WriteData => WriteData
+        MemWrite  => t_MemWrite,
+        PC        => t_PC,
+        ALUResult => t_ALUResult,
+        WriteData => t_WriteData
     );
     
     clk_process: process begin
@@ -61,16 +61,98 @@ begin
     
     stim_proc: process begin
         -- Set initial value for inputs.
-        t_RESET <= '0';
-        t_Instr <= (others => '0');
-        t_ReadData <= (others => '0');
+        t_RESET <= '0'; t_Instr <= (others => '0'); t_ReadData <= (others => '0');
         
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
         -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is
         -- since some of the tests will be using the clock.
         wait for ClkPeriod / 2;
         
-        -- Test case 1: 
+        -- Before time = ClkPeriod, some signals may be U or X. That is expected, as the processor is only reset
+        -- at the first clock edge, and this is when the PC is set to 0. Before this, PC is indeterminate.
+        
+        -- RESET = 1 to set PC to 0.
+        t_RESET <= '1';
+        wait for ClkPeriod;
+        
+        -- Test case 1: Check that PC starts off as 0
+        assert (t_PC = x"00000000") report "Failed ARM Test Case 1" severity error;
+        t_RESET <= '0';
+        
+        -- Test case 2: Load 3 into register - LDR R0, [R15]
+        -- R15 is used as the base register since it's the only register with a determined value.
+        -- The rest of the registers are uninitialized. The value of R15 doesn't actually matter
+        -- here since the value read from memory is supplied as an input. ALUResult will be the
+        -- value of R15, which is PC + 8.
+        -- PC will still be 0 as clock edge not yet reached.
+        t_Instr <= x"E" & "01" & "011001" & x"F" & x"0" & x"000";
+        t_ReadData <= x"00000003";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 2.1" severity error;
+        wait for ClkPeriod * 9 / 10;
+        -- PC should have incremented at clock edge.
+        assert (t_PC = x"00000004") report "Failed ARM Test Case 2.2" severity error;
+        
+        -- Test Case 3: Add register with immediate - ADD R1, R0, #5
+        t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
+        -- Also tests immediate offset in STR.
+        -- Flags should all start off as 0, so EQ will fail
+        -- ALUResult should be R1 + 12 = 20 = 0x14
+        t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00c";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 4" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+        
+        -- Test Case 5: AND two registers and update flags: ANDS R15, R1, R0
+        -- ALUResult = 3 & 8 = 0
+        -- R15 is being written into, so PC should update to 0
+        t_Instr <= x"E" & "00" & "0" & x"0" & "1" & x"1" & x"F" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 5.1" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+        assert (t_PC = x"00000000") report "Failed ARM Test Case 5.2" severity error;
+
+        -- Test Case 6: Same store operation as above but happens this time - STREQ R0, [R1, #12]
+        -- Also tests immediate offset in STR.
+        -- Z should be 1 after previous instruction, so EQ will pass
+        -- ALUResult should be R1 + 12 = 20 = 0x14
+        t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00c";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 6" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test case 7: Branch instruction - B LABEL
+        -- LABEL is specified relative to PC, here PC is forced to move forward 5 instructions.
+        -- To do so, offset must be 3, since it is taken relative to PC + 8
+        -- PC was 4 after previous instruction. So new value will be 4 + 20 = 0x18
+        t_Instr <= x"E" & "10" & "10" & x"000003";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000018") report "Failed ARM Test Case 7.1" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+        assert (t_PC = x"00000018") report "Failed ARM Test Case 7.2" severity error;
+        
+        -- Test case 8: Branch instruction with negative offset - B LABEL
+        -- This time offset will be -4, to send the PC back 2 instructions.
+        -- New value of PC will be 24 - 8 = 0x10
+        t_Instr <= x"E" & "10" & "10" & x"FFFFFC";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000010") report "Failed ARM Test Case 8.1" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+        assert (t_PC = x"00000010") report "Failed ARM Test Case 8.2" severity error;
+        
+        wait;
+        
     end process;
 
 end test_arm_behavioral;
