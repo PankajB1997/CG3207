@@ -1,17 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity test_condlogic is
---  Port ( );
+-- Port ( );
 end test_condlogic;
 
 architecture test_condlogic_behavioral of test_condlogic is
@@ -63,20 +54,14 @@ begin
 
     clk_process: process begin
         t_CLK <= '1';
-        wait for ClkPeriod / 2;  --for 0.5 ns signal is '1'.
+        wait for ClkPeriod / 2;  -- for 0.5 ns signal is '1'.
         t_CLK <= '0';
-        wait for ClkPeriod / 2;  --for next 0.5 ns signal is '0'.
+        wait for ClkPeriod / 2;  -- for next 0.5 ns signal is '0'.
     end process;
 
     stim_proc: process begin
         -- Set initial value for inputs.
-        t_PCS <= '0';
-        t_RegW <= '0';
-        t_NoWrite <= '0';
-        t_MemW <= '0';
-        t_FlagW <= "00";
-        t_Cond <= "0000";
-        t_ALUFlags <= "0000";
+        t_PCS <= '0'; t_RegW <= '0'; t_NoWrite <= '0'; t_MemW <= '0'; t_FlagW <= (others => '0'); t_Cond <= (others => '0'); t_ALUFlags <= (others => '0');
 
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
         -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is

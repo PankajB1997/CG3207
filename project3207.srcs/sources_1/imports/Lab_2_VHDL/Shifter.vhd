@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS	
+-- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date: 09/23/2015 06:49:10 PM
 -- Module Name: Shifter
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: Shifter Module
--- 
+--
 -- Dependencies: NIL
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -34,10 +34,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity Shifter is port(
-			Sh			: in	std_logic_vector(1 downto 0); 
-			Shamt5		: in	std_logic_vector(4 downto 0);
+			Sh			: in	std_logic_vector(1 downto 0);
+			Shamt5	: in	std_logic_vector(4 downto 0);
 			ShIn		: in	std_logic_vector(31 downto 0);
-			ShOut		: out	std_logic_vector(31 downto 0)		
+			ShOut		: out	std_logic_vector(31 downto 0)
 			);
 end Shifter;
 
@@ -53,10 +53,10 @@ begin
 					when "00" => ShTemp := ShTemp(31-2**i downto 0) & (2**i-1 downto 0 => '0'); 	-- LSL
 					when "01" => ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i); 		-- LSR
 					when "10" => ShTemp := (2**i-1 downto 0 => ShIn(31)) & ShTemp(31 downto 2**i); 	-- ASR
-					when others => ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i); 		-- ROR 
+					when others => ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i); 		-- ROR
 				end case;
 			end if;
-		end loop;	
+		end loop;
 		ShOut <= ShTemp;
 	end process;
 end	Shifter_arch;
