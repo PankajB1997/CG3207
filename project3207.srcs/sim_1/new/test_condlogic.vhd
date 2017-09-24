@@ -61,7 +61,8 @@ begin
     end process;
 
     stim_proc: process begin
-        -- Set initial value for inputs.
+
+        -- Set initial values for inputs
         t_PCS <= '0'; t_RegW <= '0'; t_NoWrite <= '0'; t_MemW <= '0'; t_FlagW <= (others => '0'); t_Cond <= (others => '0'); t_ALUFlags <= (others => '0');
 
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
@@ -159,6 +160,7 @@ begin
         wait for ClkPeriod * 9 / 10;
 
         wait;
+        
     end process;
 
 end test_condlogic_behavioral;
