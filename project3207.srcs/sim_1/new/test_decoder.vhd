@@ -113,7 +113,7 @@ begin
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 3" severity error;
 
-        -- Test case 4: Memory (LDR) Instruction with Rd = 15
+        -- Test case 4: Memory Instruction with Rd = 15
         t_Rd <= "1111"; t_Op <= "01"; t_Funct(0) <= '1';
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 4" severity error;
@@ -203,10 +203,20 @@ begin
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="00" and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 21" severity error;
 
-        --Test case 22: DP Imm (CMP) Instruction
+        -- Test case 22: DP Imm (CMP) Instruction
         t_Rd <= "0110"; t_Op <= "00"; t_Funct <= "110101";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="00" and t_RegSrc(0)='0' and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 22" severity error;
+
+        -- Test case 23: DP Reg Instruction with Rd = 15
+        t_Rd <= "1111"; t_Op <= "00"; t_Funct <= "010101";
+        wait for 5 ns;
+        assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="00" and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 23" severity error;
+
+        -- Test case 24: DP Imm Instruction with Rd = 15
+        t_Rd <= "1111"; t_Op <= "00"; t_Funct <= "110101";
+        wait for 5 ns;
+        assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="00" and t_RegSrc(0)='0' and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 24" severity error;
 
         wait;
 
