@@ -75,11 +75,11 @@ begin
 
     test_decoder_module: Decoder
     port map (
-        --Inputs
+        -- Inputs
         Rd         => t_Rd,
         Op         => t_Op,
         Funct      => t_Funct,
-        --Outputs
+        -- Outputs
         PCS        => t_PCS,
         RegW       => t_RegW,
         MemW       => t_MemW,
