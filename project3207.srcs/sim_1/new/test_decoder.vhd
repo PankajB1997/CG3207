@@ -8,7 +8,7 @@ end test_decoder;
 
 architecture test_decoder_behavioral of test_decoder is
 
-    component Decoder is port(
+    component Decoder is port (
         Rd         : in 	std_logic_vector(3 downto 0);
         Op         : in 	std_logic_vector(1 downto 0);
         Funct      : in 	std_logic_vector(5 downto 0);
@@ -60,7 +60,7 @@ begin
         FlagW      => t_FlagW
     );
 
-    process begin
+    stim_proc: process begin
 
         -- Set initial values for inputs
         t_Rd <= (others => '0'); t_Op <= (others => '0'); t_Funct <= (others => '0');

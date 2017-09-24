@@ -6,18 +6,19 @@ entity test_condlogic is
 end test_condlogic;
 
 architecture test_condlogic_behavioral of test_condlogic is
-    component CondLogic
-        port (CLK      : in std_logic;
-              PCS      : in std_logic;
-              RegW     : in std_logic;
-              NoWrite  : in std_logic;
-              MemW     : in std_logic;
-              FlagW    : in std_logic_vector (1 downto 0);
-              Cond     : in std_logic_vector (3 downto 0);
-              ALUFlags : in std_logic_vector (3 downto 0);
-              PCSrc    : out std_logic;
-              RegWrite : out std_logic;
-              MemWrite : out std_logic);
+
+    component CondLogic is port (
+        CLK      : in std_logic;
+        PCS      : in std_logic;
+        RegW     : in std_logic;
+        NoWrite  : in std_logic;
+        MemW     : in std_logic;
+        FlagW    : in std_logic_vector (1 downto 0);
+        Cond     : in std_logic_vector (3 downto 0);
+        ALUFlags : in std_logic_vector (3 downto 0);
+        PCSrc    : out std_logic;
+        RegWrite : out std_logic;
+        MemWrite : out std_logic);
     end component;
 
     signal t_CLK      : std_logic;

@@ -31,7 +31,7 @@ begin
         ShOut  => t_ShOut
     );
 
-    process begin
+    stim_proc: process begin
 
         -- Set initial values for inputs
         t_Sh <= (others => '0'); t_Shamt5 <= (others => '0'); t_ShIn <= (others => '0');
