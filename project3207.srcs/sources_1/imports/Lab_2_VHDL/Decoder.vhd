@@ -63,7 +63,7 @@ architecture Decoder_arch of Decoder is
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op) begin
+    main_decoder: process (Op, Funct) begin
         case Op is
            -- Branch Instruction
            when "10" =>
@@ -73,7 +73,7 @@ begin
                ALUSrc <= '1';
                ImmSrc <= "10";
                RegWInternal <= '0';
-               RegSrc(0) <= '1';
+               RegSrc <= "-1";
                ALUOp <= '0';
                IllegalMainDecoder <= '0';
            -- Memory Instruction
@@ -82,6 +82,7 @@ begin
                if Funct(0) = '0' then
                    Branch <= '0';
                    MemWInternal <= '1';
+                   MemtoReg <= '-';
                    ALUSrc <= '1';
                    ImmSrc <= "01";
                    RegWInternal <= '0';
@@ -89,14 +90,14 @@ begin
                    ALUOp <= '0';
                    IllegalMainDecoder <= '0';
                -- LDR Instruction
-               elsif Funct(0) = '1' then
+               else
                    Branch <= '0';
                    MemtoReg <= '1';
                    MemWInternal <= '0';
                    ALUSrc <= '1';
                    ImmSrc <= "01";
                    RegWInternal <= '1';
-                   RegSrc(0) <= '0';
+                   RegSrc <= "-0";
                    ALUOp <= '0';
                    IllegalMainDecoder <= '0';
                end if;
@@ -108,27 +109,32 @@ begin
                    MemtoReg <= '0';
                    MemWInternal <= '0';
                    ALUSrc <= '0';
+                   ImmSrc <= "--";
                    RegWInternal <= '1';
                    RegSrc <= "00";
                    ALUOp <= '1';
                    IllegalMainDecoder <= '0';
                -- DP Imm Instruction
-               elsif Funct(5) = '1' then
+               else
                    Branch <= '0';
                    MemtoReg <= '0';
                    MemWInternal <= '0';
                    ALUSrc <= '1';
                    ImmSrc <= "00";
                    RegWInternal <= '1';
-                   RegSrc(0) <= '0';
+                   RegSrc <= "-0";
                    ALUOp <= '1';
                    IllegalMainDecoder <= '0';
                end if;
            when others =>
+               Branch <= '-';
                MemtoReg <= '-';
+               MemWInternal <= '-';
                ALUSrc <= '-';
                ImmSrc <= "--";
+               RegWInternal <= '-';
                RegSrc <= "--";
+               ALUOp <= '-';
                IllegalMainDecoder <= '1';
         end case;
     end process;
@@ -199,25 +205,29 @@ begin
                             NoWrite <= '1';
                             ALUControl <= "01";
                             FlagWInternal <= "11";
+                            IllegalALUDecoder <= '0';
                         else
                             NoWrite <= '-';
                             ALUControl  <= "--";
+                            FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
                         end if;
                     when others =>
                         NoWrite <= '-';
                         ALUControl  <= "--";
+                        FlagWInternal <= "--";
                         IllegalALUDecoder <= '1';
                 end case;
             when others =>
                 NoWrite <= '-';
                 ALUControl  <= "--";
+                FlagWInternal <= "--";
                 IllegalALUDecoder <= '1';
         end case;
     end process;
 
     -- PC Logic
-     pc_logic: process (RdEquals15, RegWInternal, Branch, IllegalInstruction) begin
+     pc_logic: process (Rd, RdEquals15, RegWInternal, Branch, IllegalInstruction) begin
         if Rd = "1111" then
             RdEquals15 <= '1';
         else
