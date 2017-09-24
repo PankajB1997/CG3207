@@ -218,11 +218,6 @@ begin
                         FlagWInternal <= "--";
                         IllegalALUDecoder <= '1';
                 end case;
-            when others =>
-                NoWrite <= '-';
-                ALUControl  <= "--";
-                FlagWInternal <= "--";
-                IllegalALUDecoder <= '1';
         end case;
     end process;
 
