@@ -1,24 +1,3 @@
-----------------------------------------------------------------------------------
--- Company:
--- Engineer:
---
--- Create Date: 21.09.2017 15:26:56
--- Design Name:
--- Module Name: test_condlogic - Behavioral
--- Project Name:
--- Target Devices:
--- Tool Versions:
--- Description:
---
--- Dependencies:
---
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -65,7 +44,7 @@ architecture test_condlogic_behavioral of test_condlogic is
     constant ClkPeriod : time := 1ns;
 begin
 
-    uut: CondLogic
+    test_condlogic_module: CondLogic
     port map (
         CLK      => t_CLK,
         PCS      => t_PCS,
@@ -98,43 +77,50 @@ begin
         t_ALUFlags <= "0000";
 
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
+        -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is
+        -- since some of the tests will be using the clock.
         wait for ClkPeriod / 2;
 
+        -- Test case 1:
         -- For 'always' condition, incoming true signals are transferred out 'immediately'.
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: always transfers true signals" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 1" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
+        -- Test case 2:
         -- For 'always' condition, incoming false signals are transferred out 'immediately'.
         t_PCS <= '0'; t_RegW <= '0'; t_MemW <= '0'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed: always transfers false signals" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 2" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
+        -- Test case 3:
         -- For 'always' condition, t_NoWrite prevents t_RegWrite from being true.
         t_RegW <= '1'; t_NoWrite <= '1'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_RegWrite = '0') report "Failed: nowrite disables regwrite" severity error;
+        assert (t_RegWrite = '0') report "Failed CondLogic Test Case 3" severity error;
 
         wait for ClkPeriod * 9 / 10;
         t_NoWrite <= '0'; -- reset to 0
 
+        -- Test case 4:
         -- For some false condition, signals are all false.
         -- Flags initialised to false, so EQ condition will be false (Z != 1).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed: false condition causes outputs to be false (1)" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 4" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
+        -- Test case 5:
         -- For some true condition, signals are transferred correctly.
         -- Flags initialised to false, so NEQ condition will be true (Z == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: true condition causes outputs to be true (1)" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 5" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
@@ -142,19 +128,21 @@ begin
         t_ALUFlags <= "1111"; t_FlagW <= "11";
         wait for ClkPeriod;
 
+        -- Test case 6:
         -- Assert flags have changed state by checking signals have transferred correctly depending on condition.
         -- Flags are all true, so EQ condition will be true (Z == 1);
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: true condition causes outputs to be true (2)" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 6.1" severity error;
         wait for ClkPeriod / 10;
         -- Flags are all true, so NEQ condition will be false (Z != 0)
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed: false condition causes outputs to be false (2)" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 6.2" severity error;
 
         wait for ClkPeriod * 7 / 10;
 
+        -- Test case 7:
         -- Assert flags are only changed after clock edge.
         -- Change flag state.
         t_ALUFlags <= "0000"; t_FlagW <= "11";
@@ -162,30 +150,32 @@ begin
         -- Flags should still be true, so EQ will be true (Z == 1).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: flags only change on clock edge (1)" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 7.1" severity error;
         wait for ClkPeriod * 4 / 10; -- 1 / 10 ClkPeriods after edge.
         -- Flags should be false, so EQ will be false (Z != 1).
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed: flags only change on clock edge (2)" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 7.2" severity error;
 
         wait for ClkPeriod * 4 / 10;
 
+        -- Test case 8:
         -- Assert that N and Z flags are not written when t_FlagW(0) is false.
         t_ALUFlags <= "1100"; t_FlagW <= "01";
         wait for ClkPeriod;
         -- Flags should still be false, so NEQ will be true (Z == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: N and Z don't change when flag is false" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 8" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
+        -- Test case 9:
         -- Assert that C and V flags are not written when t_FlagW(1) is false.
         t_ALUFlags <= "0011"; t_FlagW <= "10";
         wait for ClkPeriod;
         -- Flags should still be false, so VC (no overflow) will be true (V == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0111";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed: N and Z don't change when flag is false" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 9" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
