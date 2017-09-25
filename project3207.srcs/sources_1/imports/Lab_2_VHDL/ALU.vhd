@@ -65,7 +65,7 @@ begin
 				V <= ( Src_A(31) xnor  Src_B(31) )  and ( Src_B(31) xor S_wider(31) );
 			when "01" =>
 				C_0(0) <= '1';
-				Src_B_comp <= '0' & not Src_B;
+				Src_B_comp <= not Src_B(31) & not Src_B;
 				ALUResult_i <= S_wider(31 downto 0);
 				V <= ( Src_A(31) xor  Src_B(31) )  and ( Src_B(31) xnor S_wider(31) );
 			when "10" =>
