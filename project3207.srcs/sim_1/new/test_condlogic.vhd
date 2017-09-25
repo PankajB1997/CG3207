@@ -7,7 +7,8 @@ end test_condlogic;
 
 architecture test_condlogic_behavioral of test_condlogic is
 
-    component CondLogic is port (
+    component CondLogic
+    port (
         CLK      : in std_logic;
         PCS      : in std_logic;
         RegW     : in std_logic;
@@ -160,7 +161,7 @@ begin
         wait for ClkPeriod * 9 / 10;
 
         wait;
-        
+
     end process;
 
 end test_condlogic_behavioral;

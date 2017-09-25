@@ -8,7 +8,8 @@ end test_decoder;
 
 architecture test_decoder_behavioral of test_decoder is
 
-    component Decoder is port (
+    component Decoder
+    port (
         Rd         : in 	std_logic_vector(3 downto 0);
         Op         : in 	std_logic_vector(1 downto 0);
         Funct      : in 	std_logic_vector(5 downto 0);
@@ -21,8 +22,7 @@ architecture test_decoder_behavioral of test_decoder is
         RegSrc     : out	std_logic_vector(1 downto 0);
         NoWrite    : out	std_logic;
         ALUControl : out	std_logic_vector(1 downto 0);
-        FlagW      : out	std_logic_vector(1 downto 0)
-    );
+        FlagW      : out	std_logic_vector(1 downto 0));
     end component;
 
     signal t_Rd             : std_logic_vector(3 downto 0);
