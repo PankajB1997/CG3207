@@ -35,6 +35,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ARM is port(
@@ -202,7 +203,50 @@ signal Result		: 	std_logic_vector(31 downto 0);
 
 begin
 
---<Datapath connections here>		
+-- Datapath connections
+
+-- PC inputs
+PC_IN <= Result when PCSrc = '1' else PCPlus4;
+-- WE_PC set to constant value below
+
+-- PC outputs
+PCPlus4 <= PC_sig + 4;
+PCPlus8 <= PCPlus4 + 4;
+PC <= PC_sig;
+
+-- Reg file inputs
+A1 <= x"F" when RegSrc(0) = '1' else Instr(19 downto 16);
+A2 <= Instr(15 downto 12) when RegSrc(1) = '1' else Instr(3 downto 0);
+A3 <= Instr(15 downto 12);
+WD3 <= Result;
+R15 <= PCPlus8;
+WE3 <= RegW;
+
+-- Extend inputs
+InstrImm <= Instr(23 downto 0);
+-- ImmSrc connected already
+
+-- ALU inputs
+Src_A <= RD1;
+Src_B <= ExtImm when ALUSrc = '1' else RD2;
+-- ALUControl connected already
+
+-- Data Memory inputs
+ALUResult <= ALUResult_sig;
+WriteData <= RD2;
+-- MemW connected already
+
+-- Data Memory outputs
+Result <= ReadData when MemToReg = '1' else ALUResult_sig;
+
+-- Decoder inputs
+Op <= Instr(27 downto 26);
+Funct <= Instr(25 downto 20);
+Rd <= Instr(15 downto 12);
+
+-- Conditional logic inputs
+Cond <= Instr(31 downto 28);
+-- ALUFlags connected already
 
 WE_PC		<= '1'; -- Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
 
