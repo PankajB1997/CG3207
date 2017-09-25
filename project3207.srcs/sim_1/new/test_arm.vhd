@@ -45,7 +45,7 @@ begin
         RESET     => t_RESET,
         Instr     => t_Instr,
         ReadData  => t_ReadData,
-        -- Output
+        -- Outputs
         MemWrite  => t_MemWrite,
         PC        => t_PC,
         ALUResult => t_ALUResult,
