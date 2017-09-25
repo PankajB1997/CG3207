@@ -7,7 +7,8 @@ end test_shifter;
 
 architecture test_shifter_behavioral of test_shifter is
 
-    component Shifter is port (
+    component Shifter
+    port (
         Sh      : in std_logic_vector (1 downto 0);
         Shamt5  : in std_logic_vector (4 downto 0);
         ShIn    : in std_logic_vector (31 downto 0);
@@ -61,6 +62,16 @@ begin
         t_Sh <= "00"; t_Shamt5 <= "00000"; t_ShIn <= x"FFFF00FF";
         wait for 5 ns;
         assert (t_ShOut = x"FFFF00FF") report "Failed Shifter Test Case 5" severity error;
+
+        -- Test case 6: LSL shift where some bits get shifted out and disappear
+        t_Sh <= "00"; t_Shamt5 <= "10000"; t_ShIn <= x"FF00FF00";
+        wait for 5 ns;
+        assert (t_ShOut = x"FF000000") report "Failed Shifter Test Case 6" severity error;
+
+        -- Test case 7: LSR shift where some bits get shifted out and disappear
+        t_Sh <= "01"; t_Shamt5 <= "01000"; t_ShIn <= x"00FF00FF";
+        wait for 5 ns;
+        assert (t_ShOut = x"0000FF00") report "Failed Shifter Test Case 7" severity error;
 
         wait;
 
