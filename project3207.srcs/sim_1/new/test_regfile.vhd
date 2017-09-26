@@ -60,15 +60,16 @@ begin
         -- Set initial values for inputs
         t_WE3 <= '0'; t_A1 <= x"0"; t_A2 <= x"0"; t_A3 <= x"0"; t_WD3 <= (others => '0'); t_R15 <= (others => '0');
 
+        wait for ClkPeriod / 2;
+
         -- Test case 1: Checking if a value is not written to destination register when write is disabled
-        t_A3 <= x"0"; t_WD3 <= x"00FF00FF"; t_WE3 <= '1';
+        t_A3 <= x"0"; t_WD3 <= x"00FF00FF"; t_WE3 <= '1'; t_A1 <= x"0";
         wait for ClkPeriod / 6;
+        -- Checking if RegFile is sequential
+        assert (t_RD1 /= x"00FF00FF") report "Failed RegFile Test Case 1.1" severity error;
         t_WE3 <= '0';
-        wait for ClkPeriod / 6;
-        t_A1 <= x"0";
-        assert (t_RD1 = x"00FF00FF") report "Failed RegFile Test Case 1.1" severity error;
-        wait for ClkPeriod / 3;
-        assert (t_RD1 = x"00FF00FF") report "Failed RegFile Test Case 1.2" severity error;
+        wait for ClkPeriod / 2;
+        assert (t_RD1 /= x"00FF00FF") report "Failed RegFile Test Case 1.2" severity error;
 
         wait for ClkPeriod / 3;
 
@@ -76,32 +77,33 @@ begin
         -- Store a value in R3 and add R3 as first source register
         t_A3 <= x"3"; t_WD3 <= x"F0F0F0F0"; t_WE3 <= '1';
         t_A1 <= x"3";
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod;
         -- Check if R3 value is successfully copied into RD1
         assert (t_RD1 = x"F0F0F0F0") report "Failed RegFile Test Case 2" severity error;
 
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod;
 
         -- Test case 3: Checking if the value stored in source register denoted by A2 is successfully copied into RD2
         -- Testing A2 -> RD2 connection combinationally and not as a clocked process
+        t_A3 <= x"0"; t_WD3 <= x"00FF00FF"; t_WE3 <= '1';
         t_A2 <= x"0";
-        wait for ClkPeriod / 10;
+        wait for ClkPeriod;
         -- Check if R5 value is successfully copied into RD2
         assert (t_RD2 = x"00FF00FF") report "Failed RegFile Test Case 3" severity error;
 
-        wait for ((ClkPeriod * 9) / 10);
+        wait for ClkPeriod;
 
         -- Test case 4: Checking if values written to both source registers are simultaneously copied to RD1 and RD2
         -- Store values in registers R6 and R8 and add them as first and second source registers respectively
         t_A3 <= x"6"; t_WD3 <= x"0000FFFF"; t_WE3 <= '1';
-        wait for ClkPeriod / 4;
+        wait for ClkPeriod;
         t_A3 <= x"8"; t_WD3 <= x"FF00FF00"; t_WE3 <= '1';
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod;
         t_A1 <= x"6"; t_A2 <= x"8";
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod / 10;
         assert (t_RD1 = x"0000FFFF" and t_RD2 = x"FF00FF00") report "Failed RegFile Test Case 4" severity error;
 
-        wait for ClkPeriod / 4;
+        wait for ((ClkPeriod * 9) / 10);
 
         -- Test case 5: Testing if R15 value shows up at RD1 when A1 points to R15
         t_R15 <= x"F0FF0FF0"; t_A1 <= x"F";
