@@ -53,15 +53,17 @@ begin
         
         -- Test case 2: Subtract positive number from negative number
         -- -3 - (+7) = -10
+        -- Carry flag is 1 since there is no borrow in the unsigned subtraction.
         t_Src_A <= x"FFFFFFFD"; t_Src_B <= x"00000007"; t_ALUControl <= "01";
         wait for 1 ns;
-        assert (t_ALUResult = x"FFFFFFF6" and t_ALUFlags = "1000") report "Failed ALU Test Case 2" severity error;
+        assert (t_ALUResult = x"FFFFFFF6" and t_ALUFlags = "1010") report "Failed ALU Test Case 2" severity error;
         
         -- Test case 3: Subtract unsigned numbers causes borrow
         -- 3 - 7 = -4
+        -- Sets carry bit to 0 (~ borrow).
         t_Src_A <= x"00000003"; t_Src_B <= x"00000007"; t_ALUControl <= "01";
         wait for 1 ns;
-        assert (t_ALUResult = x"FFFFFFFC" and t_ALUFlags = "1010") report "Failed ALU Test Case 3" severity error;
+        assert (t_ALUResult = x"FFFFFFFC" and t_ALUFlags = "1000") report "Failed ALU Test Case 3" severity error;
         
         -- Test case 4: Add signed numbers causes overflow
         t_Src_A <= x"7FFFFFFF"; t_Src_B <= x"00000001"; t_ALUControl <= "00";
