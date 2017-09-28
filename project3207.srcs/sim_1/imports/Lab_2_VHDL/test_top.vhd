@@ -33,7 +33,7 @@ USE ieee.std_logic_1164.ALL;
  
 ENTITY test_top IS
 END test_top;
- 
+
 ARCHITECTURE behavior OF test_top IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
@@ -97,6 +97,10 @@ BEGIN
 		wait for CLK_undiv_period/2;
    end process;
  
+   -- Test instructions for the TOP module will come from using hex2rom on an
+   -- asm program. These instructions can be found in TOP.vhd inside the
+   -- INSTR_MEM constant. This test file verifies that the program defined by
+   -- those instructions executes in the expected manner.
 
    -- Stimulus process
    stim_proc: process
