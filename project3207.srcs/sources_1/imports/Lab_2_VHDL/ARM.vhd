@@ -228,7 +228,7 @@ InstrImm <= Instr(23 downto 0);
 
 -- ALU inputs
 Src_A <= RD1;
-Src_B <= ExtImm when ALUSrc = '1' else RD2;
+Src_B <= ExtImm when ALUSrc = '1' else ShOut; --to enable DP instructions with shift operation
 -- ALUControl connected already
 
 -- Data Memory inputs
