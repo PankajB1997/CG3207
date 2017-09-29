@@ -60,10 +60,15 @@ architecture Decoder_arch of Decoder is
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder  : std_logic;
     signal IllegalInstruction : std_logic;
+    shared variable MemNegOff : std_logic;  -- Indicates whether the 'S' bit is 0 or 1; 
+                                            -- when 'S' bit is '0' this is '1' to denote that the imm operand is negative and its abs value should be subtracted from the base
+
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct) begin
+    main_decoder: process (Op, Funct) 
+    begin
+
         case Op is
            -- Branch Instruction
            when "10" =>
@@ -76,6 +81,7 @@ begin
                RegSrc <= "-1";
                ALUOp <= '0';
                IllegalMainDecoder <= '0';
+               MemNegOff := '0';
            -- Memory Instruction
            when "01" =>
                -- STR Instruction
@@ -89,6 +95,11 @@ begin
                    RegSrc <= "10";
                    ALUOp <= '0';
                    IllegalMainDecoder <= '0';
+                   if Funct(3) = '0' then
+                    MemNegOff := '1';
+                   else
+                    MemNegOff := '0';
+                   end if; 
                -- LDR Instruction
                else
                    Branch <= '0';
@@ -98,8 +109,12 @@ begin
                    ImmSrc <= "01";
                    RegWInternal <= '1';
                    RegSrc <= "-0";
-                   ALUOp <= '0';
                    IllegalMainDecoder <= '0';
+                   if Funct(3) = '0' then
+                    MemNegOff := '1';
+                   else
+                    MemNegOff := '0';
+                   end if;
                end if;
            -- Data Processing Instruction
            when "00" =>
@@ -144,11 +159,16 @@ begin
         case ALUOp is
             -- Not a DP Instruction
             when '0' =>
-                ALUControl <= "00";
+               -- ALUControl <= "00";
                 FlagWInternal <= "00";
                 IllegalALUDecoder <= '0';
                 NoWrite <= '0';
-            -- DP Instruction
+                if MemNegOff = '1' then    -- Subtract from base if the imm operand is negative, else just add
+                    ALUControl <= "01";
+                else
+                    ALUControl <= "00";
+               end if;
+            -- DP Instruction 
             when '1' =>
                 case Funct (4 downto 1) is
                     -- ADD Instruction
@@ -213,10 +233,10 @@ begin
                             IllegalALUDecoder <= '1';
                         end if;
                     when others =>
-                        NoWrite <= '-';
-                        ALUControl  <= "--";
-                        FlagWInternal <= "--";
-                        IllegalALUDecoder <= '1';
+                            NoWrite <= '-';
+                            ALUControl  <= "--";
+                            FlagWInternal <= "--";
+                            IllegalALUDecoder <= '1';     
                 end case;
             when others =>
                 NoWrite <= '-';
