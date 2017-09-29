@@ -132,7 +132,7 @@ component ProgramCounter is port(
 			);
 end component ProgramCounter;
 
--- RegFile signals
+-- RegFile signal
 -- signal CLK		: 	std_logic; 
 signal WE3			: 	std_logic; 
 signal A1			: 	std_logic_vector(3 downto 0); 
@@ -228,6 +228,9 @@ InstrImm <= Instr(23 downto 0);
 
 -- ALU inputs
 Src_A <= RD1;
+Sh <= Instr(6 downto 5); 
+Shamt5 <= Instr(11 downto 7);
+ShIn <= (27 downto 0 => '0') & Instr(3 downto 0);
 Src_B <= ExtImm when ALUSrc = '1' else ShOut; --to enable DP instructions with shift operation
 -- ALUControl connected already
 

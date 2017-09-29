@@ -49,37 +49,12 @@ begin
 		ShTemp := ShIn;
 		for i in 0 to 4 loop
 			if Shamt5(i) = '1' then
-				if i = 0 then
-					case Sh is
-						when "00" => 
-							ShTemp := ShTemp(30 downto 0) & '0';						-- LSL
-			
-						when "01" => 
-							ShTemp := '0' & ShTemp(31 downto 1); 			-- LSR
-						
-						when "10" => 
-							ShTemp := ShIn(31) & '0' & ShTemp(30 downto 1); 	-- ASR
-
-						when others => 
-							ShTemp := ShTemp(0) & ShTemp(31 downto 1); 		    -- ROR 
-					end case;
-
-
-				else
-					case Sh is
-						when "00" =>
-							ShTemp := ShTemp(31-2**i downto 0) &  (2**i-1 downto 0 => '0'); 		-- LSL
-						
-						when "01" => 
-							ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i); 			-- LSR
-						
-						when "10" => 
-							ShTemp := ShIn(31)& (2**i-1 downto 0 => '0') & ShTemp(30 downto 2**i); 	    	-- ASR
-
-						when others => 
-							ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i); -- ROR 
-					end case;
-			end if;
+				case Sh is
+					when "00" => ShTemp := ShTemp(31-2**i downto 0) & (2**i-1 downto 0 => '0'); 	-- LSL
+					when "01" => ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i); 		-- LSR
+					when "10" => ShTemp := (2**i-1 downto 0 => ShIn(31)) & ShTemp(31 downto 2**i); 	-- ASR
+					when others => ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i); 		-- ROR 
+				end case;
 			end if;
 		end loop;	
 		ShOut <= ShTemp;
