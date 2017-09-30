@@ -51,7 +51,7 @@ entity Decoder is port(
 end Decoder;
 
 architecture Decoder_arch of Decoder is
-    signal ALUOp 			   : std_logic;
+    signal ALUOp 			   : std_logic_vector (1 downto 0);
     signal Branch 			   : std_logic;
     signal RdEquals15          : std_logic;
     signal RegWInternal       : std_logic;
@@ -60,10 +60,13 @@ architecture Decoder_arch of Decoder is
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder  : std_logic;
     signal IllegalInstruction : std_logic;
+  
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct) begin
+    main_decoder: process (Op, Funct) 
+    begin
+
         case Op is
            -- Branch Instruction
            when "10" =>
@@ -74,8 +77,9 @@ begin
                ImmSrc <= "10";
                RegWInternal <= '0';
                RegSrc <= "-1";
-               ALUOp <= '0';
+               ALUOp <= "11"; -- ADD always
                IllegalMainDecoder <= '0';
+           
            -- Memory Instruction
            when "01" =>
                -- STR Instruction
@@ -87,8 +91,12 @@ begin
                    ImmSrc <= "01";
                    RegWInternal <= '0';
                    RegSrc <= "10";
-                   ALUOp <= '0';
                    IllegalMainDecoder <= '0';
+                   if Funct(3) = '0' then -- U bit '0'
+                    ALUOp <= "10"; -- STR with Negative offset
+                   else
+                    ALUOp <= "11"; -- STR with Positive offset
+                   end if; 
                -- LDR Instruction
                else
                    Branch <= '0';
@@ -98,8 +106,12 @@ begin
                    ImmSrc <= "01";
                    RegWInternal <= '1';
                    RegSrc <= "-0";
-                   ALUOp <= '0';
                    IllegalMainDecoder <= '0';
+                   if Funct(3) = '0' then -- U bit '0'
+                    ALUOp <= "10"; -- LDR with Negative offset
+                   else
+                    ALUOp <= "11"; -- LDR with Positive offset
+                   end if; 
                end if;
            -- Data Processing Instruction
            when "00" =>
@@ -112,7 +124,7 @@ begin
                    ImmSrc <= "--";
                    RegWInternal <= '1';
                    RegSrc <= "00";
-                   ALUOp <= '1';
+                   ALUOp <= "00"; 
                    IllegalMainDecoder <= '0';
                -- DP Imm Instruction
                else
@@ -123,7 +135,7 @@ begin
                    ImmSrc <= "00";
                    RegWInternal <= '1';
                    RegSrc <= "-0";
-                   ALUOp <= '1';
+                   ALUOp <= "00"; 
                    IllegalMainDecoder <= '0';
                end if;
            when others =>
@@ -134,7 +146,7 @@ begin
                ImmSrc <= "--";
                RegWInternal <= '-';
                RegSrc <= "--";
-               ALUOp <= '-';
+               ALUOp <= "--";
                IllegalMainDecoder <= '1';
         end case;
     end process;
@@ -143,13 +155,17 @@ begin
     alu_decoder: process (ALUOp, Funct) begin
         case ALUOp is
             -- Not a DP Instruction
-            when '0' =>
-                ALUControl <= "00";
+            when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
                 IllegalALUDecoder <= '0';
                 NoWrite <= '0';
-            -- DP Instruction
-            when '1' =>
+                ALUControl <= "00";
+            when "10" =>          -- LDR/STR with Negative offset
+                FlagWInternal <= "00";
+                IllegalALUDecoder <= '0';
+                NoWrite <= '0';
+                ALUControl <= "01";
+            when "00" =>           -- ALU operations for DP instructions
                 case Funct (4 downto 1) is
                     -- ADD Instruction
                     when "0100" =>
@@ -213,10 +229,10 @@ begin
                             IllegalALUDecoder <= '1';
                         end if;
                     when others =>
-                        NoWrite <= '-';
-                        ALUControl  <= "--";
-                        FlagWInternal <= "--";
-                        IllegalALUDecoder <= '1';
+                            NoWrite <= '-';
+                            ALUControl  <= "--";
+                            FlagWInternal <= "--";
+                            IllegalALUDecoder <= '1';     
                 end case;
             when others =>
                 NoWrite <= '-';

@@ -99,7 +99,7 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
         
         wait for ClkPeriod * 9 / 10;
-
+        
         -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Flags should all start off as 0, so EQ will fail
