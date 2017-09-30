@@ -99,7 +99,13 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
         
         wait for ClkPeriod * 9 / 10;
-
+        
+        --Test Case 3.1: Add register with immediate shifts -- ADD R2, R1, R0, LSR #2
+        t_Instr <= "1110" & x"0" & "1000" & x"1" & x"2" & x"1" & x"2" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3.1" severity error;
+        wait for ClkPeriod * 9/10;
+        
         -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Flags should all start off as 0, so EQ will fail
@@ -130,6 +136,13 @@ begin
         
         wait for ClkPeriod * 9 / 10;
 
+        -- Test Case 6.1: STR with negative offset: STR R2, [R1, #-4]
+        -- ALUResult should be R1 - 4 = 4 = 0x4
+        t_Instr <= "1110" & "01" & "010000" & x"1" & x"2" & x"004";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000008" and t_WriteData = x"00000008") report "Failed ARM Test Case 6.1" severity error;
+        wait for ClkPeriod * 9 / 10;
+        
         -- Test case 7: Branch instruction - B LABEL
         -- LABEL is specified relative to PC, here PC is forced to move forward 5 instructions.
         -- To do so, offset must be 3, since it is taken relative to PC + 8
