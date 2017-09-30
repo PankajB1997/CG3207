@@ -93,9 +93,9 @@ begin
                    RegSrc <= "10";
                    IllegalMainDecoder <= '0';
                    if Funct(3) = '0' then -- U bit '0'
-                    ALUOp <= "10"; -- SUB
+                    ALUOp <= "10"; -- STR with Negative offset
                    else
-                    ALUOp <= "11"; -- ADD
+                    ALUOp <= "11"; -- STR with Positive offset
                    end if; 
                -- LDR Instruction
                else
@@ -108,9 +108,9 @@ begin
                    RegSrc <= "-0";
                    IllegalMainDecoder <= '0';
                    if Funct(3) = '0' then -- U bit '0'
-                    ALUOp <= "10"; -- SUB
+                    ALUOp <= "10"; -- LDR with Negative offset
                    else
-                    ALUOp <= "11"; -- ADD
+                    ALUOp <= "11"; -- LDR with Positive offset
                    end if; 
                end if;
            -- Data Processing Instruction
@@ -124,7 +124,7 @@ begin
                    ImmSrc <= "--";
                    RegWInternal <= '1';
                    RegSrc <= "00";
-                   ALUOp <= "00"; -- DP instruction
+                   ALUOp <= "00"; 
                    IllegalMainDecoder <= '0';
                -- DP Imm Instruction
                else
@@ -135,7 +135,7 @@ begin
                    ImmSrc <= "00";
                    RegWInternal <= '1';
                    RegSrc <= "-0";
-                   ALUOp <= "00"; -- DP instruction
+                   ALUOp <= "00"; 
                    IllegalMainDecoder <= '0';
                end if;
            when others =>
@@ -155,12 +155,12 @@ begin
     alu_decoder: process (ALUOp, Funct) begin
         case ALUOp is
             -- Not a DP Instruction
-            when "11" =>          -- ADD for non-DP instructions (memory, when 'S' bit is '1' and branch, always)
+            when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
                 IllegalALUDecoder <= '0';
                 NoWrite <= '0';
                 ALUControl <= "00";
-            when "10" =>          -- SUB for non-DP instructions (memory, when 'S' bit is '0')
+            when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 IllegalALUDecoder <= '0';
                 NoWrite <= '0';
