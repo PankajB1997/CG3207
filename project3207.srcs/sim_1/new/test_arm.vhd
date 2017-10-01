@@ -102,7 +102,7 @@ begin
         
         --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSR #2
         -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
-        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "0" & x"2" & "01" & "0" & x"0";
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "01" & "0" & x"0";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
         
@@ -142,7 +142,7 @@ begin
         -- ALUResult should be R1 - 4 = 4 = 0x4
         t_Instr <= x"E" & "01" & "010000" & x"1" & x"2" & x"004";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000008") report "Failed ARM Test Case 6.2" severity error;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000014") report "Failed ARM Test Case 6.2" severity error;
        
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000008") report "Failed ARM Test Case 6.3" severity error;
