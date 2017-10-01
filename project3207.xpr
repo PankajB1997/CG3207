@@ -31,7 +31,7 @@
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSANumComputeUnits" Val="16"/>
-    <Option Name="WTXSimLaunchSim" Val="113"/>
+    <Option Name="WTXSimLaunchSim" Val="116"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -78,17 +78,17 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/imports/Lab_2_VHDL/Decoder.vhd">
+      <File Path="$PSRCDIR/sources_1/imports/Lab_2_VHDL/Extend.vhd">
         <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../../Downloads/Lab_2_VHDL/Decoder.vhd"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../../Downloads/Lab_2_VHDL/Extend.vhd"/>
           <Attr Name="ImportTime" Val="1505442070"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/imports/Lab_2_VHDL/Extend.vhd">
+      <File Path="$PSRCDIR/sources_1/imports/Lab_2_VHDL/Decoder.vhd">
         <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../../Downloads/Lab_2_VHDL/Extend.vhd"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../../Downloads/Lab_2_VHDL/Decoder.vhd"/>
           <Attr Name="ImportTime" Val="1505442070"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -136,7 +136,7 @@
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="Decoder"/>
+        <Option Name="TopModule" Val="TOP"/>
       </Config>
     </FileSet>
     <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
