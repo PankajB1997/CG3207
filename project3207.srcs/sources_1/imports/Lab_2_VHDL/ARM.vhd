@@ -163,6 +163,7 @@ signal RegSrc		:	std_logic_vector(1 downto 0);
 -- signal ALUControl:	std_logic_vector(1 downto 0);
 -- signal FlagW		:	std_logic_vector(1 downto 0);
 
+
 -- CondLogic signals
 -- signal CLK		: 	std_logic;
 signal PCS			: 	std_logic;

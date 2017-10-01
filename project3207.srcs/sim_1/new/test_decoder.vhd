@@ -72,17 +72,27 @@ begin
         assert (t_PCS='1' and t_RegW='0' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="10" and t_RegSrc(0)='1' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 1" severity error;
 
         -- Test case 2: Memory (STR) Instruction
-        t_Rd <= "0001"; t_Op <= "01"; t_Funct(0) <= '0';
+        t_Rd <= "0001"; t_Op <= "01"; t_Funct(0) <= '0'; t_Funct(3) <= '1';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='0' and t_MemW='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc="10" and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 2" severity error;
-
+        
+        -- Test case 2.1: Memory (STR) Instruction with negative offset
+        t_Rd <= "0001"; t_Op <= "01"; t_Funct(0) <= '0'; t_Funct(3) <= '0';
+        wait for 5 ns;
+        assert (t_PCS ='0' and t_RegW='0' and t_MemW='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc="10" and t_NoWrite='0' and t_ALUControl="01" and t_FlagW="00") report "Failed Decoder Test 2.1" severity error; 
+                
         -- Test case 3: Memory (LDR) Instruction
-        t_Rd <= "0010"; t_Op <= "01"; t_Funct(0) <= '1';
+        t_Rd <= "0010"; t_Op <= "01"; t_Funct(0) <= '1'; t_Funct(3) <= '1';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 3" severity error;
 
+        -- Test case 3.1: Memory (LDR) Instruction with negative offset
+        t_Rd <= "0010"; t_Op <= "01"; t_Funct(0) <= '1'; t_Funct(3) <= '0';
+        wait for 5 ns;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="01" and t_FlagW="00") report "Failed Decoder Test Case 3.1" severity error;
+
         -- Test case 4: Memory Instruction with Rd = 15
-        t_Rd <= "1111"; t_Op <= "01"; t_Funct(0) <= '1';
+        t_Rd <= "1111"; t_Op <= "01"; t_Funct(0) <= '1'; t_Funct(3) <= '1';
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 4" severity error;
 
@@ -185,7 +195,10 @@ begin
         t_Rd <= "1111"; t_Op <= "00"; t_Funct <= "110101";
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="00" and t_RegSrc(0)='0' and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 24" severity error;
-
+        
+        
+        
+        
         wait;
 
     end process;

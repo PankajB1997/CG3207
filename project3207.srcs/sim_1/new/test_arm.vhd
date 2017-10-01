@@ -100,6 +100,7 @@ begin
         
         wait for ClkPeriod * 9 / 10;
         
+        -- DP-instruction-with-shifts
         --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSR #2
         -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
         t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "01" & "0" & x"0";
@@ -107,7 +108,7 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
         
         wait for ClkPeriod * 9 / 10;
-        
+
         -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Flags should all start off as 0, so EQ will fail
