@@ -93,13 +93,21 @@ begin
         -- PC should have incremented at clock edge.
         assert (t_PC = x"00000004") report "Failed ARM Test Case 2.2" severity error;
         
-        -- Test Case 3: Add register with immediate - ADD R1, R0, #5
+        -- Test Case 3.1: Add register with immediate - ADD R1, R0, #5
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3.1" severity error;
         
         wait for ClkPeriod * 9 / 10;
         
+        --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
+        -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
+        
+        wait for ClkPeriod * 9 / 10;
+
         -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Flags should all start off as 0, so EQ will fail
@@ -120,36 +128,45 @@ begin
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000000") report "Failed ARM Test Case 5.2" severity error;
 
-        -- Test Case 6: Same store operation as above but happens this time - STREQ R0, [R1, #12]
+        -- Test Case 6.1: Same store operation as above but happens this time - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Z should be 1 after previous instruction, so EQ will pass
         -- ALUResult should be R1 + 12 = 20 = 0x14
         t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00c";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 6" severity error;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 6.1" severity error;
         
         wait for ClkPeriod * 9 / 10;
 
+        -- Test Case 6.2: STR with negative offset: STR R2, [R1, #-4]
+        -- ALUResult should be R1 - 4 = 4 = 0x4
+        t_Instr <= x"E" & "01" & "010000" & x"1" & x"2" & x"004";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000014") report "Failed ARM Test Case 6.2" severity error;
+       
+        wait for ClkPeriod * 9 / 10;
+        assert (t_PC = x"00000008") report "Failed ARM Test Case 6.3" severity error;
+        
         -- Test case 7: Branch instruction - B LABEL
         -- LABEL is specified relative to PC, here PC is forced to move forward 5 instructions.
         -- To do so, offset must be 3, since it is taken relative to PC + 8
-        -- PC was 4 after previous instruction. So new value will be 4 + 20 = 0x18
+        -- PC was 8 after previous instruction. So new value will be 8 + 20 = 0x1C
         t_Instr <= x"E" & "10" & "10" & x"000003";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000018") report "Failed ARM Test Case 7.1" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000001C") report "Failed ARM Test Case 7.1" severity error;
         
         wait for ClkPeriod * 9 / 10;
-        assert (t_PC = x"00000018") report "Failed ARM Test Case 7.2" severity error;
+        assert (t_PC = x"0000001C") report "Failed ARM Test Case 7.2" severity error;
         
         -- Test case 8: Branch instruction with negative offset - B LABEL
         -- This time offset will be -4, to send the PC back 2 instructions.
-        -- New value of PC will be 24 - 8 = 0x10
+        -- New value of PC will be 28 - 8 = 0x14
         t_Instr <= x"E" & "10" & "10" & x"FFFFFC";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000010") report "Failed ARM Test Case 8.1" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 8.1" severity error;
         
         wait for ClkPeriod * 9 / 10;
-        assert (t_PC = x"00000010") report "Failed ARM Test Case 8.2" severity error;
+        assert (t_PC = x"00000014") report "Failed ARM Test Case 8.2" severity error;
         
         wait;
         
