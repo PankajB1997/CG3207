@@ -92,7 +92,7 @@ begin
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="01" and t_FlagW="00") report "Failed Decoder Test Case 3.1" severity error;
 
         -- Test case 4: Memory Instruction with Rd = 15
-        t_Rd <= "1111"; t_Op <= "01"; t_Funct(0) <= '1';
+        t_Rd <= "1111"; t_Op <= "01"; t_Funct(0) <= '1'; t_Funct(3) <= '1';
         wait for 5 ns;
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_RegSrc(0)='0' and t_NoWrite='0' and t_ALUControl="00" and t_FlagW="00") report "Failed Decoder Test Case 4" severity error;
 
