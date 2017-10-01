@@ -109,7 +109,6 @@ begin
         
         wait for ClkPeriod * 9 / 10;
 
-master
         -- Test Case 4: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
         -- Flags should all start off as 0, so EQ will fail
