@@ -100,10 +100,9 @@ begin
         
         wait for ClkPeriod * 9 / 10;
         
-        -- DP-instruction-with-shifts
-        --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSR #2
+        --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
         -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
-        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "01" & "0" & x"0";
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
         
