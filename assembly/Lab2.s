@@ -23,7 +23,7 @@
 ; Wait for user to signal input1 is ready.
 input1
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BEQ input1
 
 ; Get user input.
@@ -33,14 +33,14 @@ input1
 ; Wait for user to release button.
 input1done
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BNE input1done
 
 
 ; Wait for user to signal operator is ready.
 operator
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BEQ operator
 
 ; Get user input.
@@ -50,14 +50,14 @@ operator
 ; Wait for user to release button.
 operatordone
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BNE operatordone
 
 
 ; Wait for user to signal input2 is ready.
 input2
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BEQ input2
 
 ; Get user input.
@@ -67,7 +67,7 @@ input2
 ; Wait for user to release button.
 input2done
 		LDR R0, PUSHBUTTON
-		ANDS R1, R0, R3 LSL #3
+		ANDS R1, R0, R3, LSL #3
 		BNE input2done
 
 
@@ -85,7 +85,8 @@ suboperator
 
 ; Display result of computation on LEDS
 computationdone
-		STR R7, DIPS, #-4
+		LDR R8, DIPS
+		STR R7, [R8, #-4]
 
 ; Loop back to input.
 		B  input1
@@ -105,13 +106,13 @@ LEDS
 		DCD 0x00000C00		; Address of LEDs. //volatile unsigned int * const LEDS = (unsigned int*)0x00000C00;  
 DIPS
 		DCD 0x00000C04		; Address of DIP switches. //volatile unsigned int * const DIPS = (unsigned int*)0x00000C04;
-PBS
+PUSHBUTTON
 		DCD 0x00000C08		; Address of Push Buttons. Used only in Lab 2
 UART
 		DCD 0x00000C0C		; Address of UART. Used only in Lab 2
 
 ; Rest of the constants should be declared below.
-one   
+ONE   
 		DCD  0x1			; The number of steps of delay // const unsigned int DELAY_VAL = 4;
 variable1_addr
 		DCD variable1		; address of variable1. Required since we are avoiding pseudo-instructions // unsigned int * const variable1_addr = &variable1;
