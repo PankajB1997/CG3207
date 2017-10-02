@@ -113,14 +113,7 @@ UART
 
 ; Rest of the constants should be declared below.
 ONE   
-		DCD  0x1			; The number of steps of delay // const unsigned int DELAY_VAL = 4;
-variable1_addr
-		DCD variable1		; address of variable1. Required since we are avoiding pseudo-instructions // unsigned int * const variable1_addr = &variable1;
-constant1
-		DCD 0xABCD1234		; // const unsigned int constant1 = 0xABCD1234;
-string1   
-		DCB  "Hello World!!!!",0	; // unsigned char string1[] = "Hello World!"; // assembler will issue a warning if the string size is not a multiple of 4, but the warning is safe to ignore
-		
+		DCD  0x1			; Constant to store 1, used for checking the pushbutton state at various points
 ; ------- <constant memory (ROM mapped to Data Memory) ends>	
 
 
@@ -130,8 +123,7 @@ string1
 ; Total number of variables should not exceed 128. 
 ; No initialization possible in this region. In other words, you should write to a location before you can read from it (i.e., write to a location using STR before reading using LDR).
 
-variable1
-		DCD 0x00000000		;  // unsigned int variable1;
+
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	
 
 		END	
