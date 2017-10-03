@@ -91,9 +91,9 @@ BEGIN
    -- Clock process definitions
    CLK_undiv_process :process
    begin
-		CLK_undiv <= '0';
-		wait for CLK_undiv_period/2;
 		CLK_undiv <= '1';
+		wait for CLK_undiv_period/2;
+		CLK_undiv <= '0';
 		wait for CLK_undiv_period/2;
    end process;
  
@@ -105,13 +105,18 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
+      -- Set initial value for inputs.
       -- hold reset state for 10 ns.
       wait for 10 ns;
-		RESET <= '1';   --RESET is ACTIVE LOW
-		DIP <= x"FFFF";
-
-      -- insert stimulus here 
-
+      RESET <= '1';   --RESET is ACTIVE LOW
+      PAUSE <= '0'; DIP <= x"0000"; PB <= x"0";
+      
+      -- Test Case 1
+      DIP <= x"0007"; PB <= x"0";
+      wait for 10 ns;
+      PB <= x"8";
+      wait for 10 ns;
+      
       wait;
    end process;
 

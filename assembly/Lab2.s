@@ -16,8 +16,7 @@
 ; Total number of instructions should not exceed 127 (126 excluding the last line 'halt B halt').
 
 ; Load necessary constants.
-		LDR R2, ONE
-		LDR R3, [R2]
+		LDR R3, ONE
 		LDR R8, DIPS
 
 ; Wait for user to signal input1 is ready.
