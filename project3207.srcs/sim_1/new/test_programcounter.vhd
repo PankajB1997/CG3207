@@ -38,7 +38,7 @@ end test_programcounter;
 
 architecture test_programcounter_behavioral of test_programcounter is
 
-    component programcounter
+    component ProgramCounter
     port ( 
         CLK   : in std_logic;
         RESET : in std_logic;
@@ -57,7 +57,7 @@ architecture test_programcounter_behavioral of test_programcounter is
 
 begin
 
-    test_programcounter_module : ProgramCounter
+    test_programcounter_module: ProgramCounter
     port map (
         -- Inputs
         CLK   => t_CLK,
@@ -78,7 +78,7 @@ begin
 
     stim_proc: process begin
         -- Set initial value for inputs
-        -- Test case 1: RESET = 1, WE_PC = 0
+        
         -- So the PC should be x"00000000"
         t_RESET <= '0'; t_WE_PC <= '0'; t_PC_IN <= (others => '0');
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge
@@ -86,27 +86,26 @@ begin
         -- since some of the tests will be using the clock
         wait for ClkPeriod / 2;
                
-        -- Before time = ClkPeriod, some signals may be U or X. That is expected, as the processor is only reset
+        -- Before time = ClkPeriod, some signals may be U or X. That is expected, as the Program Counter is only reset
         -- at the first clock edge, and this is when the PC is set to 0. Before this, PC is indeterminate.
-              
+        -- Test case 1: RESET = 1, WE_PC = 0
         t_RESET <= '1'; t_PC_IN <= x"00000004";
         wait for ClkPeriod;
-        
-        -- PC_IN = x"00000000"
-        assert (t_PC = x"00000000") report "Failed Program Counter Test Case 1" severity error;
+        -- PC_IN = x"00000004"
+        assert (t_PC = x"00000000") report "Failed ProgramCounter Test Case 1" severity error;
        
         -- Test case 2: RESET = 0, WE_PC = 1
         -- So the PC should be equal to PC_IN
         -- PC_IN = x"00000004"
         t_RESET <= '0'; t_WE_PC <= '1'; t_PC_IN <= x"00000008";  
         wait for ClkPeriod;
-        assert (t_PC = x"00000008") report "Failed Program Counter Test Case 2" severity error;
+        assert (t_PC = x"00000008") report "Failed ProgramCounter Test Case 2" severity error;
         
         -- Test case 3: RESET = 0, WE_PC = 0
         -- So the PC should not get updated (i.e. affected by the new PC_IN)
         t_RESET <= '0'; t_WE_PC <= '0'; t_PC_IN <= x"0000000c";
         wait for ClkPeriod;
-        assert (t_PC = x"00000008") report "Failed Program Counter Test Case 3" severity error;
+        assert (t_PC = x"00000008") report "Failed ProgramCounter Test Case 3" severity error;
    
         wait;
         

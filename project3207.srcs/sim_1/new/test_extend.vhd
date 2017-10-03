@@ -20,7 +20,7 @@ architecture test_extend_behavioral of test_extend is
 
 begin
 
-    test_extend_module : Extend
+    test_extend_module: Extend
     port map (
         -- Inputs
         ImmSrc   => t_ImmSrc,
@@ -50,12 +50,16 @@ begin
         
         -- Test case 3.1: Branch instructions (positive imm)
         -- Imm value = 6
+        -- The output has to be x"00000018" it is the result (sign-extended x"000006") << 2 
+        -- The binary value of the output will be the (MSB of the input duplicated 6 times & the original InstrImm binary value & 2 '0' bits)
         t_ImmSrc <= "10"; t_InstrImm <= x"000006";
         wait for 5 ns;
         assert (t_ExtImm = x"00000018") report "Failed Extend Test Case 3.1" severity error;
         
         -- Test case 3.2: Branch instructions (negative imm)
-        -- Imm value = -9 (in 2's complement)
+        -- Imm value = -7340032 (in its 2's complement)
+        -- The ouput has to be x"fe400000" as it is the result of (sign-extended x"900000") << 2 
+        -- The binary value of the output will be the (MSB of the input duplicated 6 times & the original InstrImm binary value & 2 '0' bits)
         t_ImmSrc <= "10"; t_InstrImm <= x"900000";
         wait for 5 ns;
         assert (t_ExtImm = x"fe400000") report "Failed Extend Test Case 3.2" severity error; 
