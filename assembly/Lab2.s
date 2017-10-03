@@ -18,55 +18,55 @@
 ; Load necessary constants.
 		LDR R2, ONE
 		LDR R3, [R2]
+		LDR R8, DIPS
 
-; TODO: change loads to mean something.
 ; Wait for user to signal input1 is ready.
 input1
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BEQ input1
 
 ; Get user input.
-		LDR R4, DIPS
+		LDR R4, [R8]
 		AND R4, R4, #255
 
 ; Wait for user to release button.
 input1done
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BNE input1done
 
 
 ; Wait for user to signal operator is ready.
 operator
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BEQ operator
 
 ; Get user input.
-		LDR R5, DIPS
+		LDR R5, [R8]
 		AND R5, R5, #1
 
 ; Wait for user to release button.
 operatordone
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BNE operatordone
 
 
 ; Wait for user to signal input2 is ready.
 input2
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BEQ input2
 
 ; Get user input.
-		LDR R6, DIPS
+		LDR R6, [R8]
 		AND R6, R6, #255
 
 ; Wait for user to release button.
 input2done
-		LDR R0, PUSHBUTTON
+		LDR R0, [R8, #4]
 		ANDS R1, R0, R3, LSL #3
 		BNE input2done
 
@@ -85,7 +85,6 @@ suboperator
 
 ; Display result of computation on LEDS
 computationdone
-		LDR R8, DIPS
 		STR R7, [R8, #-4]
 
 ; Loop back to input.
@@ -102,14 +101,8 @@ computationdone
 ; If a variable is accessed multiple times, it is better to store the address in a register and use it rather than load it repeatedly.
 
 ;Peripheral pointers
-LEDS
-		DCD 0x00000C00		; Address of LEDs. //volatile unsigned int * const LEDS = (unsigned int*)0x00000C00;  
 DIPS
 		DCD 0x00000C04		; Address of DIP switches. //volatile unsigned int * const DIPS = (unsigned int*)0x00000C04;
-PUSHBUTTON
-		DCD 0x00000C08		; Address of Push Buttons. Used only in Lab 2
-UART
-		DCD 0x00000C0C		; Address of UART. Used only in Lab 2
 
 ; Rest of the constants should be declared below.
 ONE   
@@ -127,8 +120,4 @@ ONE
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	
 
 		END	
-		
-;const int* x;         // x is a non-constant pointer to constant data
-;int const* x;         // x is a non-constant pointer to constant data 
-;int*const x;          // x is a constant pointer to non-constant data
-		
+
