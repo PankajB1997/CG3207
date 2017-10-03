@@ -9,6 +9,18 @@
 ;--		(vi) retain this notice in this file or any files derived from this.
 ;----------------------------------------------------------------------------------
 
+;----------------------------------------------------------------------------------
+;-- Register Glossary :
+;-- R0: Stores the state of pushbutton up, i.e. BTNU
+;-- R1: Stores the result of (pushbutton up state AND constant value 1) 
+;-- R3: Stores a constant value of 1, used to check pushbutton state
+;-- R4: Stores operand 1 taken as input
+;-- R5: Stores operator taken as input
+;-- R6: Stores operator 2 taken as input
+;-- R7: Stores the result of the calculation given by <operand 1> <operator> <operand 2>
+;-- R8: Stores the memory address of DIP Switches
+;----------------------------------------------------------------------------------
+
 	AREA    MYCODE, CODE, READONLY, ALIGN=9 
    	  ENTRY
 	  
