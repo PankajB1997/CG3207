@@ -1,100 +1,72 @@
-----------------------------------------------------------------------------------
--- Company: NUS
--- Engineer: (c) Rajesh Panicker  
--- 
--- Create Date:   21:06:18 24/09/2015
--- Design Name: 	TOP (ARM Wrapper)
--- Target Devices: Nexys 4 (Artix 7 100T)
--- Tool versions: Vivado 2015.2
--- Description: Top level module testbench
---
--- Dependencies:
---
--- Revision: 
--- Revision 0.01
--- Additional Comments:
-----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
---		(i) DO NOT post it on any public repository;
---		(ii) use it only for educational purposes;
---		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
---		(iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
---		(v) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
---		(vi) retain this notice in this file or any files derived from this.
-----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
- 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY test_top IS
-END test_top;
+entity test_top is
+--  Port ( );
+end test_top;
 
-ARCHITECTURE behavior OF test_top IS 
+architecture behavior of test_top is
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT TOP
-    GENERIC(
-         CLK_DIV_BITS : integer
-        );
-    PORT(
-         DIP : IN  std_logic_vector(15 downto 0);
-         PB : IN  std_logic_vector(3 downto 0);
-         LED : OUT  std_logic_vector(15 downto 0);
-         TX : OUT  std_logic;
-         RX : IN  std_logic;
-         PAUSE : IN  std_logic;
-         RESET : IN  std_logic;
-         CLK_undiv : IN  std_logic
-        );
-    END COMPONENT;
+    component TOP
+        generic (
+            CLK_DIV_BITS : integer);
+        port (
+            DIP : in  std_logic_vector(15 downto 0);
+            PB : in  std_logic_vector(3 downto 0);
+            LED : out  std_logic_vector(15 downto 0);
+            TX : out  std_logic;
+            RX : in  std_logic;
+            PAUSE : in  std_logic;
+            RESET : in  std_logic;
+            CLK_undiv : in  std_logic);
+    end component;
     
-
-   --Inputs
-   signal DIP : std_logic_vector(15 downto 0) := (others => '0');
-   signal PB : std_logic_vector(3 downto 0) := (others => '0');
-   signal RX : std_logic := '0';
-   signal PAUSE : std_logic := '0';
-   signal RESET : std_logic := '0';
-   signal CLK_undiv : std_logic := '0';
-
- 	--Outputs
-   signal LED : std_logic_vector(15 downto 0);
-   signal TX : std_logic;
-
-   -- Clock period definitions
-   constant CLK_undiv_period : time := 10 ns;
+    --Inputs
+    signal t_DIP : std_logic_vector(15 downto 0) := (others => '0');
+    signal t_PB : std_logic_vector(3 downto 0) := (others => '0');
+    signal t_RX : std_logic := '0';
+    signal t_PAUSE : std_logic := '0';
+    signal t_RESET : std_logic := '0';
+    signal t_CLK_undiv : std_logic := '0';
+    
+    --Outputs
+    signal t_LED : std_logic_vector(15 downto 0);
+    signal t_TX : std_logic;
+    
+    -- Clock period definitions
+    constant ClkUndivPeriod : time := 0.5 ns;
+    constant ClkPeriod : time := ClkUndivPeriod * 2;
  
-BEGIN
- 
+begin
 	-- Instantiate the Unit Under Test (UUT)
-   uut: TOP 
-        GENERIC MAP (
-          CLK_DIV_BITS => 1
-        )
-        PORT MAP (
-          DIP => DIP,
-          PB => PB,
-          LED => LED,
-          TX => TX,
-          RX => RX,
-          PAUSE => PAUSE,
-          RESET => RESET,
-          CLK_undiv => CLK_undiv
-        );
+    uut: TOP 
+    generic map (
+        CLK_DIV_BITS => 1
+    )
+    port map (
+        -- Inputs
+        DIP => t_DIP,
+        PB => t_PB,
+        RX => t_RX,
+        PAUSE => t_PAUSE,
+        RESET => t_RESET,
+        CLK_undiv => t_CLK_undiv,
+        LED => t_LED,
+        TX => t_TX
+    );
 
    -- Clock process definitions
-   CLK_undiv_process :process
-   begin
-		CLK_undiv <= '1';
-		wait for CLK_undiv_period/2;
-		CLK_undiv <= '0';
-		wait for CLK_undiv_period/2;
+   clk_process: process begin
+		t_CLK_undiv <= '1';
+		wait for ClkUndivPeriod / 2;
+		t_CLK_undiv <= '0';
+		wait for ClkUndivPeriod / 2;
    end process;
  
    -- Test instructions for the TOP module will come from using hex2rom on an
@@ -103,21 +75,45 @@ BEGIN
    -- those instructions executes in the expected manner.
 
    -- Stimulus process
-   stim_proc: process
-   begin		
-      -- Set initial value for inputs.
-      -- hold reset state for 10 ns.
-      wait for 10 ns;
-      RESET <= '1';   --RESET is ACTIVE LOW
-      PAUSE <= '0'; DIP <= x"0000"; PB <= x"0";
-      
-      -- Test Case 1
-      DIP <= x"0007"; PB <= x"0";
-      wait for 10 ns;
-      PB <= x"8";
-      wait for 10 ns;
-      
-      wait;
-   end process;
-
-END;
+   stim_proc: process begin
+        t_RESET <= '0'; -- Reset is active low.
+        -- Hold reset state for 1 ClkPeriod.
+        wait for ClkPeriod;
+        
+        -- Set initial value for inputs.
+        t_RESET <= '1'; t_PAUSE <= '0'; t_DIP <= x"0000"; t_PB <= x"0";
+        
+        -- Processor should start cycling, looking for input.
+        wait for ClkPeriod * 9;
+        
+        -- Enter 7 as input1.
+        t_DIP <= x"0007"; t_PB <= x"8";
+        
+        -- Processor should take input1 and start cycling, looking for button to turn off.
+        wait for ClkPeriod * 12;
+        
+        -- Turn off button.
+        t_PB <= x"0";
+        
+        -- Processor should start cycling, looking for inputs.
+        wait for ClkPeriod * 9;
+        
+        -- Do the same for other inputs.
+        -- Use Add.
+        t_DIP <= x"0001"; t_PB <= x"8";
+        wait for ClkPeriod * 12;
+        t_PB <= x"0";
+        wait for ClkPeriod * 9;
+        
+        -- Enter 5 as input2.
+        t_DIP <= x"0005"; t_PB <= x"8";
+        wait for ClkPeriod * 12;
+        t_PB <= x"0";
+        wait for ClkPeriod * 9;
+        
+        wait for ClkPeriod * 9;
+        -- Leds should now show 7 + 5 = 12 = 0xc in the first 8 bits.
+        
+        wait;
+    end process;
+end;
