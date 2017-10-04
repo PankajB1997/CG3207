@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date:   21:06:18 24/09/2015
 -- Design Name: 	TOP (ARM Wrapper)
 -- Target Devices: Nexys 4 (Artix 7 100T)
@@ -10,7 +10,7 @@
 --
 -- Dependencies: Uses uart.vhd by (c) Peter A Bennett
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01
 -- Additional Comments: See the notes below. The interface (entity) as well as implementation (architecture) can be modified
 ----------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_unsigned.ALL;
 ----------------------------------------------------------------
 
 entity TOP is
-		Generic 
+		Generic
 		(
             -- 1 for a 50MHz clock.
             -- 26 for ~1Hz clock.
@@ -41,14 +41,14 @@ entity TOP is
             -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
 		    constant CLK_DIV_BITS	: integer := 26;
 			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
-			-- LED(15-N_LEDs_OUT) showing the divided clock. 
+			-- LED(15-N_LEDs_OUT) showing the divided clock.
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
 			constant N_DIPs		: integer := 16;  -- Number of DIPs. 16 by default
 			constant N_PBs		: integer := 4  -- Number of PushButtons. 4 by default
 			-- Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
 			-- Note that BTNC is used as PAUSE
 		);
-		Port 
+		Port
 		(
 			DIP 			: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
 			PB    			: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
@@ -69,7 +69,7 @@ architecture arch_TOP of TOP is
 
 ----------------------------------------------------------------
 -- Constants
----------------------------------------------------------------- 
+----------------------------------------------------------------
 
 ----------------------------------------------------------------
 -- ARM component declaration
@@ -95,7 +95,7 @@ signal Instr 			: STD_LOGIC_VECTOR (31 downto 0);
 signal ReadData			: STD_LOGIC_VECTOR (31 downto 0);
 signal ALUResult		: STD_LOGIC_VECTOR (31 downto 0);
 signal WriteData		: STD_LOGIC_VECTOR (31 downto 0);
-signal MemWrite 		: STD_LOGIC; 
+signal MemWrite 		: STD_LOGIC;
 
 ----------------------------------------------------------------
 -- Others signals
@@ -112,12 +112,48 @@ type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 wo
 ----------------------------------------------------------------
 -- Instruction Memory
 ----------------------------------------------------------------
-constant INSTR_MEM : MEM_128x32 := (		others => x"00000000");
+constant INSTR_MEM : MEM_128x32 := (		x"E59F31FC", 
+											x"E59F81F4", 
+											x"E5980004", 
+											x"E0101183", 
+											x"0AFFFFFC", 
+											x"E5984000", 
+											x"E20440FF", 
+											x"E5980004", 
+											x"E0101183", 
+											x"1AFFFFFC", 
+											x"E5980004", 
+											x"E0101183", 
+											x"0AFFFFFC", 
+											x"E5985000", 
+											x"E2055001", 
+											x"E5980004", 
+											x"E0101183", 
+											x"1AFFFFFC", 
+											x"E5980004", 
+											x"E0101183", 
+											x"0AFFFFFC", 
+											x"E5986000", 
+											x"E20660FF", 
+											x"E5980004", 
+											x"E0101183", 
+											x"1AFFFFFC", 
+											x"E3550001", 
+											x"0A000000", 
+											x"1A000001", 
+											x"E0847006", 
+											x"EA000000", 
+											x"E0447006", 
+											x"E5087004", 
+											x"EAFFFFDF", 
+											others => x"00000000");
 
 ----------------------------------------------------------------
 -- Data (Constant) Memory
 ----------------------------------------------------------------
-constant DATA_CONST_MEM : MEM_128x32 := (	others => x"00000000");
+constant DATA_CONST_MEM : MEM_128x32 := (	x"00000C04", 
+											x"00000001", 
+											others => x"00000000");
 
 ----------------------------------------------------------------
 -- Data (Variable) Memory
@@ -141,7 +177,7 @@ component UART is
         );
     port (  -- General
             CLOCK		        : in      std_logic;
-            RESET               : in      std_logic;    
+            RESET               : in      std_logic;
             DATA_STREAM_IN      : in      std_logic_vector(7 downto 0);
             DATA_STREAM_IN_STB  : in      std_logic;
             DATA_STREAM_IN_ACK  : out     std_logic;
@@ -152,7 +188,7 @@ component UART is
             RX                  : in      std_logic
          );
 end component UART;
- 
+
 
 ----------------------------------------------------------------------------
 -- UART signals
@@ -163,7 +199,7 @@ signal uart_data_out            : std_logic_vector(7 downto 0);
 signal uart_data_in_stb         : std_logic;
 signal uart_data_in_ack         : std_logic;
 signal uart_data_out_stb        : std_logic;
-signal uart_data_out_ack        : std_logic;	 
+signal uart_data_out_ack        : std_logic;
 
 ----------------------------------------------------------------------------
 -- Other UART wrapper signals
@@ -171,50 +207,50 @@ signal uart_data_out_ack        : std_logic;
 
 type states is (WAITING, CONSOLE);
 signal recv_state : states := WAITING;
-signal CLK_uart : std_logic;	
+signal CLK_uart : std_logic;
 
 -- UART console related
 signal CONSOLE_IN : std_logic_vector(7 downto 0);
 signal CONSOLE_OUT : std_logic_vector(7 downto 0);
-signal CONSOLE_send, CONSOLE_send_prev : std_logic := '0'; 
+signal CONSOLE_send, CONSOLE_send_prev : std_logic := '0';
 signal CONSOLE_IN_valid, CONSOLE_IN_ack: std_logic := '0';
-signal uart_data_out_stb_prev: std_logic := '0'; 
+signal uart_data_out_stb_prev: std_logic := '0';
 signal RESET_INT, RESET_EFF : STD_LOGIC; -- internal and effective reset, for future use.
 
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- <Wrapper architecture>
 ----------------------------------------------------------------
-----------------------------------------------------------------	
-		
+----------------------------------------------------------------
+
 begin
 
 ----------------------------------------------------------------
 -- Debug LEDs
-----------------------------------------------------------------			
+----------------------------------------------------------------
 LED(15-N_LEDs_OUT-1 downto 0) <= PC(15-N_LEDs_OUT+1 downto 2); -- debug showing PC
 LED(15-N_LEDs_OUT) <= CLK; 		-- debug showing clock on LED(15)
 
 ----------------------------------------------------------------
 -- Debug LEDs
-----------------------------------------------------------------	
-RESET_EXT <= not RESET; -- CPU_RESET is active low. 
+----------------------------------------------------------------
+RESET_EXT <= not RESET; -- CPU_RESET is active low.
 RESET_EFF <= RESET_INT or RESET_EXT;
-RESET_INT <= '0'; 	-- internal reset, for future use.	
+RESET_INT <= '0'; 	-- internal reset, for future use.
 
 ----------------------------------------------------------------
 -- ARM port map
 ----------------------------------------------------------------
-ARM1 : ARM port map ( 
+ARM1 : ARM port map (
 			CLK         =>  CLK,
-			RESET		=>	RESET_EFF,  
+			RESET		=>	RESET_EFF,
 			--Interrupt	=> 	Interrupt,
 			Instr 		=>  Instr,
 			ReadData	=>  ReadData,
 			MemWrite 	=>  MemWrite,
 			PC          =>  PC,
-			ALUResult   =>  ALUResult,			
-			WriteData	=>  WriteData					
+			ALUResult   =>  ALUResult,
+			WriteData	=>  WriteData
 			);
 
 ----------------------------------------------------------------------------
@@ -225,7 +261,7 @@ generic map (
 		BAUD_RATE           => BAUD_RATE,
 		CLOCK_FREQUENCY     => CLOCK_FREQUENCY
 )
-port map (  
+port map (
 		CLOCK		        => CLK_uart,
 		RESET               => RESET_EXT,
 		DATA_STREAM_IN      => uart_data_in,
@@ -251,17 +287,17 @@ dec_CONSOLE	    <= '1' 	when ALUResult=x"00000C0C" else '0';
 ----------------------------------------------------------------
 -- Data memory read
 ----------------------------------------------------------------
-ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1' 
-                else (31-N_PBs downto 0 => '0') & PB						    when dec_PB = '1' 
+ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1'
+                else (31-N_PBs downto 0 => '0') & PB						    when dec_PB = '1'
 				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	when dec_DATA_VAR = '1'
 				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2)))when dec_DATA_CONST = '1'
 				else x"000000" & CONSOLE_IN 							when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
 				else (others=>'-');
-				
+
 ----------------------------------------------------------------
 -- Instruction memory read
 ----------------------------------------------------------------
-Instr <= INSTR_MEM(conv_integer(PC(8 downto 2))) 
+Instr <= INSTR_MEM(conv_integer(PC(8 downto 2)))
 			when PC>=x"00000000" and PC<=x"000001FC" -- To check if address is in the valid range, assuming 128 word memory. Also helps minimize warnings
 			else x"00000000";
 
@@ -273,14 +309,14 @@ write_CONSOLE_n_ack: process (CLK)
 begin
 	if CLK'event and CLK = '1' then
 		CONSOLE_send <= '0';
-		CONSOLE_IN_ack <= '0'; 
+		CONSOLE_IN_ack <= '0';
 		if MemWrite = '1' and dec_CONSOLE = '1' then
 			CONSOLE_OUT <= WriteData(7 downto 0);
 			CONSOLE_send <= '1';
 		end if;
 		if dec_CONSOLE = '1' then
 			CONSOLE_IN_ack <= '1';
-		end if;			
+		end if;
 	end if;
 end process;
 
@@ -310,29 +346,29 @@ if CLK_uart'event and CLK_uart = '1' then
 		---------------------
 		-- Receiving
 		---------------------
-		case recv_state is 
+		case recv_state is
 		when WAITING =>
 			if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then
 				uart_data_out_ack   <= '1';
-				recv_state <= CONSOLE;	
+				recv_state <= CONSOLE;
 				CONSOLE_IN <= uart_data_out;
 				CONSOLE_IN_valid <= '1';
 			end if;
-			
-		when CONSOLE =>	
+
+		when CONSOLE =>
 			if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then -- just read and ignore further characters before the current valid character is read.
 				uart_data_out_ack   <= '1';
 			end if;
 			if CONSOLE_IN_ack = '1' then
 				recv_state <= WAITING;
 				CONSOLE_IN_valid <= '0';
-			end if;	
-			
-		end case; 			
+			end if;
+
+		end case;
 		uart_data_out_stb_prev <= uart_data_out_stb;
 	end if;
 end if;
-end process;				
+end process;
 
 ----------------------------------------------------------------
 -- Data Memory-mapped LED write
@@ -363,7 +399,7 @@ end process;
 ----------------------------------------------------------------
 -- Clock divider
 ----------------------------------------------------------------
--- CLK <= CLK_undiv 
+-- CLK <= CLK_undiv
 -- CLK_uart <= CLK_undiv;
 -- IMPORTANT : >>> uncomment the previous lines and comment out the rest of the process
 --			   >>> for obtaining a 100MHz clock frequency. Make sure CLOCK_FREQUENCY is set to 100000000
@@ -381,8 +417,8 @@ end process;
 
 end arch_TOP;
 
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- </Wrapper architecture>
 ----------------------------------------------------------------
-----------------------------------------------------------------	
+----------------------------------------------------------------
