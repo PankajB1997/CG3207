@@ -9,7 +9,7 @@ entity test_top is
 --  Port ( );
 end test_top;
 
-architecture behavior of test_top is
+architecture test_top_behavioral of test_top is
  
     -- Component Declaration for the Unit Under Test (UUT)
  
@@ -45,7 +45,7 @@ architecture behavior of test_top is
  
 begin
 	-- Instantiate the Unit Under Test (UUT)
-    uut: TOP 
+    test_top_module: TOP 
     generic map (
         CLK_DIV_BITS => 1
     )
@@ -116,4 +116,4 @@ begin
         
         wait;
     end process;
-end;
+end test_top_behavioral;
