@@ -89,6 +89,10 @@
 #########
 !*.md
 #########
-#Assemby files
+#Assembly files
 #########
 !*.s
+#########
+#Readme file
+#########
+!readme.txt
