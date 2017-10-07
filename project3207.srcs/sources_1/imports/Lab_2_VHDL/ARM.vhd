@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS	
+-- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date: 09/23/2015 06:49:10 PM
 -- Module Name: ARM
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: ARM Module
--- 
+--
 -- Dependencies: NIL
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments: The interface (entity) SHOULD NOT be modified. The implementation (architecture) can be modified
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -38,111 +38,136 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity ARM is port(
-			CLK			: in 	std_logic;
-			RESET		: in 	std_logic;
-			--Interrupt	: in	std_logic;  -- for optional future use
-			Instr		: in 	std_logic_vector(31 downto 0);
-			ReadData	: in 	std_logic_vector(31 downto 0);
-			MemWrite	: out	std_logic;
-			PC			: out	std_logic_vector(31 downto 0);
-			ALUResult	: out 	std_logic_vector(31 downto 0);
-			WriteData	: out 	std_logic_vector(31 downto 0)
-			);
+entity ARM is
+port(
+    CLK			: in 	std_logic;
+    RESET		: in 	std_logic;
+    --Interrupt	: in	std_logic;  -- for optional future use
+    Instr		: in 	std_logic_vector(31 downto 0);
+    ReadData	: in 	std_logic_vector(31 downto 0);
+    MemWrite	: out	std_logic;
+    PC			: out	std_logic_vector(31 downto 0);
+    ALUResult	: out 	std_logic_vector(31 downto 0);
+    WriteData	: out 	std_logic_vector(31 downto 0)
+    );
 end ARM;
 
 architecture ARM_arch of ARM is
 
-component RegFile is port(
-			CLK			: in	std_logic;
-			WE3			: in	std_logic;
-			A1			: in	std_logic_vector(3 downto 0);
-			A2			: in	std_logic_vector(3 downto 0);
-			A3			: in	std_logic_vector(3 downto 0);
-			WD3			: in	std_logic_vector(31 downto 0);
-			R15			: in 	std_logic_vector(31 downto 0);
-			RD1			: out	std_logic_vector(31 downto 0);
-			RD2			: out	std_logic_vector(31 downto 0)
-			);
-end component RegFile;			
+component RegFile is
+port (
+    CLK			: in	std_logic;
+    WE3			: in	std_logic;
+    A1			: in	std_logic_vector(3 downto 0);
+    A2			: in	std_logic_vector(3 downto 0);
+    A3			: in	std_logic_vector(3 downto 0);
+    WD3			: in	std_logic_vector(31 downto 0);
+    R15			: in 	std_logic_vector(31 downto 0);
+    RD1			: out	std_logic_vector(31 downto 0);
+    RD2			: out	std_logic_vector(31 downto 0)
+);
+end component RegFile;
 
-component Extend is port(
-			ImmSrc		: in	std_logic_vector(1 downto 0);
-			InstrImm		: in	std_logic_vector(23 downto 0);
-			ExtImm		: out	std_logic_vector(31 downto 0)
-			);
+component Extend is
+port (
+    ImmSrc		: in	std_logic_vector(1 downto 0);
+    InstrImm		: in	std_logic_vector(23 downto 0);
+    ExtImm		: out	std_logic_vector(31 downto 0)
+);
 end component Extend;
 
-component Decoder is port(
-			Rd			: in 	std_logic_vector(3 downto 0);
-			Op			: in 	std_logic_vector(1 downto 0);
-			Funct		: in 	std_logic_vector(5 downto 0);
-			PCS			: out	std_logic;
-			RegW		: out	std_logic;
-			MemW		: out	std_logic;
-			MemtoReg	: out	std_logic;
-			ALUSrc		: out	std_logic;
-			ImmSrc		: out	std_logic_vector(1 downto 0);
-			RegSrc		: out	std_logic_vector(1 downto 0);
-			NoWrite		: out	std_logic;
-			ALUControl	: out	std_logic_vector(1 downto 0);
-			FlagW		: out	std_logic_vector(1 downto 0)
-			);
+component Decoder is
+port (
+    Rd			: in 	std_logic_vector(3 downto 0);
+    Op			: in 	std_logic_vector(1 downto 0);
+    Funct		: in 	std_logic_vector(5 downto 0);
+    PCS			: out	std_logic;
+    RegW		: out	std_logic;
+    MemW		: out	std_logic;
+    MemtoReg	: out	std_logic;
+    ALUSrc		: out	std_logic;
+    ImmSrc		: out	std_logic_vector(1 downto 0);
+    RegSrc		: out	std_logic_vector(1 downto 0);
+    NoWrite		: out	std_logic;
+    ALUControl	: out	std_logic_vector(1 downto 0);
+    FlagW		: out	std_logic_vector(1 downto 0)
+);
 end component Decoder;
 
-component CondLogic is port(
-			CLK			: in	std_logic;
-			PCS			: in	std_logic;
-			RegW		: in	std_logic;
-			NoWrite		: in	std_logic;
-			MemW		: in	std_logic;
-			FlagW		: in	std_logic_vector(1 downto 0);
-			Cond		: in	std_logic_vector(3 downto 0);
-			ALUFlags	: in	std_logic_vector(3 downto 0);
-			PCSrc		: out	std_logic;
-			RegWrite	: out	std_logic;
-			MemWrite	: out	std_logic
-			);
+component CondLogic is
+port (
+    CLK			: in	std_logic;
+    PCS			: in	std_logic;
+    RegW		: in	std_logic;
+    NoWrite		: in	std_logic;
+    MemW		: in	std_logic;
+    FlagW		: in	std_logic_vector(1 downto 0);
+    Cond		: in	std_logic_vector(3 downto 0);
+    ALUFlags	: in	std_logic_vector(3 downto 0);
+    PCSrc		: out	std_logic;
+    RegWrite	: out	std_logic;
+    MemWrite	: out	std_logic
+);
 end component CondLogic;
 
-component Shifter is port(
-			Sh			: in	std_logic_vector(1 downto 0); 
-			Shamt5		: in	std_logic_vector(4 downto 0);
-			ShIn		: in	std_logic_vector(31 downto 0);
-			ShOut		: out	std_logic_vector(31 downto 0)		
-			);
+component Shifter is
+port (
+    Sh			: in	std_logic_vector(1 downto 0);
+    Shamt5		: in	std_logic_vector(4 downto 0);
+    ShIn		: in	std_logic_vector(31 downto 0);
+    ShOut		: out	std_logic_vector(31 downto 0)
+);
 end component Shifter;
-								
 
-component ALU is port(
-			Src_A		: in 	std_logic_vector(31 downto 0);
-			Src_B		: in 	std_logic_vector(31 downto 0);
-			ALUControl	: in	std_logic_vector(1 downto 0);
-			ALUResult	: out 	std_logic_vector(31 downto 0);
-			ALUFlags	: out 	std_logic_vector(3 downto 0)
-			);
+
+component ALU is
+port (
+    Src_A		: in 	std_logic_vector(31 downto 0);
+    Src_B		: in 	std_logic_vector(31 downto 0);
+    ALUControl	: in	std_logic_vector(1 downto 0);
+    ALUResult	: out 	std_logic_vector(31 downto 0);
+    ALUFlags	: out 	std_logic_vector(3 downto 0)
+);
 end component ALU;
-			
-component ProgramCounter is port(
-			CLK			: in	std_logic;
-			RESET		: in 	std_logic;
-			WE_PC		: in	std_logic; -- write enable
-			PC_IN		: in	std_logic_vector(31 downto 0);
-			PC			: out	std_logic_vector(31 downto 0)
-			);
+
+component MCycle is
+generic(
+    width 	: integer
+);
+port (
+    CLK		: in	STD_LOGIC;
+    RESET		: in 	STD_LOGIC;
+    Start		: in 	STD_LOGIC;
+    MCycleOp	: in	STD_LOGIC_VECTOR (1 downto 0);
+    Operand1	: in	STD_LOGIC_VECTOR (width-1 downto 0);
+    Operand2	: in	STD_LOGIC_VECTOR (width-1 downto 0);
+    Result1	: out	STD_LOGIC_VECTOR (width-1 downto 0);
+    Result2	: out	STD_LOGIC_VECTOR (width-1 downto 0);
+    Busy		: out	std_logic
+);
+end component MCycle;
+
+component ProgramCounter is
+port (
+    CLK			: in	std_logic;
+    RESET		: in 	std_logic;
+    WE_PC		: in	std_logic; -- write enable
+    PC_IN		: in	std_logic_vector(31 downto 0);
+    PC			: out	std_logic_vector(31 downto 0)
+);
 end component ProgramCounter;
 
 -- RegFile signals
--- signal CLK		: 	std_logic; 
-signal WE3			: 	std_logic; 
-signal A1			: 	std_logic_vector(3 downto 0); 
-signal A2			: 	std_logic_vector(3 downto 0); 
-signal A3			: 	std_logic_vector(3 downto 0); 
-signal WD3			: 	std_logic_vector(31 downto 0); 
-signal R15			: 	std_logic_vector(31 downto 0); 
-signal RD1			: 	std_logic_vector(31 downto 0); 
+-- signal CLK		: 	std_logic;
+signal WE3			: 	std_logic;
+signal A1			: 	std_logic_vector(3 downto 0);
+signal A2			: 	std_logic_vector(3 downto 0);
+signal A3			: 	std_logic_vector(3 downto 0);
+signal WD3			: 	std_logic_vector(31 downto 0);
+signal R15			: 	std_logic_vector(31 downto 0);
+signal RD1			: 	std_logic_vector(31 downto 0);
 signal RD2			: 	std_logic_vector(31 downto 0);
-           
+
 -- Extend signals
 signal ImmSrc		:	std_logic_vector(1 downto 0);
 signal InstrImm		:	std_logic_vector(23 downto 0);
@@ -178,11 +203,11 @@ signal RegWrite		: 	std_logic;
 -- signal MemWrite	: 	std_logic;
 
 -- Shifter signals
-signal Sh			: 	std_logic_vector(1 downto 0); 
+signal Sh			: 	std_logic_vector(1 downto 0);
 signal Shamt5		: 	std_logic_vector(4 downto 0);
 signal ShIn			: 	std_logic_vector(31 downto 0);
-signal ShOut		: 	std_logic_vector(31 downto 0);	
-								
+signal ShOut		: 	std_logic_vector(31 downto 0);
+
 -- ALU signals
 signal Src_A		: 	std_logic_vector(31 downto 0);
 signal Src_B		: 	std_logic_vector(31 downto 0);
@@ -191,16 +216,16 @@ signal ALUResult_sig	: 	std_logic_vector(31 downto 0); -- name for internal sign
 signal ALUFlags		: 	std_logic_vector(3 downto 0);
 
 --ProgramCounter signals
--- signal CLK		:	std_logic;			
-signal WE_PC		:	std_logic; -- write enable	
--- signal RESET		: 	std_logic;		
-signal PC_IN		:	std_logic_vector(31 downto 0);			
+-- signal CLK		:	std_logic;
+signal WE_PC		:	std_logic; -- write enable
+-- signal RESET		: 	std_logic;
+signal PC_IN		:	std_logic_vector(31 downto 0);
 signal PC_sig		:	std_logic_vector(31 downto 0);  -- name for internal signal -> output can't be read
 
 -- Other internal signals
 signal PCPlus4		: 	std_logic_vector(31 downto 0);
 signal PCPlus8		: 	std_logic_vector(31 downto 0);
-signal Result		: 	std_logic_vector(31 downto 0);	
+signal Result		: 	std_logic_vector(31 downto 0);
 
 begin
 
@@ -233,7 +258,7 @@ Src_B <= ExtImm when ALUSrc = '1' else ShOut; --to enable DP instructions with s
 -- ALUControl connected already
 
 -- Shifter inputs
-Sh <= Instr(6 downto 5); 
+Sh <= Instr(6 downto 5);
 Shamt5 <= Instr(11 downto 7);
 ShIn <= RD2;
 
@@ -256,7 +281,7 @@ Cond <= Instr(31 downto 28);
 
 WE_PC		<= '1'; -- Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
 
--- Port maps 
+-- Port maps
 RegFile1 :RegFile port map(
 CLK			=>  	CLK  	,
 WE3			=>  	WE3  	,
@@ -266,15 +291,15 @@ A3			=>  	A3	 	,
 WD3			=>  	WD3  	,
 R15			=>  	R15  	,
 RD1			=>  	RD1  	,
-RD2			=>  	RD2	
+RD2			=>  	RD2
 			);
-		
+
 Extend1 :Extend port map(
 ImmSrc		=>	ImmSrc		,
 InstrImm	=>  InstrImm	,
 ExtImm		=>  ExtImm
 			);
-			
+
 Decoder1 : Decoder port map(
 Rd			=>	Rd			,
 Op			=>	Op			,
@@ -290,9 +315,9 @@ NoWrite		=>	NoWrite		,
 ALUControl	=>	ALUControl	,
 FlagW		=>	FlagW
 			);
-			
+
 CondLogic1: CondLogic port map (
-CLK			=>	CLK			,	
+CLK			=>	CLK			,
 PCS		    =>  PCS		    ,
 RegW		=>  RegW	    ,
 NoWrite	    =>  NoWrite	    ,
@@ -307,20 +332,20 @@ MemWrite	=>  MemWrite
 
 Shifter1 : Shifter port map (
 Sh			=>	Sh			,
-Shamt5		=>	Shamt5		,	
-ShIn		=>	ShIn		,	
+Shamt5		=>	Shamt5		,
+ShIn		=>	ShIn		,
 ShOut		=>	ShOut
 			);
-			
+
 ALU1 : ALU port map(
-Src_A		=>	Src_A		,	
+Src_A		=>	Src_A		,
 Src_B		=>	Src_B		,
 ALUControl	=>	ALUControl	,
 ALUResult	=>	ALUResult_sig	,
 ALUFlags	=>	ALUFlags
 			);
 
-ProgramCounter1 : ProgramCounter port map(			
+ProgramCounter1 : ProgramCounter port map(
 CLK			=>	CLK			,
 RESET		=>	RESET		,
 WE_PC		=>	WE_PC	    ,
