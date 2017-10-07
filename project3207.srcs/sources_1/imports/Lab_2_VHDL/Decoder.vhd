@@ -60,12 +60,13 @@ architecture Decoder_arch of Decoder is
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder  : std_logic;
     signal IllegalInstruction : std_logic;
-  
+
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct) 
+    main_decoder: process (Op, Funct)
     begin
+        IllegalMainDecoder <= '0';  -- Legal by default.
 
         case Op is
            -- Branch Instruction
@@ -78,66 +79,53 @@ begin
                RegWInternal <= '0';
                RegSrc <= "-1";
                ALUOp <= "11"; -- ADD always
-               IllegalMainDecoder <= '0';
-           
+
            -- Memory Instruction
            when "01" =>
+               Branch <= '0';
+               ALUSrc <= '1';
+               ImmSrc <= "01";
+               if Funct(3) = '0' then -- U bit '0'
+                ALUOp <= "10"; -- LDR/STR with Negative offset
+               else
+                ALUOp <= "11"; -- LDR/STR with Positive offset
+               end if;
+
                -- STR Instruction
                if Funct(0) = '0' then
-                   Branch <= '0';
-                   MemWInternal <= '1';
                    MemtoReg <= '-';
-                   ALUSrc <= '1';
-                   ImmSrc <= "01";
+                   MemWInternal <= '1';
                    RegWInternal <= '0';
                    RegSrc <= "10";
-                   IllegalMainDecoder <= '0';
-                   if Funct(3) = '0' then -- U bit '0'
-                    ALUOp <= "10"; -- STR with Negative offset
-                   else
-                    ALUOp <= "11"; -- STR with Positive offset
-                   end if; 
                -- LDR Instruction
                else
-                   Branch <= '0';
                    MemtoReg <= '1';
                    MemWInternal <= '0';
-                   ALUSrc <= '1';
-                   ImmSrc <= "01";
                    RegWInternal <= '1';
                    RegSrc <= "-0";
-                   IllegalMainDecoder <= '0';
-                   if Funct(3) = '0' then -- U bit '0'
-                    ALUOp <= "10"; -- LDR with Negative offset
-                   else
-                    ALUOp <= "11"; -- LDR with Positive offset
-                   end if; 
                end if;
+
            -- Data Processing Instruction
            when "00" =>
+               Branch <= '0';
+               MemtoReg <= '0';
+               MemWInternal <= '0';
+               RegWInternal <= '1';
+               ALUOp <= "00";
+
                -- DP Reg Instruction
                if Funct(5) = '0' then
-                   Branch <= '0';
-                   MemtoReg <= '0';
-                   MemWInternal <= '0';
                    ALUSrc <= '0';
                    ImmSrc <= "--";
-                   RegWInternal <= '1';
                    RegSrc <= "00";
-                   ALUOp <= "00"; 
-                   IllegalMainDecoder <= '0';
                -- DP Imm Instruction
                else
-                   Branch <= '0';
-                   MemtoReg <= '0';
-                   MemWInternal <= '0';
                    ALUSrc <= '1';
                    ImmSrc <= "00";
-                   RegWInternal <= '1';
                    RegSrc <= "-0";
-                   ALUOp <= "00"; 
-                   IllegalMainDecoder <= '0';
                end if;
+
+           -- Invalid Op
            when others =>
                Branch <= '-';
                MemtoReg <= '-';
@@ -153,86 +141,74 @@ begin
 
     -- Logic for ALU Decoder
     alu_decoder: process (ALUOp, Funct) begin
+        IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
             -- Not a DP Instruction
             when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
-                IllegalALUDecoder <= '0';
                 NoWrite <= '0';
                 ALUControl <= "00";
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
-                IllegalALUDecoder <= '0';
                 NoWrite <= '0';
                 ALUControl <= "01";
-            when "00" =>           -- ALU operations for DP instructions
+
+            -- ALU operations for DP instructions
+            when "00" =>
+                NoWrite <= '0';  -- Should write by default.
+                if Funct(0) = '0' then
+                    FlagWInternal <= "00";
+                else
+                    -- N and Z flags
+                    if Funct(4 downto 1) = "0100" or -- ADD
+                       Funct(4 downto 1) = "0010" or -- SUB
+                       Funct(4 downto 1) = "1010" then -- CMP
+                        FlagWInternal(0) <= '1';
+                    else
+                        FlagWInternal(0) <= '0';
+                    end if;
+
+                    -- C and V flags
+                    if Funct(4 downto 1) = "0100" or -- ADD
+                       Funct(4 downto 1) = "0010" or -- SUB
+                       Funct(4 downto 1) = "0000" or -- AND
+                       Funct(4 downto 1) = "1100" or -- ORR
+                       Funct(4 downto 1) = "1010" then -- CMP
+                        FlagWInternal(1) <= '1';
+                    else
+                        FlagWInternal(1) <= '0';
+                    end if;
+                end if;
+
                 case Funct (4 downto 1) is
                     -- ADD Instruction
                     when "0100" =>
-                        NoWrite <= '0';
-                        IllegalALUDecoder <= '0';
                         ALUControl <= "00";
-                        -- ALU flags should be saved
-                        if Funct(0)='1' then
-                            FlagWInternal <= "11";
-                        -- ALU flags should not be saved
-                        else
-                            FlagWInternal <= "00";
-                        end if;
                     -- SUB Instruction
                     when "0010" =>
-                        NoWrite <= '0';
-                        IllegalALUDecoder <= '0';
                         ALUControl <= "01";
-                        -- ALU flags should be saved
-                        if Funct(0)='1' then
-                            FlagWInternal <= "11";
-                        -- ALU flags should not be saved
-                        else
-                            FlagWInternal <= "00";
-                        end if;
                     -- AND Instruction
                     when "0000" =>
-                        NoWrite <= '0';
-                        IllegalALUDecoder <= '0';
                         ALUControl <= "10";
-                        -- ALU flags should be saved
-                        if Funct(0)='1' then
-                            FlagWInternal <= "10";
-                        -- ALU flags should not be saved
-                        else
-                            FlagWInternal <= "00";
-                        end if;
                     -- ORR Instruction
                     when "1100" =>
-                        NoWrite <= '0';
-                        IllegalALUDecoder <= '0';
                         ALUControl <= "11";
-                        -- ALU flags should be saved
-                        if Funct(0)='1' then
-                            FlagWInternal <= "10";
-                        -- ALU flags should not be saved
-                        else
-                            FlagWInternal <= "00";
-                        end if;
                     -- CMP Instruction
                     when "1010" =>
                         if Funct(0)='1' then
                             NoWrite <= '1';
                             ALUControl <= "01";
-                            FlagWInternal <= "11";
-                            IllegalALUDecoder <= '0';
-                        else
+                        else  -- Illegal CMP
                             NoWrite <= '-';
                             ALUControl  <= "--";
                             FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
                         end if;
                     when others =>
-                            NoWrite <= '-';
-                            ALUControl  <= "--";
-                            FlagWInternal <= "--";
-                            IllegalALUDecoder <= '1';     
+                        NoWrite <= '-';
+                        ALUControl  <= "--";
+                        FlagWInternal <= "--";
+                        IllegalALUDecoder <= '1';
                 end case;
             when others =>
                 NoWrite <= '-';
@@ -243,14 +219,14 @@ begin
     end process;
 
     -- PC Logic
-     pc_logic: process (Rd, RdEquals15, RegWInternal, Branch, IllegalInstruction) begin
+    pc_logic: process (Rd, RdEquals15, RegWInternal, Branch, IllegalInstruction) begin
         if Rd = "1111" then
             RdEquals15 <= '1';
         else
             RdEquals15 <= '0';
         end if;
         PCS <= ((RdEquals15 and RegWInternal) or Branch) and (not IllegalInstruction);
-     end process;
+    end process;
 
     IllegalInstruction <= IllegalMainDecoder or IllegalALUDecoder;
 
