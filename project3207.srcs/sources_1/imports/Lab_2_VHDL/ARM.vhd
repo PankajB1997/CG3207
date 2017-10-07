@@ -184,6 +184,7 @@ signal MemtoReg		:	std_logic;
 signal ALUSrc		:	std_logic;
 -- signal ImmSrc	:	std_logic_vector(1 downto 0);
 signal RegSrc		:	std_logic_vector(1 downto 0);
+signal ALUResultSrc :   std_logic;
 -- signal NoWrite	:	std_logic;
 -- signal ALUControl:	std_logic_vector(1 downto 0);
 -- signal FlagW		:	std_logic_vector(1 downto 0);

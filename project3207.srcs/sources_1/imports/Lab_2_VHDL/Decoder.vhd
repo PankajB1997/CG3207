@@ -34,19 +34,23 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity Decoder is port(
-    Rd         : in 	std_logic_vector(3 downto 0);
-    Op         : in 	std_logic_vector(1 downto 0);
-    Funct      : in 	std_logic_vector(5 downto 0);
-    PCS        : out	std_logic;
-    RegW       : out	std_logic;
-    MemW       : out	std_logic;
-    MemtoReg   : out	std_logic;
-    ALUSrc     : out	std_logic;
-    ImmSrc     : out	std_logic_vector(1 downto 0);
-    RegSrc     : out	std_logic_vector(1 downto 0);
-    NoWrite    : out	std_logic;
-    ALUControl : out	std_logic_vector(1 downto 0);
-    FlagW      : out	std_logic_vector(1 downto 0)
+    Rd : in std_logic_vector(3 downto 0);
+    Op : in std_logic_vector(1 downto 0);
+    Funct : in std_logic_vector(5 downto 0);
+    MCycleFunct : in std_logic_vector(3 downto 0);
+    PCS : out std_logic;
+    RegW : out std_logic;
+    MemW : out std_logic;
+    MemtoReg : out std_logic;
+    ALUSrc : out std_logic;
+    ImmSrc : out std_logic_vector(1 downto 0);
+    RegSrc : out std_logic_vector(2 downto 0);
+    ALUResultSrc : out std_logic;
+    NoWrite : out std_logic;
+    ALUControl : out std_logic_vector(1 downto 0);
+    MCycleStart : out std_logic;
+    MCycleOp : out std_logic_vector(1 downto 0);
+    FlagW : out std_logic_vector(1 downto 0)
 );
 end Decoder;
 
@@ -64,83 +68,90 @@ architecture Decoder_arch of Decoder is
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct)
+    main_decoder: process (Op, Funct, MCycleFunct)
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
 
         case Op is
-           -- Branch Instruction
-           when "10" =>
-               Branch <= '1';
-               MemtoReg <= '0';
-               MemWInternal <= '0';
-               ALUSrc <= '1';
-               ImmSrc <= "10";
-               RegWInternal <= '0';
-               RegSrc <= "-1";
-               ALUOp <= "11"; -- ADD always
-
-           -- Memory Instruction
-           when "01" =>
-               Branch <= '0';
-               ALUSrc <= '1';
-               ImmSrc <= "01";
-               if Funct(3) = '0' then -- U bit '0'
-                ALUOp <= "10"; -- LDR/STR with Negative offset
-               else
-                ALUOp <= "11"; -- LDR/STR with Positive offset
-               end if;
-
-               -- STR Instruction
-               if Funct(0) = '0' then
-                   MemtoReg <= '-';
-                   MemWInternal <= '1';
-                   RegWInternal <= '0';
-                   RegSrc <= "10";
-               -- LDR Instruction
-               else
-                   MemtoReg <= '1';
-                   MemWInternal <= '0';
-                   RegWInternal <= '1';
-                   RegSrc <= "-0";
-               end if;
-
-           -- Data Processing Instruction
-           when "00" =>
-               Branch <= '0';
-               MemtoReg <= '0';
-               MemWInternal <= '0';
-               RegWInternal <= '1';
-               ALUOp <= "00";
-
-               -- DP Reg Instruction
-               if Funct(5) = '0' then
-                   ALUSrc <= '0';
-                   ImmSrc <= "--";
-                   RegSrc <= "00";
-               -- DP Imm Instruction
-               else
-                   ALUSrc <= '1';
-                   ImmSrc <= "00";
-                   RegSrc <= "-0";
-               end if;
-
-           -- Invalid Op
-           when others =>
-               Branch <= '-';
-               MemtoReg <= '-';
-               MemWInternal <= '-';
-               ALUSrc <= '-';
-               ImmSrc <= "--";
-               RegWInternal <= '-';
-               RegSrc <= "--";
-               ALUOp <= "--";
-               IllegalMainDecoder <= '1';
+            -- Branch Instruction
+            when "10" =>
+                Branch <= '1';
+                MemtoReg <= '0';
+                MemWInternal <= '0';
+                ALUSrc <= '1';
+                ImmSrc <= "10";
+                RegWInternal <= '0';
+                RegSrc <= "0-1";
+                ALUOp <= "11"; -- ADD always
+            
+            -- Memory Instruction
+            when "01" =>
+                Branch <= '0';
+                ALUSrc <= '1';
+                ImmSrc <= "01";
+                if Funct(3) = '0' then -- U bit '0'
+                    ALUOp <= "10"; -- LDR/STR with Negative offset
+                else
+                    ALUOp <= "11"; -- LDR/STR with Positive offset
+                end if;
+                
+                -- STR Instruction
+                if Funct(0) = '0' then
+                    MemtoReg <= '-';
+                    MemWInternal <= '1';
+                    RegWInternal <= '0';
+                    RegSrc <= "010";
+                -- LDR Instruction
+                else
+                    MemtoReg <= '1';
+                    MemWInternal <= '0';
+                    RegWInternal <= '1';
+                    RegSrc <= "0-0";
+                end if;
+            
+            -- Data Processing Instruction
+            when "00" =>
+                Branch <= '0';
+                MemtoReg <= '0';
+                MemWInternal <= '0';
+                RegWInternal <= '1';
+                ALUOp <= "00";
+                
+                if MCycleFunct = "1001" then
+                    -- MUL/DIV Instruction
+                    ALUSrc <= '0';
+                    ImmSrc <= "--";
+                    RegSrc <= "100";
+                else
+                    -- DP Reg Instruction
+                    if Funct(5) = '0' then
+                        ALUSrc <= '0';
+                        ImmSrc <= "--";
+                        RegSrc <= "000";
+                    -- DP Imm Instruction
+                    else
+                        ALUSrc <= '1';
+                        ImmSrc <= "00";
+                        RegSrc <= "0-0";
+                    end if;
+                end if;
+            
+            -- Invalid Op
+            when others =>
+                Branch <= '-';
+                MemtoReg <= '-';
+                MemWInternal <= '-';
+                ALUSrc <= '-';
+                ImmSrc <= "--";
+                RegWInternal <= '-';
+                RegSrc <= "0--";
+                ALUOp <= "--";
+                IllegalMainDecoder <= '1';
         end case;
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (ALUOp, Funct) begin
+    alu_decoder: process (ALUOp, Funct, MCycleFunct) begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
             -- Not a DP Instruction
@@ -148,10 +159,16 @@ begin
                 FlagWInternal <= "00";
                 NoWrite <= '0';
                 ALUControl <= "00";
+                ALUResultSrc <= '0';
+                MCycleStart <= '0';
+                MCycleOp <= "--";
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 NoWrite <= '0';
                 ALUControl <= "01";
+                ALUResultSrc <= '0';
+                MCycleStart <= '0';
+                MCycleOp <= "--";
 
             -- ALU operations for DP instructions
             when "00" =>
@@ -179,41 +196,61 @@ begin
                         FlagWInternal(1) <= '0';
                     end if;
                 end if;
-
-                case Funct (4 downto 1) is
-                    -- ADD Instruction
-                    when "0100" =>
-                        ALUControl <= "00";
-                    -- SUB Instruction
-                    when "0010" =>
-                        ALUControl <= "01";
-                    -- AND Instruction
-                    when "0000" =>
-                        ALUControl <= "10";
-                    -- ORR Instruction
-                    when "1100" =>
-                        ALUControl <= "11";
-                    -- CMP Instruction
-                    when "1010" =>
-                        if Funct(0)='1' then
-                            NoWrite <= '1';
+                if MCycleFunct = "1001" then
+                    -- MUL/DIV instruction
+                    ALUResultSrc <= '1';
+                    MCycleStart <= '1';
+                    ALUControl <= "--";
+                    if Funct(1) = '0' then
+                        -- MUL instruction
+                        MCycleOp <= "01";
+                    else
+                        -- DIV instruction
+                        MCycleOp <= "11";
+                    end if;
+                else
+                    -- Not MUL/DIV
+                    ALUResultSrc <= '0';
+                    MCycleStart <= '0';
+                    MCycleOp <= "--";
+                    case Funct (4 downto 1) is
+                        -- ADD Instruction
+                        when "0100" =>
+                            ALUControl <= "00";
+                        -- SUB Instruction
+                        when "0010" =>
                             ALUControl <= "01";
-                        else  -- Illegal CMP
+                        -- AND Instruction
+                        when "0000" =>
+                            ALUControl <= "10";
+                        -- ORR Instruction
+                        when "1100" =>
+                            ALUControl <= "11";
+                        -- CMP Instruction
+                        when "1010" =>
+                            if Funct(0)='1' then
+                                NoWrite <= '1';
+                                ALUControl <= "01";
+                            else  -- Illegal CMP
+                                NoWrite <= '-';
+                                ALUControl  <= "--";
+                                FlagWInternal <= "--";
+                                IllegalALUDecoder <= '1';
+                            end if;
+                        when others =>
                             NoWrite <= '-';
                             ALUControl  <= "--";
                             FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
-                        end if;
-                    when others =>
-                        NoWrite <= '-';
-                        ALUControl  <= "--";
-                        FlagWInternal <= "--";
-                        IllegalALUDecoder <= '1';
-                end case;
+                    end case;
+                end if;
             when others =>
                 NoWrite <= '-';
                 ALUControl  <= "--";
                 FlagWInternal <= "--";
+                ALUResultSrc <= '-';
+                MCycleStart <= '-';
+                MCycleOp <= "--";
                 IllegalALUDecoder <= '1';
         end case;
     end process;
