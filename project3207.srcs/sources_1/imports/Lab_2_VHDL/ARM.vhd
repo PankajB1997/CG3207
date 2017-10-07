@@ -131,7 +131,7 @@ port (
 end component ALU;
 
 component MCycle is
-generic(
+generic (
     width 	: integer
 );
 port (
@@ -215,6 +215,15 @@ signal ALUControl	: 	std_logic_vector(1 downto 0);
 signal ALUResult_sig	: 	std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
 signal ALUFlags		: 	std_logic_vector(3 downto 0);
 
+-- MCycle signals
+signal MCycleStart : std_logic;
+signal MCycleOp : std_logic_vector(1 downto 0);
+-- signal Operand1 : std_logic_vector(31 downto 0); -- same as ALU Src_A
+-- signal Operand2 : std_logic_vector(31 downto 0); -- same as ALU Src_B
+signal MCycleResult : std_logic_vector(31 downto 0);
+signal MCycleResultUnused : std_logic_vector(31 downto 0);
+signal MCycleBusy : std_logic;
+
 --ProgramCounter signals
 -- signal CLK		:	std_logic;
 signal WE_PC		:	std_logic; -- write enable
@@ -233,7 +242,7 @@ begin
 
 -- PC inputs
 PC_IN <= Result when PCSrc = '1' else PCPlus4;
--- WE_PC set to constant value below
+WE_PC <= not MCycleBusy;
 
 -- PC outputs
 PCPlus4 <= PC_sig + 4;
@@ -263,7 +272,7 @@ Shamt5 <= Instr(11 downto 7);
 ShIn <= RD2;
 
 -- Data Memory inputs
-ALUResult <= ALUResult_sig;
+ALUResult <= MCycleResult when ALUResultSrc = '1' else ALUResult_sig;
 WriteData <= RD2;
 -- MemW connected already
 
@@ -279,78 +288,100 @@ Rd <= Instr(15 downto 12);
 Cond <= Instr(31 downto 28);
 -- ALUFlags connected already
 
-WE_PC		<= '1'; -- Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
 
 -- Port maps
-RegFile1 :RegFile port map(
-CLK			=>  	CLK  	,
-WE3			=>  	WE3  	,
-A1			=>  	A1	 	,
-A2			=>  	A2	 	,
-A3			=>  	A3	 	,
-WD3			=>  	WD3  	,
-R15			=>  	R15  	,
-RD1			=>  	RD1  	,
-RD2			=>  	RD2
-			);
+RegFile1: RegFile
+port map(
+    CLK			=>  	CLK  	,
+    WE3			=>  	WE3  	,
+    A1			=>  	A1	 	,
+    A2			=>  	A2	 	,
+    A3			=>  	A3	 	,
+    WD3			=>  	WD3  	,
+    R15			=>  	R15  	,
+    RD1			=>  	RD1  	,
+    RD2			=>  	RD2
+);
 
-Extend1 :Extend port map(
-ImmSrc		=>	ImmSrc		,
-InstrImm	=>  InstrImm	,
-ExtImm		=>  ExtImm
-			);
+Extend1: Extend
+port map(
+    ImmSrc		=>	ImmSrc		,
+    InstrImm	=>  InstrImm	,
+    ExtImm		=>  ExtImm
+);
 
-Decoder1 : Decoder port map(
-Rd			=>	Rd			,
-Op			=>	Op			,
-Funct		=>	Funct		,
-PCS			=>	PCS			,
-RegW		=>	RegW		,
-MemW		=>	MemW		,
-MemtoReg	=>	MemtoReg	,
-ALUSrc		=>	ALUSrc		,
-ImmSrc		=>	ImmSrc		,
-RegSrc		=>	RegSrc		,
-NoWrite		=>	NoWrite		,
-ALUControl	=>	ALUControl	,
-FlagW		=>	FlagW
-			);
+Decoder1: Decoder
+port map(
+    Rd			=>	Rd			,
+    Op			=>	Op			,
+    Funct		=>	Funct		,
+    PCS			=>	PCS			,
+    RegW		=>	RegW		,
+    MemW		=>	MemW		,
+    MemtoReg	=>	MemtoReg	,
+    ALUSrc		=>	ALUSrc		,
+    ImmSrc		=>	ImmSrc		,
+    RegSrc		=>	RegSrc		,
+    NoWrite		=>	NoWrite		,
+    ALUControl	=>	ALUControl	,
+    FlagW		=>	FlagW
+);
 
-CondLogic1: CondLogic port map (
-CLK			=>	CLK			,
-PCS		    =>  PCS		    ,
-RegW		=>  RegW	    ,
-NoWrite	    =>  NoWrite	    ,
-MemW		=>  MemW	    ,
-FlagW	    =>  FlagW	    ,
-Cond		=>  Cond	    ,
-ALUFlags	=>  ALUFlags    ,
-PCSrc	    =>  PCSrc	    ,
-RegWrite	=>  RegWrite    ,
-MemWrite	=>  MemWrite
-			);
+CondLogic1: CondLogic
+port map (
+    CLK			=>	CLK			,
+    PCS		    =>  PCS		    ,
+    RegW		=>  RegW	    ,
+    NoWrite	    =>  NoWrite	    ,
+    MemW		=>  MemW	    ,
+    FlagW	    =>  FlagW	    ,
+    Cond		=>  Cond	    ,
+    ALUFlags	=>  ALUFlags    ,
+    PCSrc	    =>  PCSrc	    ,
+    RegWrite	=>  RegWrite    ,
+    MemWrite	=>  MemWrite
+);
 
-Shifter1 : Shifter port map (
-Sh			=>	Sh			,
-Shamt5		=>	Shamt5		,
-ShIn		=>	ShIn		,
-ShOut		=>	ShOut
-			);
+Shifter1: Shifter
+port map (
+    Sh			=>	Sh			,
+    Shamt5		=>	Shamt5		,
+    ShIn		=>	ShIn		,
+    ShOut		=>	ShOut
+);
 
-ALU1 : ALU port map(
-Src_A		=>	Src_A		,
-Src_B		=>	Src_B		,
-ALUControl	=>	ALUControl	,
-ALUResult	=>	ALUResult_sig	,
-ALUFlags	=>	ALUFlags
-			);
+ALU1: ALU
+port map(
+    Src_A		=>	Src_A		,
+    Src_B		=>	Src_B		,
+    ALUControl	=>	ALUControl	,
+    ALUResult	=>	ALUResult_sig	,
+    ALUFlags	=>	ALUFlags
+);
 
-ProgramCounter1 : ProgramCounter port map(
-CLK			=>	CLK			,
-RESET		=>	RESET		,
-WE_PC		=>	WE_PC	    ,
-PC_IN   	=>	PC_IN       ,
-PC			=>	PC_sig
-			);
+MCycle1: MCycle
+generic map (
+    width       =>  4
+)
+port map (
+    CLK =>	CLK,
+    RESET => 	RESET,
+    Start => 	MCycleStart,
+    MCycleOp =>	MCycleOp,
+    Operand1 =>	Src_A,
+    Operand2 =>	Src_B,
+    Result1	=>	MCycleResult,
+    Result2	=>	MCycleResultUnused,
+    Busy =>	MCycleBusy
+);
+
+ProgramCounter1: ProgramCounter
+port map(
+    CLK			=>	CLK			,
+    RESET		=>	RESET		,
+    WE_PC		=>	WE_PC	    ,
+    PC_IN   	=>	PC_IN       ,
+    PC			=>	PC_sig
+);
 
 end ARM_arch;
