@@ -120,8 +120,8 @@ begin
 			end if;
 			count := count+1;
 		else -- Divide
-			-- MCycleOp(0) = '0' is signed division
-			-- MCycleOp(0) = '1' is unsigned division
+			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
+			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
 			if MCycleOp(0) = '1' then
 
 			-- else
