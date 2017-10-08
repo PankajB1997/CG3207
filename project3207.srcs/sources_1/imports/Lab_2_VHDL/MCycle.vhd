@@ -123,7 +123,7 @@ begin
 			Result1 <= temp_sum(width - 1 downto 0);
 		else -- Divide
 			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
-			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
+			-- MCycleOp(0) = '1' takes 'width - 1' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
 			temp := shifted_dividend(2 * width downto width) + not shifted_divisor + '1';
 			if temp(width) = '0' then -- store subtracted result only if it is positive
 				shifted_dividend := temp(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
@@ -135,7 +135,7 @@ begin
 		end if;
 		-- regardless of multiplication or division, check if last cycle is reached
 		-- right now, below assumes that signed division takes (2 * width) cycles, may need to change
-		if (MCycleOp(0) = '1' and count = width - 1) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
+		if (MCycleOp(0) = '1' and count = width - 2) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
 			done <= '1';
 		end if;
 		count := count + 1;
