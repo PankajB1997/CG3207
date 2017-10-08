@@ -125,8 +125,8 @@ begin
 			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
 			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
 			temp := shifted_dividend(2*width downto width) + not shifted_divisor + '1';
-			if temp(2*width) = '0' then -- store subtracted result only if it is positive
-				shifted_dividend := temp(2*width-1 downto 0) & '1';
+			if temp(width) = '0' then -- store subtracted result only if it is positive
+				shifted_dividend := temp(width-1 downto 0) & shifted_dividend(width-1 downto 0) & '1';
 			else
 				shifted_dividend := shifted_dividend(2*width-1 downto 0) & '0';
 			end if;
