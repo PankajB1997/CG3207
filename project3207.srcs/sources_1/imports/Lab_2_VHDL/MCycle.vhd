@@ -135,7 +135,7 @@ begin
 		end if;
 		-- regardless of multiplication or division, check if last cycle is reached
 		-- right now, below assumes that signed division takes (2 * width) cycles, may need to change
-		if (MCycleOp(0) = '1' and count = width - 2) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
+		if (MCycleOp(0) = '1' and count = width - 1) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
 			done <= '1';
 		end if;
 		count := count + 1;
