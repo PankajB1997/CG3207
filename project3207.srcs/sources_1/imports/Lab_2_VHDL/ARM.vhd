@@ -260,9 +260,15 @@ PCPlus8 <= PCPlus4 + 4;
 PC <= PC_sig;
 
 -- Reg file inputs
-A1 <= x"F" when RegSrc(0) = '1' else Instr(19 downto 16);
+A1 <= x"F"
+      when RegSrc(0) = '1'
+      else Instr(11 downto 8)  -- Rs for MUL/DIV.
+           when RegSrc(2) = '1'
+           else Instr(19 downto 16);  -- Rn otherwise.
 A2 <= Instr(15 downto 12) when RegSrc(1) = '1' else Instr(3 downto 0);
-A3 <= Instr(15 downto 12);
+A3 <= Instr(15 downto 12)
+      when RegSrc(2) = '0'
+      else Instr(19 downto 16);  -- Rd for MUL/DIV is 19 downto 16.
 WD3 <= Result;
 R15 <= PCPlus8;
 WE3 <= RegW;
@@ -388,8 +394,8 @@ port map (
     MCycleOp =>	MCycleOp,
     Operand1 =>	Operand1,
     Operand2 =>	Operand2,
-    Result1	=> MCycleResult,
-    Result2	=> MCycleResultUnused,
+    Result1 => MCycleResult,
+    Result2 => MCycleResultUnused,
     Busy =>	MCycleBusy
 );
 
