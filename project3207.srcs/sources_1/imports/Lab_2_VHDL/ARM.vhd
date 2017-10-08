@@ -78,19 +78,23 @@ end component Extend;
 
 component Decoder is
 port (
-    Rd			: in 	std_logic_vector(3 downto 0);
-    Op			: in 	std_logic_vector(1 downto 0);
-    Funct		: in 	std_logic_vector(5 downto 0);
-    PCS			: out	std_logic;
-    RegW		: out	std_logic;
-    MemW		: out	std_logic;
-    MemtoReg	: out	std_logic;
-    ALUSrc		: out	std_logic;
-    ImmSrc		: out	std_logic_vector(1 downto 0);
-    RegSrc		: out	std_logic_vector(1 downto 0);
-    NoWrite		: out	std_logic;
-    ALUControl	: out	std_logic_vector(1 downto 0);
-    FlagW		: out	std_logic_vector(1 downto 0)
+    Rd : in std_logic_vector(3 downto 0);
+    Op : in std_logic_vector(1 downto 0);
+    Funct : in std_logic_vector(5 downto 0);
+    MCycleFunct : in std_logic_vector(3 downto 0);
+    PCS : out std_logic;
+    RegW : out std_logic;
+    MemW : out std_logic;
+    MemtoReg : out std_logic;
+    ALUSrc : out std_logic;
+    ImmSrc : out std_logic_vector(1 downto 0);
+    RegSrc : out std_logic_vector(2 downto 0);
+    ALUResultSrc : out std_logic;
+    NoWrite : out std_logic;
+    ALUControl : out std_logic_vector(1 downto 0);
+    MCycleStart : out std_logic;
+    MCycleOp : out std_logic_vector(1 downto 0);
+    FlagW : out std_logic_vector(1 downto 0)
 );
 end component Decoder;
 
@@ -177,15 +181,18 @@ signal ExtImm		:	std_logic_vector(31 downto 0);
 signal Rd			:	std_logic_vector(3 downto 0);
 signal Op			:	std_logic_vector(1 downto 0);
 signal Funct		:	std_logic_vector(5 downto 0);
+signal MCycleFunct	:	std_logic_vector(3 downto 0);
 -- signal PCS			:	std_logic;
 -- signal RegW			:	std_logic;
 -- signal MemW		:	std_logic;
 signal MemtoReg		:	std_logic;
 signal ALUSrc		:	std_logic;
 -- signal ImmSrc	:	std_logic_vector(1 downto 0);
-signal RegSrc		:	std_logic_vector(1 downto 0);
+signal RegSrc		:	std_logic_vector(2 downto 0);
 signal ALUResultSrc :   std_logic;
 -- signal NoWrite	:	std_logic;
+-- signal MCycleStart  :   std_logic;
+-- signal MCycleOp     :   std_logic_vector(1 downto 0);
 -- signal ALUControl:	std_logic_vector(1 downto 0);
 -- signal FlagW		:	std_logic_vector(1 downto 0);
 
@@ -217,10 +224,12 @@ signal ALUResult_sig	: 	std_logic_vector(31 downto 0); -- name for internal sign
 signal ALUFlags		: 	std_logic_vector(3 downto 0);
 
 -- MCycle signals
+-- signal CLK : std_logic;
+-- signal RESET : std_logic;
 signal MCycleStart : std_logic;
 signal MCycleOp : std_logic_vector(1 downto 0);
--- signal Operand1 : std_logic_vector(31 downto 0); -- same as ALU Src_A
--- signal Operand2 : std_logic_vector(31 downto 0); -- same as ALU Src_B
+signal Operand1 : std_logic_vector(31 downto 0);
+signal Operand2 : std_logic_vector(31 downto 0);
 signal MCycleResult : std_logic_vector(31 downto 0);
 signal MCycleResultUnused : std_logic_vector(31 downto 0);
 signal MCycleBusy : std_logic;
@@ -267,6 +276,10 @@ Src_A <= RD1;
 Src_B <= ExtImm when ALUSrc = '1' else ShOut; --to enable DP instructions with shift operation
 -- ALUControl connected already
 
+-- MCycle inputs
+Operand1 <= Src_A;
+Operand2 <= Src_B;
+
 -- Shifter inputs
 Sh <= Instr(6 downto 5);
 Shamt5 <= Instr(11 downto 7);
@@ -283,6 +296,7 @@ Result <= ReadData when MemToReg = '1' else ALUResult_sig;
 -- Decoder inputs
 Op <= Instr(27 downto 26);
 Funct <= Instr(25 downto 20);
+MCycleFunct <= Instr(7 downto 4);
 Rd <= Instr(15 downto 12);
 
 -- Conditional logic inputs
@@ -316,6 +330,7 @@ port map(
     Rd			=>	Rd			,
     Op			=>	Op			,
     Funct		=>	Funct		,
+    MCycleFunct =>  MCycleFunct ,
     PCS			=>	PCS			,
     RegW		=>	RegW		,
     MemW		=>	MemW		,
@@ -324,6 +339,8 @@ port map(
     ImmSrc		=>	ImmSrc		,
     RegSrc		=>	RegSrc		,
     NoWrite		=>	NoWrite		,
+    MCycleStart =>  MCycleStart ,
+    MCycleOp    =>  MCycleOp    ,
     ALUControl	=>	ALUControl	,
     FlagW		=>	FlagW
 );
@@ -353,26 +370,26 @@ port map (
 
 ALU1: ALU
 port map(
-    Src_A		=>	Src_A		,
-    Src_B		=>	Src_B		,
-    ALUControl	=>	ALUControl	,
-    ALUResult	=>	ALUResult_sig	,
+    Src_A		=>	Src_A,
+    Src_B		=>	Src_B,
+    ALUControl	=>	ALUControl,
+    ALUResult	=>	ALUResult_sig,
     ALUFlags	=>	ALUFlags
 );
 
 MCycle1: MCycle
 generic map (
-    width       =>  4
+    width => 32
 )
 port map (
-    CLK =>	CLK,
-    RESET => 	RESET,
-    Start => 	MCycleStart,
+    CLK => CLK,
+    RESET => RESET,
+    Start => MCycleStart,
     MCycleOp =>	MCycleOp,
-    Operand1 =>	Src_A,
-    Operand2 =>	Src_B,
-    Result1	=>	MCycleResult,
-    Result2	=>	MCycleResultUnused,
+    Operand1 =>	Operand1,
+    Operand2 =>	Operand2,
+    Result1	=> MCycleResult,
+    Result2	=> MCycleResultUnused,
     Busy =>	MCycleBusy
 );
 

@@ -43,7 +43,7 @@ architecture test_decoder_behavioral of test_decoder is
     signal t_ALUResultSrc   : std_logic;
     signal t_NoWrite        : std_logic;
     signal t_ALUControl     : std_logic_vector(1 downto 0);
-    signal t_MStart         : std_logic;
+    signal t_MCycleStart    : std_logic;
     signal t_MCycleOp       : std_logic_vector(1 downto 0);
     signal t_FlagW          : std_logic_vector(1 downto 0);
 
