@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS	
+-- Company: NUS
 -- Engineer: Rajesh Panicker
--- 
+--
 -- Create Date: 10/13/2015 06:49:10 PM
 -- Module Name: ALU
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: Testbench for Multicycle Operations Module
--- 
+--
 -- Dependencies: MCycle
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -32,18 +32,18 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned vMCyclees
 --USE ieee.numeric_std.ALL;
- 
+
 ENTITY test_MCycle IS
 END test_MCycle;
- 
-ARCHITECTURE behavior OF test_MCycle IS 
- 
+
+ARCHITECTURE behavior OF test_MCycle IS
+
     -- Component Declaration for the Unit Under Test (UUT)
- 
+
     COMPONENT MCycle
     PORT(
          CLK : IN  std_logic;
@@ -57,7 +57,7 @@ ARCHITECTURE behavior OF test_MCycle IS
          Busy : OUT  std_logic
         );
     END COMPONENT;
-    
+
 
    --Inputs
    signal CLK : std_logic := '0';
@@ -74,9 +74,9 @@ ARCHITECTURE behavior OF test_MCycle IS
 
    -- Clock period definitions
    constant CLK_period : time := 10 ns;
- 
+
 BEGIN
- 
+
 	-- Instantiate the Unit Under Test (UUT)
    uut: MCycle PORT MAP (
           CLK => CLK,
@@ -98,41 +98,72 @@ BEGIN
 		CLK <= '1';
 		wait for CLK_period/2;
    end process;
- 
+
 
    -- Stimulus process
    stim_proc: process
-   begin		
+   begin
       -- hold reset state for 100 ns.
-      wait for 10 ns;	
+      wait for 10 ns;
 		MCycleOp <= "00";
 		Operand1 <= "1111";
 		Operand2 <= "1111";
-		Start <= '1';		-- Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.	
-      wait until Busy = '0'; 
-		--wait for 10 ns;		
-		--Start <= '0';	
-		--wait for 10 ns;
+		Start <= '1';		-- Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.
+      wait until Busy = '0';
+		wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
 		Operand1 <= "1110";
 		Operand2 <= "1111";
-		--Start <= '1';
-      wait until Busy = '0'; 	
-		--wait for 10 ns;
-		--Start <= '0';	
-		--wait for 10 ns;
-		MCycleOp <= "01";		
+		Start <= '1';
+      wait until Busy = '0';
+		wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
+		MCycleOp <= "01";
 		Operand1 <= "1111";
 		Operand2 <= "1111";
-		--Start <= '1';
-      wait until Busy = '0'; 	
-		--wait for 10 ns;
-		--Start <= '0';		
-		--wait for 10 ns;	
+		Start <= '1';
+      wait until Busy = '0';
+		wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
 		Operand1 <= "1110";
 		Operand2 <= "1111";
-		--Start <= '1';
+		Start <= '1';
       wait until Busy = '0';
+    wait for 10 ns;
 		Start <= '0';
+		wait for 10 ns;
+    MCycleOp <= "11";
+    Operand1 <= "1101";
+    Operand2 <= "0010";
+    Start <= '1';
+      wait until Busy = '0';
+    wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
+    Operand1 <= "1111";
+    Operand2 <= "1111";
+    Start <= '1';
+      wait until Busy = '0';
+    wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
+    Operand1 <= "1111";
+    Operand2 <= "0001";
+    Start <= '1';
+      wait until Busy = '0';
+    wait for 10 ns;
+		Start <= '0';
+		wait for 10 ns;
+    Operand1 <= "0001";
+    Operand2 <= "1111";
+    Start <= '1';
+      wait until Busy = '0';
+
+		Start <= '0';
+
 		wait;
 
    end process;
