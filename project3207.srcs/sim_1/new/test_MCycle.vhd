@@ -42,144 +42,157 @@ END test_MCycle;
 
 ARCHITECTURE behavior OF test_MCycle IS
 
-    -- Component Declaration for the Unit Under Test (UUT)
+  -- Component Declaration for the Unit Under Test (UUT)
 
-    COMPONENT MCycle
-    PORT(
-         CLK : IN  std_logic;
-         RESET : IN  std_logic;
-         Start : IN  std_logic;
-         MCycleOp : IN  std_logic_vector(1 downto 0);
-         Operand1 : IN  std_logic_vector(3 downto 0);
-         Operand2 : IN  std_logic_vector(3 downto 0);
-         Result1 : OUT  std_logic_vector(3 downto 0);
-         Result2 : OUT  std_logic_vector(3 downto 0);
-         Busy : OUT  std_logic
-        );
-    END COMPONENT;
-
+  COMPONENT MCycle
+  PORT(
+       CLK : IN  std_logic;
+       RESET : IN  std_logic;
+       Start : IN  std_logic;
+       MCycleOp : IN  std_logic_vector(1 downto 0);
+       Operand1 : IN  std_logic_vector(3 downto 0);
+       Operand2 : IN  std_logic_vector(3 downto 0);
+       Result1 : OUT  std_logic_vector(3 downto 0);
+       Result2 : OUT  std_logic_vector(3 downto 0);
+       Busy : OUT  std_logic
+      );
+  END COMPONENT;
 
    --Inputs
-   signal CLK : std_logic := '0';
-   signal RESET : std_logic := '0';
-   signal Start : std_logic := '0';
-   signal MCycleOp : std_logic_vector(1 downto 0) := (others => '0');
-   signal Operand1 : std_logic_vector(3 downto 0) := (others => '0');
-   signal Operand2 : std_logic_vector(3 downto 0) := (others => '0');
+   signal t_CLK : std_logic := '0';
+   signal t_RESET : std_logic := '0';
+   signal t_Start : std_logic := '0';
+   signal t_MCycleOp : std_logic_vector(1 downto 0) := (others => '0');
+   signal t_Operand1 : std_logic_vector(3 downto 0) := (others => '0');
+   signal t_Operand2 : std_logic_vector(3 downto 0) := (others => '0');
 
- 	--Outputs
-   signal Result1 : std_logic_vector(3 downto 0);
-   signal Result2 : std_logic_vector(3 downto 0);
-   signal Busy : std_logic;
+  	--Outputs
+   signal t_Result1 : std_logic_vector(3 downto 0);
+   signal t_Result2 : std_logic_vector(3 downto 0);
+   signal t_Busy : std_logic;
 
    -- Clock period definitions
-   constant CLK_period : time := 10 ns;
+   constant ClkPeriod : time := 10 ns;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
-   uut: MCycle PORT MAP (
-          CLK => CLK,
-          RESET => RESET,
-          Start => Start,
-          MCycleOp => MCycleOp,
-          Operand1 => Operand1,
-          Operand2 => Operand2,
-          Result1 => Result1,
-          Result2 => Result2,
-          Busy => Busy
-        );
+  test_mcycle_module: MCycle PORT MAP (
+    -- Inputs
+    CLK => t_CLK,
+    RESET => t_RESET,
+    Start => t_Start,
+    MCycleOp => t_MCycleOp,
+    Operand1 => t_Operand1,
+    Operand2 => t_Operand2,
+    -- Outputs
+    Result1 => t_Result1,
+    Result2 => t_Result2,
+    Busy => t_Busy
+  );
 
-   -- Clock process definitions
-   CLK_process :process
-   begin
-		CLK <= '0';
-		wait for CLK_period/2;
-		CLK <= '1';
-		wait for CLK_period/2;
-   end process;
+  -- Clock generation
+  clk_process: process begin
+    t_CLK <= '0';
+    wait for ClkPeriod/2;
+    t_CLK <= '1';
+    wait for ClkPeriod/2;
+  end process;
 
+  stim_proc: process begin
 
-   -- Stimulus process
-   stim_proc: process
-   begin
-      -- hold reset state for 100 ns.
-      wait for 10 ns;
-		MCycleOp <= "00";
-		Operand1 <= "1111";
-		Operand2 <= "1111";
-		Start <= '1';		-- Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.
-      wait until Busy = '0';
-		wait for 10 ns;
-		Start <= '0';
-		wait for 10 ns;
-		Operand1 <= "1110";
-		Operand2 <= "1111";
-		Start <= '1';
-      wait until Busy = '0';
-		wait for 10 ns;
-		Start <= '0';
-		wait for 10 ns;
-		MCycleOp <= "01";
-		Operand1 <= "1111";
-		Operand2 <= "1111";
-		Start <= '1';
-      wait until Busy = '0';
-		wait for 10 ns;
-		Start <= '0';
-		wait for 10 ns;
-		Operand1 <= "1110";
-		Operand2 <= "1111";
-		Start <= '1';
-      wait until Busy = '0';
+    -- Hold reset state for 100 ns.
     wait for 10 ns;
-		Start <= '0';
-		wait for 10 ns;
+
+    t_MCycleOp <= "00";
+    t_Operand1 <= "1111";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+
+    t_Operand1 <= "1110";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+
+    t_MCycleOp <= "01";
+    t_Operand1 <= "1111";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+
+    t_Operand1 <= "1110";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+
     -- Tests for division start below
-    MCycleOp <= "11";
-    Operand1 <= "1101";
-    Operand2 <= "0010";
-    Start <= '1';
-      wait until Busy = '0';
-    wait for 10 ns;
-    Start <= '0';
-		wait for 10 ns;
-    assert (Result1 = "0110" and Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
-		Operand1 <= "1111";
-    Operand2 <= "1111";
-    Start <= '1';
-      wait until Busy = '0';
-    wait for 10 ns;
-    Start <= '0';
-		wait for 10 ns;
-    assert (Result1 = "0001" and Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
-		Operand1 <= "0001";
-    Operand2 <= "1111";
-    Start <= '1';
-      wait until Busy = '0';
-    wait for 10 ns;
-    Start <= '0';
-		wait for 10 ns;
-    assert (Result1 = "0000" and Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
-		Operand1 <= "1111";
-    Operand2 <= "0001";
-    Start <= '1';
-      wait until Busy = '0';
-    wait for 10 ns;
-    Start <= '0';
-		wait for 10 ns;
-    assert (Result1 = "1111" and Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
-		Operand1 <= "0010";
-    Operand2 <= "1010";
-    Start <= '1';
-      wait until Busy = '0';
-    wait for 10 ns;
-    Start <= '0';
-    wait for 10 ns;
-    assert (Result1 = "0000" and Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
 
-		wait;
+    -- Division Test Case 1: Checking 13/2; Quotient: 6, Remainder: 1
+    t_MCycleOp <= "11";
+    t_Operand1 <= "1101";
+    t_Operand2 <= "0010";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+    assert (t_Result1 = "0110" and t_Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
 
-   end process;
+    -- Division Test Case 2: Checking 15/15; Quotient: 1, Remainder: 0
+    t_Operand1 <= "1111";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+    assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
+
+    -- Division Test Case 3: Checking 1/15; Quotient: 0, Remainder: 1
+    t_Operand1 <= "0001";
+    t_Operand2 <= "1111";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+    assert (t_Result1 = "0000" and t_Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
+
+    -- Division Test Case 4: Checking 15/1; Quotient: 15, Remainder: 0
+    t_Operand1 <= "1111";
+    t_Operand2 <= "0001";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+    assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
+
+    -- Division Test Case 5: Checking 2/10; Quotient: 0, Remainder: 2
+    t_Operand1 <= "0010";
+    t_Operand2 <= "1010";
+    t_Start <= '1';
+    wait until t_Busy = '0';
+    wait for 10 ns;
+    t_Start <= '0';
+    wait for 10 ns;
+    assert (t_Result1 = "0000" and t_Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
+
+    wait;
+
+  end process;
 
 END;
