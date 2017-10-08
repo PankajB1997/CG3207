@@ -94,6 +94,7 @@ variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no
 variable temp_sum : std_logic_vector(2*width-1 downto 0) := (others => '0');
 variable shifted_op1 : std_logic_vector(2*width-1 downto 0) := (others => '0');
 variable shifted_op2 : std_logic_vector(2*width-1 downto 0) := (others => '0');
+variable shifted_dividend : std_logic_vector(2*width downto 0) := (others => '0');
 begin
    if (CLK'event and CLK = '1') then
    			-- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -118,9 +119,14 @@ begin
 				done <= '1';
 			end if;
 			count := count+1;
-		else -- Supposed to be Divide. The dummy code below takes 1 cycle to execute, just returns the operands. Change this to signed [MCycleOp(0) = '0'] and unsigned [MCycleOp(0) = '1'] division.
-			temp_sum(2*width-1 downto width) := Operand1;
-			temp_sum(width-1 downto 0) := Operand2;
+		else -- Divide
+			-- MCycleOp(0) = '0' is signed division
+			-- MCycleOp(0) = '1' is unsigned division
+			if MCycleOp(0) = '1' then
+
+			-- else
+				-- signed division here
+			end if;
 			done <= '1';
 		end if;
 		Result2 <= temp_sum(2*width-1 downto width);
