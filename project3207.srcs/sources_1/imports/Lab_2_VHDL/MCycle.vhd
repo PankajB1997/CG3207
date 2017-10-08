@@ -91,10 +91,10 @@ end process;
 
 COMPUTING_PROCESS : process (CLK) -- process which does the actual computation
 variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
-variable temp_sum : std_logic_vector(2*width-1 downto 0) := (others => '0');
-variable shifted_op1 : std_logic_vector(2*width-1 downto 0) := (others => '0');
-variable shifted_op2 : std_logic_vector(2*width-1 downto 0) := (others => '0');
-variable shifted_dividend : std_logic_vector(2*width downto 0) := (others => '0');
+variable temp_sum : std_logic_vector(2 * width-1 downto 0) := (others => '0');
+variable shifted_op1 : std_logic_vector(2 * width-1 downto 0) := (others => '0');
+variable shifted_op2 : std_logic_vector(2 * width-1 downto 0) := (others => '0');
+variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
 variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
 variable temp : std_logic_vector(width downto 0) := (others => '0');
 -- variable canSubtract : std_logic := '0';
@@ -104,41 +104,41 @@ begin
 		if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
 			count := (others => '0');
 			temp_sum := (others => '0');
-			shifted_op1 := (2*width-1 downto width => not(MCycleOp(0)) and Operand1(width-1)) & Operand1;
-			shifted_op2 := (2*width-1 downto width => not(MCycleOp(0)) and Operand2(width-1)) & Operand2;
-			shifted_dividend := (2*width downto width+1 => not(MCycleOp(0)) and Operand1(width-1)) & Operand1 & '0';
+			shifted_op1 := (2 * width-1 downto width => not(MCycleOp(0)) and Operand1(width-1)) & Operand1;
+			shifted_op2 := (2 * width-1 downto width => not(MCycleOp(0)) and Operand2(width-1)) & Operand2;
+			shifted_dividend := (2 * width downto width + 1 => not(MCycleOp(0)) and Operand1(width-1)) & Operand1 & '0';
 			shifted_divisor := '0' & Operand2;
 		end if;
 		done <= '0';
 
 		if MCycleOp(1) = '0' then -- Multiply
-		-- MCycleOp(0) = '0' takes 2*'width' cycles to execute, returns signed(Operand1)*signed(Operand2)
-		-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)*unsigned(Operand2)
+		-- MCycleOp(0) = '0' takes 2 * 'width' cycles to execute, returns signed(Operand1) * signed(Operand2)
+		-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
 			if shifted_op2(0) = '1' then -- add only if b0 = 1
 				temp_sum := temp_sum + shifted_op1;
 			end if;
-			shifted_op2 := '0'& shifted_op2(2*width-1 downto 1);
-			shifted_op1 := shifted_op1(2*width-2 downto 0) & '0';
-			Result2 <= temp_sum(2*width-1 downto width);
+			shifted_op2 := '0'& shifted_op2(2 * width-1 downto 1);
+			shifted_op1 := shifted_op1(2 * width-2 downto 0) & '0';
+			Result2 <= temp_sum(2 * width-1 downto width);
 			Result1 <= temp_sum(width-1 downto 0);
 		else -- Divide
 			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
 			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-			temp := shifted_dividend(2*width downto width) + not shifted_divisor + '1';
+			temp := shifted_dividend(2 * width downto width) + not shifted_divisor + '1';
 			if temp(width) = '0' then -- store subtracted result only if it is positive
 				shifted_dividend := temp(width-1 downto 0) & shifted_dividend(width-1 downto 0) & '1';
 			else
-				shifted_dividend := shifted_dividend(2*width-1 downto 0) & '0';
+				shifted_dividend := shifted_dividend(2 * width-1 downto 0) & '0';
 			end if;
-			Result2 <= shifted_dividend(2*width downto width+1);
+			Result2 <= shifted_dividend(2 * width downto width + 1);
 			Result1 <= shifted_dividend(width-1 downto 0);
 		end if;
 		-- regardless of multiplication or division, check if last cycle is reached
-		-- right now, below assumes that signed division takes (2*width) cycles, may need to change
-		if (MCycleOp(0)='1' and count=width-1) or (MCycleOp(0)='0' and count=2*width-1) then	 -- If last cycle
+		-- right now, below assumes that signed division takes (2 * width) cycles, may need to change
+		if (MCycleOp(0)='1' and count=width-1) or (MCycleOp(0)='0' and count=2 * width-1) then	 -- If last cycle
 			done <= '1';
 		end if;
-		count := count+1;
+		count := count + 1;
 	end if;
 end process;
 
