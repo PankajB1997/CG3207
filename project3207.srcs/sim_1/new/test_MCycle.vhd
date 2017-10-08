@@ -135,34 +135,48 @@ BEGIN
     wait for 10 ns;
 		Start <= '0';
 		wait for 10 ns;
+    -- Tests for division start below
     MCycleOp <= "11";
     Operand1 <= "1101";
     Operand2 <= "0010";
     Start <= '1';
       wait until Busy = '0';
     wait for 10 ns;
-		Start <= '0';
+    Start <= '0';
 		wait for 10 ns;
-    Operand1 <= "1111";
+    assert (Result1 = "0110" and Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
+		Operand1 <= "1111";
     Operand2 <= "1111";
     Start <= '1';
       wait until Busy = '0';
     wait for 10 ns;
-		Start <= '0';
+    Start <= '0';
 		wait for 10 ns;
-    Operand1 <= "1111";
+    assert (Result1 = "0001" and Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
+		Operand1 <= "0001";
+    Operand2 <= "1111";
+    Start <= '1';
+      wait until Busy = '0';
+    wait for 10 ns;
+    Start <= '0';
+		wait for 10 ns;
+    assert (Result1 = "0000" and Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
+		Operand1 <= "1111";
     Operand2 <= "0001";
     Start <= '1';
       wait until Busy = '0';
     wait for 10 ns;
-		Start <= '0';
+    Start <= '0';
 		wait for 10 ns;
-    Operand1 <= "0001";
-    Operand2 <= "1111";
+    assert (Result1 = "1111" and Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
+		Operand1 <= "0010";
+    Operand2 <= "1010";
     Start <= '1';
       wait until Busy = '0';
-
-		Start <= '0';
+    wait for 10 ns;
+    Start <= '0';
+    wait for 10 ns;
+    assert (Result1 = "0000" and Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
 
 		wait;
 
