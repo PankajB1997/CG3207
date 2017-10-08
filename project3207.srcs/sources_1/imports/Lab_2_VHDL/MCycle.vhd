@@ -95,8 +95,9 @@ variable temp_sum : std_logic_vector(2*width-1 downto 0) := (others => '0');
 variable shifted_op1 : std_logic_vector(2*width-1 downto 0) := (others => '0');
 variable shifted_op2 : std_logic_vector(2*width-1 downto 0) := (others => '0');
 variable shifted_dividend : std_logic_vector(2*width downto 0) := (others => '0');
-variable shifted_divisor : std_logic_vector(2*width downto 0) := (others => '0');
-variable canSubtract : std_logic := '0';
+variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
+variable temp : std_logic_vector(width downto 0) := (others => '0');
+-- variable canSubtract : std_logic := '0';
 begin
    if (CLK'event and CLK = '1') then
    			-- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -106,7 +107,7 @@ begin
 			shifted_op1 := (2*width-1 downto width => not(MCycleOp(0)) and Operand1(width-1)) & Operand1;
 			shifted_op2 := (2*width-1 downto width => not(MCycleOp(0)) and Operand2(width-1)) & Operand2;
 			shifted_dividend := (2*width downto width+1 => not(MCycleOp(0)) and Operand1(width-1)) & Operand1 & '0';
-			shifted_divisor := '0' & Operand1 & (width-1 downto 0 => '0');
+			shifted_divisor := '0' & Operand2;
 		end if;
 		done <= '0';
 
@@ -123,12 +124,11 @@ begin
 		else -- Divide
 			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
 			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-			canSubtract = ;
-			if canSubtract = '1' then -- subtract only if result of subtraction is positive
-				shifted_dividend := shifted_dividend + not (shifted_divisor) + '1';
-				shifted_dividend := shifted_dividend(2*width-2 downto 0) & '1';
+			temp := shifted_dividend(2*width downto width) + not shifted_divisor + '1';
+			if temp(2*width) = '0' then -- store subtracted result only if it is positive
+				shifted_dividend := temp(2*width-1 downto 0) & '1';
 			else
-				shifted_dividend := shifted_dividend(2*width-2 downto 0) & '0';
+				shifted_dividend := shifted_dividend(2*width-1 downto 0) & '0';
 			end if;
 			Result2 <= shifted_dividend(2*width downto width+1);
 			Result1 <= shifted_dividend(width-1 downto 0);
