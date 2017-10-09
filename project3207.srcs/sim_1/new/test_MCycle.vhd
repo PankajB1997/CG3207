@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
--- Company: NUS	
+-- Company: NUS    
 -- Engineer: Rajesh Panicker
 -- 
 -- Create Date: 10/13/2015 06:49:10 PM
@@ -18,14 +18,14 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	(c) Rajesh Panicker
---	License terms : --	You are free to use this code as long as you
---		(i) DO NOT post it on any public repository;
---		(ii) use it only for educational purposes;
---		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
---		(iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
---		(v) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
---		(vi) retain this notice in this file or any files derived from this.
+--    (c) Rajesh Panicker
+--    License terms : --    You are free to use this code as long as you
+--        (i) DO NOT post it on any public repository;
+--        (ii) use it only for educational purposes;
+--        (iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
+--        (iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
+--        (v) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
+--        (vi) retain this notice in this file or any files derived from this.
 ----------------------------------------------------------------------------------
 
 
@@ -66,7 +66,7 @@ ARCHITECTURE behavior OF test_MCycle IS
    signal Operand1 : std_logic_vector(3 downto 0) := (others => '0');
    signal Operand2 : std_logic_vector(3 downto 0) := (others => '0');
 
- 	--Outputs
+     --Outputs
    signal Result1 : std_logic_vector(3 downto 0);
    signal Result2 : std_logic_vector(3 downto 0);
    signal Busy : std_logic;
@@ -76,7 +76,7 @@ ARCHITECTURE behavior OF test_MCycle IS
  
 BEGIN
  
-	-- Instantiate the Unit Under Test (UUT)
+    -- Instantiate the Unit Under Test (UUT)
    uut: MCycle PORT MAP (
           CLK => CLK,
           RESET => RESET,
@@ -92,47 +92,47 @@ BEGIN
    -- Clock process definitions
    CLK_process :process
    begin
-		CLK <= '0';
-		wait for CLK_period/2;
-		CLK <= '1';
-		wait for CLK_period/2;
+        CLK <= '0';
+        wait for CLK_period/2;
+        CLK <= '1';
+        wait for CLK_period/2;
    end process;
  
 
    -- Stimulus process
    stim_proc: process
-   begin		
+   begin        
       -- hold reset state for 100 ns.
-      wait for 10 ns;	
-		MCycleOp <= "00";
-		Operand1 <= "1111";
-		Operand2 <= "1111";
-		Start <= '1';		-- Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.	
+      wait for 10 ns;    
+        MCycleOp <= "00";
+        Operand1 <= "1111";
+        Operand2 <= "1111";
+        Start <= '1';        -- Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.    
       wait until Busy = '0'; 
-		--wait for 10 ns;		
-		--Start <= '0';	
-		--wait for 10 ns;
-		Operand1 <= "1110";
-		Operand2 <= "1111";
-		--Start <= '1';
-      wait until Busy = '0'; 	
-		--wait for 10 ns;
-		--Start <= '0';	
-		--wait for 10 ns;
-		MCycleOp <= "01";		
-		Operand1 <= "1111";
-		Operand2 <= "1111";
-		--Start <= '1';
-      wait until Busy = '0'; 	
-		--wait for 10 ns;
-		--Start <= '0';		
-		--wait for 10 ns;	
-		Operand1 <= "1110";
-		Operand2 <= "1111";
-		--Start <= '1';
+        --wait for 10 ns;        
+        --Start <= '0';    
+        --wait for 10 ns;
+        Operand1 <= "1110";
+        Operand2 <= "1111";
+        --Start <= '1';
+      wait until Busy = '0';     
+        --wait for 10 ns;
+        --Start <= '0';    
+        --wait for 10 ns;
+        MCycleOp <= "01";        
+        Operand1 <= "1111";
+        Operand2 <= "1111";
+        --Start <= '1';
+      wait until Busy = '0';     
+        --wait for 10 ns;
+        --Start <= '0';        
+        --wait for 10 ns;    
+        Operand1 <= "1110";
+        Operand2 <= "1111";
+        --Start <= '1';
       wait until Busy = '0';
-		Start <= '0';
-		wait;
+        Start <= '0';
+        wait;
 
    end process;
 

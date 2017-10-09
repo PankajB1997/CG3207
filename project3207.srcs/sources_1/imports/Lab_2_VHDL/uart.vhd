@@ -218,7 +218,7 @@ begin
                           uart_tx_data    <=  uart_tx_data_block(0);
                           -- Shift for next transmit bit, filling with don't care
                           -- Xilinx ISE does not know srl? So just build it ourself, hehe
-			  -- uart_tx_data_block <=  uart_tx_data_block srl 1;
+              -- uart_tx_data_block <=  uart_tx_data_block srl 1;
                           uart_tx_data_block <= shift_right_by_one(uart_tx_data_block, '-');
                           if uart_tx_count = 7 then  -- binary 111
                             -- We're done, move to next state

@@ -44,7 +44,7 @@ architecture test_top_behavioral of test_top is
     constant ClkPeriod : time := ClkUndivPeriod * 2;
  
 begin
-	-- Instantiate the Unit Under Test (UUT)
+    -- Instantiate the Unit Under Test (UUT)
     test_top_module: TOP 
     generic map (
         CLK_DIV_BITS => 1
@@ -63,10 +63,10 @@ begin
 
    -- Clock process definitions
    clk_process: process begin
-		t_CLK_undiv <= '1';
-		wait for ClkUndivPeriod / 2;
-		t_CLK_undiv <= '0';
-		wait for ClkUndivPeriod / 2;
+        t_CLK_undiv <= '1';
+        wait for ClkUndivPeriod / 2;
+        t_CLK_undiv <= '0';
+        wait for ClkUndivPeriod / 2;
    end process;
  
    -- Test instructions for the TOP module will come from using hex2rom on an
