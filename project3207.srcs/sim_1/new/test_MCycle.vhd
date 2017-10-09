@@ -122,42 +122,46 @@ begin
     t_Operand1 <= "1111";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 1" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Multiplication Test Case 2: Checking (-2)*(-1); Result1: 2, Result2: 0 (i.e. product 2)
     t_Operand1 <= "1110";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0010" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 2" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Multiplication Test Case 3: Checking 15*15; Result1: 1, Result2: 14 (i.e. product 225)
     t_MCycleOp <= "01";
     t_Operand1 <= "1111";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0001" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 3" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Multiplication Test Case 4: Checking 14*15; Result1: 2, Result2: 13 (i.e. product 210)
     t_Operand1 <= "1110";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0010" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 4" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Tests for division start below
 
@@ -166,51 +170,56 @@ begin
     t_Operand1 <= "1101";
     t_Operand2 <= "0010";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0110" and t_Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Division Test Case 2: Checking 15/15; Quotient: 1, Remainder: 0
     t_Operand1 <= "1111";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Division Test Case 3: Checking 1/15; Quotient: 0, Remainder: 1
     t_Operand1 <= "0001";
     t_Operand2 <= "1111";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0000" and t_Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Division Test Case 4: Checking 15/1; Quotient: 15, Remainder: 0
     t_Operand1 <= "1111";
     t_Operand2 <= "0001";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     -- Division Test Case 5: Checking 2/10; Quotient: 0, Remainder: 2
     t_Operand1 <= "0010";
     t_Operand2 <= "1010";
     t_Start <= '1';
-    wait until t_Busy = '0';
-    wait for ClkPeriod;
+    wait for ClkPeriod * 2;
     t_Start <= '0';
+    wait until t_Busy = '0';
+    wait for ClkPeriod / 2;
     assert (t_Result1 = "0000" and t_Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
-    wait for ClkPeriod;
+    wait for 3 * (ClkPeriod / 2);
 
     wait;
 
