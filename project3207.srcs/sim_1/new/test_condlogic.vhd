@@ -40,16 +40,16 @@ begin
     test_condlogic_module: CondLogic
     port map (
         -- Inputs
-        CLK      => t_CLK,
-        PCS      => t_PCS,
-        RegW     => t_RegW,
-        NoWrite  => t_NoWrite,
-        MemW     => t_MemW,
-        FlagW    => t_FlagW,
-        Cond     => t_Cond,
+        CLK => t_CLK,
+        PCS => t_PCS,
+        RegW => t_RegW,
+        NoWrite => t_NoWrite,
+        MemW => t_MemW,
+        FlagW => t_FlagW,
+        Cond => t_Cond,
         ALUFlags => t_ALUFlags,
         -- Outputs
-        PCSrc    => t_PCSrc,
+        PCSrc => t_PCSrc,
         RegWrite => t_RegWrite,
         MemWrite => t_MemWrite
     );

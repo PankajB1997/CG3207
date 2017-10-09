@@ -238,35 +238,35 @@ RESET_INT <= '0';     -- internal reset, for future use.
 -- ARM port map
 ----------------------------------------------------------------
 ARM1 : ARM port map (
-            CLK         =>  CLK,
-            RESET        =>    RESET_EFF,
-            --Interrupt    =>     Interrupt,
-            Instr         =>  Instr,
-            ReadData    =>  ReadData,
-            MemWrite     =>  MemWrite,
-            PC          =>  PC,
-            ALUResult   =>  ALUResult,
-            WriteData    =>  WriteData
+            CLK =>  CLK,
+            RESET =>    RESET_EFF,
+            --Interrupt =>     Interrupt,
+            Instr =>  Instr,
+            ReadData =>  ReadData,
+            MemWrite =>  MemWrite,
+            PC =>  PC,
+            ALUResult =>  ALUResult,
+            WriteData =>  WriteData
 );
 
 ----------------------------------------------------------------------------
 -- UART port map
 ----------------------------------------------------------------------------
 UART1 : UART generic map (
-        BAUD_RATE           => BAUD_RATE,
-        CLOCK_FREQUENCY     => CLOCK_FREQUENCY
+        BAUD_RATE => BAUD_RATE,
+        CLOCK_FREQUENCY => CLOCK_FREQUENCY
 )
 port map (
-        CLOCK                => CLK_uart,
-        RESET               => RESET_EXT,
-        DATA_STREAM_IN      => uart_data_in,
-        DATA_STREAM_IN_STB  => uart_data_in_stb,
-        DATA_STREAM_IN_ACK  => uart_data_in_ack,
-        DATA_STREAM_OUT     => uart_data_out,
+        CLOCK => CLK_uart,
+        RESET => RESET_EXT,
+        DATA_STREAM_IN => uart_data_in,
+        DATA_STREAM_IN_STB => uart_data_in_stb,
+        DATA_STREAM_IN_ACK => uart_data_in_ack,
+        DATA_STREAM_OUT => uart_data_out,
         DATA_STREAM_OUT_STB => uart_data_out_stb,
         DATA_STREAM_OUT_ACK => uart_data_out_ack,
-        TX                  => TX,
-        RX                  => RX
+        TX => TX,
+        RX => RX
 );
 
 ----------------------------------------------------------------
@@ -342,16 +342,14 @@ if CLK_uart'event and CLK_uart = '1' then
         -- Receiving
         ---------------------
         case recv_state is
-        when WAITING =>
-            if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then
+        when WAITING =>             if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then
                 uart_data_out_ack   <= '1';
                 recv_state <= CONSOLE;
                 CONSOLE_IN <= uart_data_out;
                 CONSOLE_IN_valid <= '1';
             end if;
 
-        when CONSOLE =>
-            if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then -- just read and ignore further characters before the current valid character is read.
+        when CONSOLE =>             if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then -- just read and ignore further characters before the current valid character is read.
                 uart_data_out_ack   <= '1';
             end if;
             if CONSOLE_IN_ack = '1' then

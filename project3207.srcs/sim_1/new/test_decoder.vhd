@@ -44,20 +44,20 @@ begin
     test_decoder_module: Decoder
     port map (
         -- Inputs
-        Rd         => t_Rd,
-        Op         => t_Op,
-        Funct      => t_Funct,
+        Rd => t_Rd,
+        Op => t_Op,
+        Funct => t_Funct,
         -- Outputs
-        PCS        => t_PCS,
-        RegW       => t_RegW,
-        MemW       => t_MemW,
-        MemtoReg   => t_MemtoReg,
-        ALUSrc     => t_ALUSrc,
-        ImmSrc     => t_ImmSrc,
-        RegSrc     => t_RegSrc,
-        NoWrite    => t_NoWrite,
+        PCS => t_PCS,
+        RegW => t_RegW,
+        MemW => t_MemW,
+        MemtoReg => t_MemtoReg,
+        ALUSrc => t_ALUSrc,
+        ImmSrc => t_ImmSrc,
+        RegSrc => t_RegSrc,
+        NoWrite => t_NoWrite,
         ALUControl => t_ALUControl,
-        FlagW      => t_FlagW
+        FlagW => t_FlagW
     );
 
     stim_proc: process begin

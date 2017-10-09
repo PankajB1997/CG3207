@@ -70,13 +70,11 @@ if RESET = '1' then
     --Busy <= '0';    --implicit
 else
     case state is
-        when IDLE =>
-            if Start = '1' then
+        when IDLE =>             if Start = '1' then
                 n_state <= COMPUTING;
                 Busy <= '1';
             end if;
-        when COMPUTING =>
-            if done = '1' then
+        when COMPUTING =>             if done = '1' then
                 n_state <= IDLE;
                 --Busy <= '0'; --implicit
             else

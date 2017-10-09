@@ -23,10 +23,10 @@ begin
     test_extend_module: Extend
     port map (
         -- Inputs
-        ImmSrc   => t_ImmSrc,
+        ImmSrc => t_ImmSrc,
         InstrImm => t_InstrImm,
         -- Outputs
-        ExtImm   => t_ExtImm
+        ExtImm => t_ExtImm
     );
 
     stim_proc: process begin

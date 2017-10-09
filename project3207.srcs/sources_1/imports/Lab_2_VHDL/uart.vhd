@@ -197,23 +197,19 @@ begin
       elsif rising_edge(CLOCK) then
                 uart_rx_ReadData_ack     <= '0';
                 case uart_tx_state is
-                    when idle =>
-                        if DATA_STREAM_IN_STB = '1' then
+                    when idle =>                         if DATA_STREAM_IN_STB = '1' then
                             uart_tx_data_block  <= DATA_STREAM_IN;
                             uart_rx_ReadData_ack <= '1';
                             uart_tx_state       <= wait_for_tick;
                         end if;
-                    when wait_for_tick =>
-                        if baud_tick = '1' then
+                    when wait_for_tick =>                         if baud_tick = '1' then
                             uart_tx_state   <= send_start_bit;
                         end if;
-                    when send_start_bit =>
-                        if baud_tick = '1' then
+                    when send_start_bit =>                         if baud_tick = '1' then
                             uart_tx_data    <= '0';
                             uart_tx_state   <= transmit_data;
                         end if;
-                    when transmit_data =>
-                        if baud_tick = '1' then
+                    when transmit_data =>                         if baud_tick = '1' then
                           -- Send next bit
                           uart_tx_data    <=  uart_tx_data_block(0);
                           -- Shift for next transmit bit, filling with don't care
@@ -230,8 +226,7 @@ begin
                           -- Always increment here, will go to zero if we're out
                           uart_tx_count   <= uart_tx_count + 1;
                         end if;
-                    when send_stop_bit =>
-                        if baud_tick = '1' then
+                    when send_stop_bit =>                         if baud_tick = '1' then
                             uart_tx_data <= '1';
                             uart_tx_state <= idle;
                         end if;
@@ -314,8 +309,7 @@ begin
       elsif rising_edge(CLOCK) then
                 case uart_rx_state is
                     -- Waiting for new data to come
-                    when rx_wait_start_synchronise =>
-                        -- With normal clock: Take care about the ACK from
+                    when rx_wait_start_synchronise =>                         -- With normal clock: Take care about the ACK from
                         -- previous received data
                         if DATA_STREAM_OUT_ACK = '1' then
                           -- Revoke strobe
@@ -336,8 +330,7 @@ begin
                             uart_rx_sync_clock <=
                                  (not baud_counter(3), baud_counter(2), baud_counter(1), baud_counter(0) );
                         end if;         -- oversample_baud_tick = '1' and uart_rx_bit = '0'
-                    when rx_get_start_bit =>
-                        -- With normal clock: Take care about the ACK from
+                    when rx_get_start_bit =>                         -- With normal clock: Take care about the ACK from
                         -- previous received data
                         if DATA_STREAM_OUT_ACK = '1' then
                           -- Revoke strobe
@@ -373,8 +366,7 @@ begin
                             -- pragma translate_on
                           end if;
                         end if;
-                    when rx_get_data =>
-                        if uart_rx_sample_tick = '1' then
+                    when rx_get_data =>                         if uart_rx_sample_tick = '1' then
                           -- Receive next bit, shift others one bit down
                           -- We receive lsb first, thus we're filling and shifting from msb direction
                           uart_rx_data_block <= shift_right_by_one(uart_rx_data_block, uart_rx_bit);
@@ -388,8 +380,7 @@ begin
                           -- Always increment here, will go to zero if we're out
                           uart_rx_count   <= uart_rx_count + 1;
                         end if;
-                    when rx_get_stop_bit =>
-                        if uart_rx_sample_tick = '1' then
+                    when rx_get_stop_bit =>                         if uart_rx_sample_tick = '1' then
                             if uart_rx_bit = '1' then
                                 -- Everything alright, we really got the closing stop  bit
                                 -- Set our strobe: Data is ready!

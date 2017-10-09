@@ -24,11 +24,11 @@ begin
 
     test_shifter_module : Shifter port map (
         -- Inputs
-        Sh     => t_Sh,
+        Sh => t_Sh,
         Shamt5 => t_Shamt5,
-        ShIn   => t_ShIn,
+        ShIn => t_ShIn,
         -- Outputs
-        ShOut  => t_ShOut
+        ShOut => t_ShOut
     );
 
     stim_proc: process begin

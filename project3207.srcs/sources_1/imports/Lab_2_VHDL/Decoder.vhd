@@ -70,8 +70,7 @@ begin
 
         case Op is
            -- Branch Instruction
-           when "10" =>
-               Branch <= '1';
+           when "10" =>                Branch <= '1';
                MemtoReg <= '0';
                MemWInternal <= '0';
                ALUSrc <= '1';
@@ -81,8 +80,7 @@ begin
                ALUOp <= "11"; -- ADD always
 
            -- Memory Instruction
-           when "01" =>
-               Branch <= '0';
+           when "01" =>                Branch <= '0';
                ALUSrc <= '1';
                ImmSrc <= "01";
                if Funct(3) = '0' then -- U bit '0'
@@ -106,8 +104,7 @@ begin
                end if;
 
            -- Data Processing Instruction
-           when "00" =>
-               Branch <= '0';
+           when "00" =>                Branch <= '0';
                MemtoReg <= '0';
                MemWInternal <= '0';
                RegWInternal <= '1';
@@ -126,8 +123,7 @@ begin
                end if;
 
            -- Invalid Op
-           when others =>
-               Branch <= '-';
+           when others =>                Branch <= '-';
                MemtoReg <= '-';
                MemWInternal <= '-';
                ALUSrc <= '-';
@@ -154,8 +150,7 @@ begin
                 ALUControl <= "01";
 
             -- ALU operations for DP instructions
-            when "00" =>
-                NoWrite <= '0';  -- Should write by default.
+            when "00" =>                 NoWrite <= '0';  -- Should write by default.
                 if Funct(0) = '0' then
                     FlagWInternal <= "00";
                 else
@@ -182,20 +177,15 @@ begin
 
                 case Funct (4 downto 1) is
                     -- ADD Instruction
-                    when "0100" =>
-                        ALUControl <= "00";
+                    when "0100" =>                         ALUControl <= "00";
                     -- SUB Instruction
-                    when "0010" =>
-                        ALUControl <= "01";
+                    when "0010" =>                         ALUControl <= "01";
                     -- AND Instruction
-                    when "0000" =>
-                        ALUControl <= "10";
+                    when "0000" =>                         ALUControl <= "10";
                     -- ORR Instruction
-                    when "1100" =>
-                        ALUControl <= "11";
+                    when "1100" =>                         ALUControl <= "11";
                     -- CMP Instruction
-                    when "1010" =>
-                        if Funct(0)='1' then
+                    when "1010" =>                         if Funct(0)='1' then
                             NoWrite <= '1';
                             ALUControl <= "01";
                         else  -- Illegal CMP
@@ -204,14 +194,12 @@ begin
                             FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
                         end if;
-                    when others =>
-                        NoWrite <= '-';
+                    when others =>                         NoWrite <= '-';
                         ALUControl  <= "--";
                         FlagWInternal <= "--";
                         IllegalALUDecoder <= '1';
                 end case;
-            when others =>
-                NoWrite <= '-';
+            when others =>                 NoWrite <= '-';
                 ALUControl  <= "--";
                 FlagWInternal <= "--";
                 IllegalALUDecoder <= '1';

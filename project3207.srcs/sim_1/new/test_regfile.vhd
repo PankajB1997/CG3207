@@ -37,9 +37,9 @@ begin
         -- Inputs
         CLK => t_CLK,
         WE3 => t_WE3,
-        A1  => t_A1,
-        A2  => t_A2,
-        A3  => t_A3,
+        A1 => t_A1,
+        A2 => t_A2,
+        A3 => t_A3,
         WD3 => t_WD3,
         R15 => t_R15,
         -- Outputs

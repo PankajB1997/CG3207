@@ -31,12 +31,12 @@ begin
     test_programcounter_module: ProgramCounter
     port map (
         -- Inputs
-        CLK   => t_CLK,
+        CLK => t_CLK,
         RESET => t_RESET,
         WE_PC => t_WE_PC,
         PC_IN => t_PC_IN,
         -- Outputs
-        PC    => t_PC
+        PC => t_PC
     );
 
     -- Clock generation
