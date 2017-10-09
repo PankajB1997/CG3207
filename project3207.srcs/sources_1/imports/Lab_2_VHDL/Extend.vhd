@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS    
+-- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date: 09/23/2015 06:49:10 PM
 -- Module Name: Extend
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: Extend Module
--- 
+--
 -- Dependencies: NIL
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -32,17 +32,18 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity Extend is port(
-            ImmSrc : in std_logic_vector(1 downto 0);
-            InstrImm : in std_logic_vector(23 downto 0);
-            ExtImm : out std_logic_vector(31 downto 0)
+entity Extend is
+port (
+    ImmSrc : in std_logic_vector(1 downto 0);
+    InstrImm : in std_logic_vector(23 downto 0);
+    ExtImm : out std_logic_vector(31 downto 0)
 );
 end Extend;
 
 architecture Extend_arch of Extend is
 begin
-    with ImmSrc select ExtImm <=    (23 downto 0 => '0') & InstrImm(7 downto 0)                when "00", -- DP Instructions
-                                    (19 downto 0 => '0') & InstrImm(11 downto 0)                when "01", -- LDR/STR. Did I mention sign extend for negative offsets in the class?
-                                    (5 downto 0 => InstrImm(23)) & InstrImm(23 downto 0) & "00"    when "10", -- B
-                                    (others => '-')                                            when others;
+    with ImmSrc select ExtImm <= (23 downto 0 => '0') & InstrImm(7 downto 0) when "00",  -- DP Instructions
+                                 (19 downto 0 => '0') & InstrImm(11 downto 0) when "01",  -- LDR/STR
+                                 (5 downto 0 => InstrImm(23)) & InstrImm(23 downto 0) & "00" when "10",  -- B
+                                 (others => '-') when others;
 end Extend_arch;

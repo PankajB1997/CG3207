@@ -37,7 +37,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity ARM is port(
+entity ARM is
+port (
     CLK : in std_logic;
     RESET : in std_logic;
     --Interrupt : in std_logic;  -- for optional future use

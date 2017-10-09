@@ -38,24 +38,23 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity MCycle is
 generic (width : integer := 4); -- Keep this at 4 to verify your algorithms with 4 bit numbers (easier). When using MCycle as a component in ARM, generic map it to 32.
-Port (CLK : in STD_LOGIC;
-        RESET : in STD_LOGIC;  -- Connect this to the reset of the ARM processor.
-        Start : in STD_LOGIC;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
-        MCycleOp : in STD_LOGIC_VECTOR (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
-        Operand1 : in STD_LOGIC_VECTOR (width-1 downto 0); -- Multiplicand / Dividend
-        Operand2 : in STD_LOGIC_VECTOR (width-1 downto 0); -- Multiplier / Divisor
-        Result1 : out STD_LOGIC_VECTOR (width-1 downto 0); -- LSW of Product / Quotient
-        Result2 : out STD_LOGIC_VECTOR (width-1 downto 0); -- MSW of Product / Remainder
-        Busy : out STD_LOGIC);  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
+port (
+    CLK : in STD_LOGIC;
+    RESET : in STD_LOGIC;  -- Connect this to the reset of the ARM processor.
+    Start : in STD_LOGIC;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
+    MCycleOp : in STD_LOGIC_VECTOR (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
+    Operand1 : in STD_LOGIC_VECTOR (width-1 downto 0); -- Multiplicand / Dividend
+    Operand2 : in STD_LOGIC_VECTOR (width-1 downto 0); -- Multiplier / Divisor
+    Result1 : out STD_LOGIC_VECTOR (width-1 downto 0); -- LSW of Product / Quotient
+    Result2 : out STD_LOGIC_VECTOR (width-1 downto 0); -- MSW of Product / Remainder
+    Busy : out STD_LOGIC);  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
 end MCycle;
 
 
 architecture Arch_MCycle of MCycle is
-
-type states is (IDLE, COMPUTING);
-signal state, n_state : states := IDLE;
-signal done : std_logic;
-
+    type states is (IDLE, COMPUTING);
+    signal state, n_state : states := IDLE;
+    signal done : std_logic;
 begin
 
 IDLE_PROCESS : process (state, done, Start, RESET)

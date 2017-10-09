@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: NUS    
+-- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date: 09/23/2015 06:49:10 PM
 -- Module Name: ALU
 -- Project Name: CG3207 Project
 -- Target Devices: Nexys 4 (Artix 7 100T)
 -- Tool Versions: Vivado 2015.2
 -- Description: ALU Module
--- 
+--
 -- Dependencies: NIL
--- 
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
@@ -32,12 +32,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity ALU is port(
-            Src_A : in std_logic_vector(31 downto 0);
-            Src_B : in std_logic_vector(31 downto 0);
-            ALUControl : in std_logic_vector(1 downto 0);
-            ALUResult : out std_logic_vector(31 downto 0);
-            ALUFlags : out std_logic_vector(3 downto 0)
+entity ALU is
+port(
+    Src_A : in std_logic_vector(31 downto 0);
+    Src_B : in std_logic_vector(31 downto 0);
+    ALUControl : in std_logic_vector(1 downto 0);
+    ALUResult : out std_logic_vector(31 downto 0);
+    ALUFlags : out std_logic_vector(3 downto 0)
 );
 end ALU;
 
@@ -54,12 +55,12 @@ begin
     process(Src_A, Src_B, ALUControl, S_wider)
     begin
         C_0 <= (others => '0'); -- default value, will help avoid latches
-        Src_A_comp <= '0' & Src_A; 
-        Src_B_comp <= '0' & Src_B; 
-        ALUResult_i <= Src_B; 
+        Src_A_comp <= '0' & Src_A;
+        Src_B_comp <= '0' & Src_B;
+        ALUResult_i <= Src_B;
         V <= '0';
         case ALUControl is
-            when "00" =>                         
+            when "00" =>
                 ALUResult_i <= S_wider(31 downto 0);
                 V <= ( Src_A(31) xnor  Src_B(31) )  and ( Src_B(31) xor S_wider(31) );
             when "01" =>
@@ -78,4 +79,4 @@ begin
     C <= S_wider(32);
     ALUResult <= ALUResult_i;
     ALUFlags <= N & Z & C & V;
-end ALU_arch;            
+end ALU_arch;

@@ -32,194 +32,192 @@ use IEEE.STD_LOGIC_unsigned.ALL;
 ----------------------------------------------------------------
 
 entity TOP is
-        Generic
-        (
-            -- 1 for a 50MHz clock.
-            -- 26 for ~1Hz clock.
-            -- Will synthesize with default value given here. A different value can be passed in for simulation.
-            -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
-            constant CLK_DIV_BITS : integer := 26;
-            constant N_LEDs_OUT : integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
-            -- LED(15-N_LEDs_OUT) showing the divided clock.
-            -- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
-            constant N_DIPs : integer := 16;  -- Number of DIPs. 16 by default
-            constant N_PBs : integer := 4  -- Number of PushButtons. 4 by default
-            -- Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
-            -- Note that BTNC is used as PAUSE
-        );
-        Port
-        (
-            DIP : in STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
-            PB : in STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
-            LED : out STD_LOGIC_VECTOR (15 downto 0); -- LEDs.
-            -- (15 downto 8) mapped to the address 0x00000C00
-            -- (7) showing the divided clock
-            -- (6 downto 0) showing PC(8 downto 2)
-            TX : out STD_LOGIC;
-            RX : in STD_LOGIC;
-            PAUSE : in STD_LOGIC;  -- Pause -> BTNC (Centre push button)
-            RESET : in STD_LOGIC;     -- Reset -> CPU_RESET (Red push button). ACTIVE LOW. Set it to '1' for simulation
-            CLK_undiv : in STD_LOGIC     -- 100MHz clock. Converted to a lower frequency using CLK_DIV_PROCESS before use.
-        );
+generic (
+    -- 1 for a 50MHz clock.
+    -- 26 for ~1Hz clock.
+    -- Will synthesize with default value given here. A different value can be passed in for simulation.
+    -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
+    constant CLK_DIV_BITS : integer := 26;
+    constant N_LEDs_OUT : integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
+    -- LED(15-N_LEDs_OUT) showing the divided clock.
+    -- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
+    constant N_DIPs : integer := 16;  -- Number of DIPs. 16 by default
+    constant N_PBs : integer := 4  -- Number of PushButtons. 4 by default
+    -- Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
+    -- Note that BTNC is used as PAUSE
+);
+port (
+    DIP : in STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
+    PB : in STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
+    LED : out STD_LOGIC_VECTOR (15 downto 0); -- LEDs.
+    -- (15 downto 8) mapped to the address 0x00000C00
+    -- (7) showing the divided clock
+    -- (6 downto 0) showing PC(8 downto 2)
+    TX : out STD_LOGIC;
+    RX : in STD_LOGIC;
+    PAUSE : in STD_LOGIC;  -- Pause -> BTNC (Centre push button)
+    RESET : in STD_LOGIC;     -- Reset -> CPU_RESET (Red push button). ACTIVE LOW. Set it to '1' for simulation
+    CLK_undiv : in STD_LOGIC     -- 100MHz clock. Converted to a lower frequency using CLK_DIV_PROCESS before use.
+);
 end TOP;
 
 
 architecture arch_TOP of TOP is
 
-----------------------------------------------------------------
--- Constants
-----------------------------------------------------------------
+    ----------------------------------------------------------------
+    -- Constants
+    ----------------------------------------------------------------
 
-----------------------------------------------------------------
--- ARM component declaration
-----------------------------------------------------------------
-component ARM is port(
-            CLK : in std_logic;
-            RESET : in std_logic;
-            --Interrupt : in std_logic;  -- for optional future use
-            Instr : in std_logic_vector(31 downto 0);
-            ReadData : in std_logic_vector(31 downto 0);
-            MemWrite : out std_logic;
-            PC : out std_logic_vector(31 downto 0);
-            ALUResult : out std_logic_vector(31 downto 0);
-            WriteData : out std_logic_vector(31 downto 0)
-);
-end component ARM;
+    ----------------------------------------------------------------
+    -- ARM component declaration
+    ----------------------------------------------------------------
+    component ARM is port(
+                CLK : in std_logic;
+                RESET : in std_logic;
+                --Interrupt : in std_logic;  -- for optional future use
+                Instr : in std_logic_vector(31 downto 0);
+                ReadData : in std_logic_vector(31 downto 0);
+                MemWrite : out std_logic;
+                PC : out std_logic_vector(31 downto 0);
+                ALUResult : out std_logic_vector(31 downto 0);
+                WriteData : out std_logic_vector(31 downto 0)
+    );
+    end component ARM;
 
-----------------------------------------------------------------
--- ARM signals
-----------------------------------------------------------------
-signal PC : STD_LOGIC_VECTOR (31 downto 0);
-signal Instr : STD_LOGIC_VECTOR (31 downto 0);
-signal ReadData : STD_LOGIC_VECTOR (31 downto 0);
-signal ALUResult : STD_LOGIC_VECTOR (31 downto 0);
-signal WriteData : STD_LOGIC_VECTOR (31 downto 0);
-signal MemWrite : STD_LOGIC;
+    ----------------------------------------------------------------
+    -- ARM signals
+    ----------------------------------------------------------------
+    signal PC : STD_LOGIC_VECTOR (31 downto 0);
+    signal Instr : STD_LOGIC_VECTOR (31 downto 0);
+    signal ReadData : STD_LOGIC_VECTOR (31 downto 0);
+    signal ALUResult : STD_LOGIC_VECTOR (31 downto 0);
+    signal WriteData : STD_LOGIC_VECTOR (31 downto 0);
+    signal MemWrite : STD_LOGIC;
 
-----------------------------------------------------------------
--- Others signals
-----------------------------------------------------------------
-signal dec_DATA_CONST, dec_DATA_VAR, dec_LED, dec_DIP, dec_CONSOLE, dec_PB : std_logic;  -- data memory address decoding
-signal CLK : std_logic; -- divided (low freq) clock
-signal RESET_EXT : std_logic; -- effective reset
+    ----------------------------------------------------------------
+    -- Others signals
+    ----------------------------------------------------------------
+    signal dec_DATA_CONST, dec_DATA_VAR, dec_LED, dec_DIP, dec_CONSOLE, dec_PB : std_logic;  -- data memory address decoding
+    signal CLK : std_logic; -- divided (low freq) clock
+    signal RESET_EXT : std_logic; -- effective reset
 
-----------------------------------------------------------------
--- Memory type declaration
-----------------------------------------------------------------
-type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 words
+    ----------------------------------------------------------------
+    -- Memory type declaration
+    ----------------------------------------------------------------
+    type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 words
 
-----------------------------------------------------------------
--- Instruction Memory
-----------------------------------------------------------------
-constant INSTR_MEM : MEM_128x32 := (        x"E59F31FC",
-                                            x"E59F81F4",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"0AFFFFFC",
-                                            x"E5984000",
-                                            x"E20440FF",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"1AFFFFFC",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"0AFFFFFC",
-                                            x"E5985000",
-                                            x"E2055001",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"1AFFFFFC",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"0AFFFFFC",
-                                            x"E5986000",
-                                            x"E20660FF",
-                                            x"E5980004",
-                                            x"E0101183",
-                                            x"1AFFFFFC",
-                                            x"E3550001",
-                                            x"0A000000",
-                                            x"1A000001",
-                                            x"E0847006",
-                                            x"EA000000",
-                                            x"E0447006",
-                                            x"E5087004",
-                                            x"EAFFFFDF",
-                                            others => x"00000000");
+    ----------------------------------------------------------------
+    -- Instruction Memory
+    ----------------------------------------------------------------
+    constant INSTR_MEM : MEM_128x32 := (        x"E59F31FC",
+                                                x"E59F81F4",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"0AFFFFFC",
+                                                x"E5984000",
+                                                x"E20440FF",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"1AFFFFFC",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"0AFFFFFC",
+                                                x"E5985000",
+                                                x"E2055001",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"1AFFFFFC",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"0AFFFFFC",
+                                                x"E5986000",
+                                                x"E20660FF",
+                                                x"E5980004",
+                                                x"E0101183",
+                                                x"1AFFFFFC",
+                                                x"E3550001",
+                                                x"0A000000",
+                                                x"1A000001",
+                                                x"E0847006",
+                                                x"EA000000",
+                                                x"E0447006",
+                                                x"E5087004",
+                                                x"EAFFFFDF",
+                                                others => x"00000000");
 
-----------------------------------------------------------------
--- Data (Constant) Memory
-----------------------------------------------------------------
-constant DATA_CONST_MEM : MEM_128x32 := (    x"00000C04",
-                                            x"00000001",
-                                            others => x"00000000");
+    ----------------------------------------------------------------
+    -- Data (Constant) Memory
+    ----------------------------------------------------------------
+    constant DATA_CONST_MEM : MEM_128x32 := (    x"00000C04",
+                                                x"00000001",
+                                                others => x"00000000");
 
-----------------------------------------------------------------
--- Data (Variable) Memory
-----------------------------------------------------------------
-signal DATA_VAR_MEM : MEM_128x32 := (others=> x"00000000");
+    ----------------------------------------------------------------
+    -- Data (Variable) Memory
+    ----------------------------------------------------------------
+    signal DATA_VAR_MEM : MEM_128x32 := (others=> x"00000000");
 
-----------------------------------------------------------------------------
--- Constants
-----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
+    -- Constants
+    ----------------------------------------------------------------------------
 
-constant BAUD_RATE : positive := 115200;
-constant CLOCK_FREQUENCY : positive := 50000000;
+    constant BAUD_RATE : positive := 115200;
+    constant CLOCK_FREQUENCY : positive := 50000000;
 
-----------------------------------------------------------------------------
--- UART component
-----------------------------------------------------------------------------
-component UART is
-    generic (
-            BAUD_RATE : positive;
-            CLOCK_FREQUENCY : positive );
-    port (  -- General
-            CLOCK : in std_logic;
-            RESET : in std_logic;
-            DATA_STREAM_IN : in std_logic_vector(7 downto 0);
-            DATA_STREAM_IN_STB : in std_logic;
-            DATA_STREAM_IN_ACK : out std_logic;
-            DATA_STREAM_OUT : out std_logic_vector(7 downto 0);
-            DATA_STREAM_OUT_STB : out std_logic;
-            DATA_STREAM_OUT_ACK : in std_logic;
-            TX : out std_logic;
-            RX : in std_logic
-         );
-end component UART;
+    ----------------------------------------------------------------------------
+    -- UART component
+    ----------------------------------------------------------------------------
+    component UART is
+        generic (
+                BAUD_RATE : positive;
+                CLOCK_FREQUENCY : positive );
+        port (  -- General
+                CLOCK : in std_logic;
+                RESET : in std_logic;
+                DATA_STREAM_IN : in std_logic_vector(7 downto 0);
+                DATA_STREAM_IN_STB : in std_logic;
+                DATA_STREAM_IN_ACK : out std_logic;
+                DATA_STREAM_OUT : out std_logic_vector(7 downto 0);
+                DATA_STREAM_OUT_STB : out std_logic;
+                DATA_STREAM_OUT_ACK : in std_logic;
+                TX : out std_logic;
+                RX : in std_logic
+             );
+    end component UART;
 
 
-----------------------------------------------------------------------------
--- UART signals
-----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
+    -- UART signals
+    ----------------------------------------------------------------------------
 
-signal uart_data_in : std_logic_vector(7 downto 0);
-signal uart_data_out : std_logic_vector(7 downto 0);
-signal uart_data_in_stb : std_logic;
-signal uart_data_in_ack : std_logic;
-signal uart_data_out_stb : std_logic;
-signal uart_data_out_ack : std_logic;
+    signal uart_data_in : std_logic_vector(7 downto 0);
+    signal uart_data_out : std_logic_vector(7 downto 0);
+    signal uart_data_in_stb : std_logic;
+    signal uart_data_in_ack : std_logic;
+    signal uart_data_out_stb : std_logic;
+    signal uart_data_out_ack : std_logic;
 
-----------------------------------------------------------------------------
--- Other UART wrapper signals
-----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
+    -- Other UART wrapper signals
+    ----------------------------------------------------------------------------
 
-type states is (WAITING, CONSOLE);
-signal recv_state : states := WAITING;
-signal CLK_uart : std_logic;
+    type states is (WAITING, CONSOLE);
+    signal recv_state : states := WAITING;
+    signal CLK_uart : std_logic;
 
--- UART console related
-signal CONSOLE_IN : std_logic_vector(7 downto 0);
-signal CONSOLE_OUT : std_logic_vector(7 downto 0);
-signal CONSOLE_send, CONSOLE_send_prev : std_logic := '0';
-signal CONSOLE_IN_valid, CONSOLE_IN_ack: std_logic := '0';
-signal uart_data_out_stb_prev: std_logic := '0';
-signal RESET_INT, RESET_EFF : STD_LOGIC; -- internal and effective reset, for future use.
+    -- UART console related
+    signal CONSOLE_IN : std_logic_vector(7 downto 0);
+    signal CONSOLE_OUT : std_logic_vector(7 downto 0);
+    signal CONSOLE_send, CONSOLE_send_prev : std_logic := '0';
+    signal CONSOLE_IN_valid, CONSOLE_IN_ack: std_logic := '0';
+    signal uart_data_out_stb_prev: std_logic := '0';
+    signal RESET_INT, RESET_EFF : STD_LOGIC; -- internal and effective reset, for future use.
 
-----------------------------------------------------------------
-----------------------------------------------------------------
--- <Wrapper architecture>
-----------------------------------------------------------------
-----------------------------------------------------------------
+    ----------------------------------------------------------------
+    ----------------------------------------------------------------
+    -- <Wrapper architecture>
+    ----------------------------------------------------------------
+    ----------------------------------------------------------------
 
 begin
 
