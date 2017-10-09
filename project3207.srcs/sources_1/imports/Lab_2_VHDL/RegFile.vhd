@@ -42,7 +42,7 @@ entity RegFile is port (
             R15 : in std_logic_vector(31 downto 0);
             RD1 : out std_logic_vector(31 downto 0);
             RD2 : out std_logic_vector(31 downto 0)
-            );
+);
 end RegFile;
 
 architecture RegFile_arch of RegFile is

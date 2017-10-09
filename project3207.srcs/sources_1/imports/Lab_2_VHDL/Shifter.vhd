@@ -37,7 +37,7 @@ entity Shifter is port(
             Shamt5 : in std_logic_vector(4 downto 0);
             ShIn : in std_logic_vector(31 downto 0);
             ShOut : out std_logic_vector(31 downto 0)        
-            );
+);
 end Shifter;
 
 architecture Shifter_arch of Shifter is

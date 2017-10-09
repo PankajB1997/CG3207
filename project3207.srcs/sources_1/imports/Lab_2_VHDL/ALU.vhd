@@ -38,7 +38,7 @@ entity ALU is port(
             ALUControl : in std_logic_vector(1 downto 0);
             ALUResult : out std_logic_vector(31 downto 0);
             ALUFlags : out std_logic_vector(3 downto 0)
-            );
+);
 end ALU;
 
 

@@ -38,7 +38,7 @@ entity ProgramCounter is port(
             WE_PC : in std_logic; -- write enable
             PC_IN : in std_logic_vector(31 downto 0);
             PC : out std_logic_vector(31 downto 0) := (others => '0')
-            );
+);
 end ProgramCounter;
 
 architecture ProgramCounter_arch of ProgramCounter is

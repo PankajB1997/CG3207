@@ -83,7 +83,7 @@ component ARM is port(
             PC : out std_logic_vector(31 downto 0);
             ALUResult : out std_logic_vector(31 downto 0);
             WriteData : out std_logic_vector(31 downto 0)
-            );
+);
 end component ARM;
 
 ----------------------------------------------------------------
@@ -111,47 +111,47 @@ type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 wo
 ----------------------------------------------------------------
 -- Instruction Memory
 ----------------------------------------------------------------
-constant INSTR_MEM : MEM_128x32 := (        x"E59F31FC", 
-                                            x"E59F81F4", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"0AFFFFFC", 
-                                            x"E5984000", 
-                                            x"E20440FF", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"1AFFFFFC", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"0AFFFFFC", 
-                                            x"E5985000", 
-                                            x"E2055001", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"1AFFFFFC", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"0AFFFFFC", 
-                                            x"E5986000", 
-                                            x"E20660FF", 
-                                            x"E5980004", 
-                                            x"E0101183", 
-                                            x"1AFFFFFC", 
-                                            x"E3550001", 
-                                            x"0A000000", 
-                                            x"1A000001", 
-                                            x"E0847006", 
-                                            x"EA000000", 
-                                            x"E0447006", 
-                                            x"E5087004", 
-                                            x"EAFFFFDF", 
+constant INSTR_MEM : MEM_128x32 := (        x"E59F31FC",
+                                            x"E59F81F4",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"0AFFFFFC",
+                                            x"E5984000",
+                                            x"E20440FF",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"1AFFFFFC",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"0AFFFFFC",
+                                            x"E5985000",
+                                            x"E2055001",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"1AFFFFFC",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"0AFFFFFC",
+                                            x"E5986000",
+                                            x"E20660FF",
+                                            x"E5980004",
+                                            x"E0101183",
+                                            x"1AFFFFFC",
+                                            x"E3550001",
+                                            x"0A000000",
+                                            x"1A000001",
+                                            x"E0847006",
+                                            x"EA000000",
+                                            x"E0447006",
+                                            x"E5087004",
+                                            x"EAFFFFDF",
                                             others => x"00000000");
 
 ----------------------------------------------------------------
 -- Data (Constant) Memory
 ----------------------------------------------------------------
-constant DATA_CONST_MEM : MEM_128x32 := (    x"00000C04", 
-                                            x"00000001", 
+constant DATA_CONST_MEM : MEM_128x32 := (    x"00000C04",
+                                            x"00000001",
                                             others => x"00000000");
 
 ----------------------------------------------------------------
@@ -249,7 +249,7 @@ ARM1 : ARM port map (
             PC          =>  PC,
             ALUResult   =>  ALUResult,
             WriteData    =>  WriteData
-            );
+);
 
 ----------------------------------------------------------------------------
 -- UART port map

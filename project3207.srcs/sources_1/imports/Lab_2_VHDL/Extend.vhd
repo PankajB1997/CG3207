@@ -36,7 +36,7 @@ entity Extend is port(
             ImmSrc : in std_logic_vector(1 downto 0);
             InstrImm : in std_logic_vector(23 downto 0);
             ExtImm : out std_logic_vector(31 downto 0)
-            );
+);
 end Extend;
 
 architecture Extend_arch of Extend is

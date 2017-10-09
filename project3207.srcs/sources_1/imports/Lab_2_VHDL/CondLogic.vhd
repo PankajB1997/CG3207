@@ -44,7 +44,7 @@ entity CondLogic is port(
             PCSrc : out std_logic;
             RegWrite : out std_logic;
             MemWrite : out std_logic
-            );
+);
 end CondLogic;
 
 architecture CondLogic_arch of CondLogic is
