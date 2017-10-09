@@ -19,8 +19,7 @@
 
 ----------------------------------------------------------------------------------
 --	(c) Rajesh Panicker
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -46,15 +45,15 @@ ARCHITECTURE behavior OF test_MCycle IS
  
     COMPONENT MCycle
     PORT(
-         CLK : IN  std_logic;
-         RESET : IN  std_logic;
-         Start : IN  std_logic;
-         MCycleOp : IN  std_logic_vector(1 downto 0);
-         Operand1 : IN  std_logic_vector(3 downto 0);
-         Operand2 : IN  std_logic_vector(3 downto 0);
-         Result1 : OUT  std_logic_vector(3 downto 0);
-         Result2 : OUT  std_logic_vector(3 downto 0);
-         Busy : OUT  std_logic
+         CLK : IN std_logic;
+         RESET : IN std_logic;
+         Start : IN std_logic;
+         MCycleOp : IN std_logic_vector(1 downto 0);
+         Operand1 : IN std_logic_vector(3 downto 0);
+         Operand2 : IN std_logic_vector(3 downto 0);
+         Result1 : OUT std_logic_vector(3 downto 0);
+         Result2 : OUT std_logic_vector(3 downto 0);
+         Busy : OUT std_logic
         );
     END COMPONENT;
     

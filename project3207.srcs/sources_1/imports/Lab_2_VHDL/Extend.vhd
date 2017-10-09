@@ -18,8 +18,7 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -34,9 +33,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity Extend is port(
-			ImmSrc		: in	std_logic_vector(1 downto 0);
-			InstrImm		: in	std_logic_vector(23 downto 0);
-			ExtImm		: out	std_logic_vector(31 downto 0)
+			ImmSrc : in std_logic_vector(1 downto 0);
+			InstrImm : in std_logic_vector(23 downto 0);
+			ExtImm : out std_logic_vector(31 downto 0)
 			);
 end Extend;
 

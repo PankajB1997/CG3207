@@ -14,8 +14,7 @@
 -- Revision 0.01
 -- Additional Comments: See the notes below. The interface (entity) as well as implementation (architecture) can be modified
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -39,28 +38,28 @@ entity TOP is
             -- 26 for ~1Hz clock.
             -- Will synthesize with default value given here. A different value can be passed in for simulation.
             -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
-		    constant CLK_DIV_BITS	: integer := 26;
-			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
+		    constant CLK_DIV_BITS : integer := 26;
+			constant N_LEDs_OUT : integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
 			-- LED(15-N_LEDs_OUT) showing the divided clock.
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
-			constant N_DIPs		: integer := 16;  -- Number of DIPs. 16 by default
-			constant N_PBs		: integer := 4  -- Number of PushButtons. 4 by default
+			constant N_DIPs : integer := 16;  -- Number of DIPs. 16 by default
+			constant N_PBs : integer := 4  -- Number of PushButtons. 4 by default
 			-- Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
 			-- Note that BTNC is used as PAUSE
 		);
 		Port
 		(
-			DIP 			: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
-			PB    			: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
-			LED 			: out  STD_LOGIC_VECTOR (15 downto 0); -- LEDs.
+			DIP : in STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
+			PB : in STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
+			LED : out STD_LOGIC_VECTOR (15 downto 0); -- LEDs.
 			-- (15 downto 8) mapped to the address 0x00000C00
 			-- (7) showing the divided clock
 			-- (6 downto 0) showing PC(8 downto 2)
-			TX 				: out STD_LOGIC;
-			RX 				: in  STD_LOGIC;
-			PAUSE			: in  STD_LOGIC;  -- Pause -> BTNC (Centre push button)
-			RESET			: in  STD_LOGIC; 	-- Reset -> CPU_RESET (Red push button). ACTIVE LOW. Set it to '1' for simulation
-			CLK_undiv		: in  STD_LOGIC 	-- 100MHz clock. Converted to a lower frequency using CLK_DIV_PROCESS before use.
+			TX : out STD_LOGIC;
+			RX : in STD_LOGIC;
+			PAUSE : in STD_LOGIC;  -- Pause -> BTNC (Centre push button)
+			RESET : in STD_LOGIC; 	-- Reset -> CPU_RESET (Red push button). ACTIVE LOW. Set it to '1' for simulation
+			CLK_undiv : in STD_LOGIC 	-- 100MHz clock. Converted to a lower frequency using CLK_DIV_PROCESS before use.
 		);
 end TOP;
 
@@ -75,34 +74,34 @@ architecture arch_TOP of TOP is
 -- ARM component declaration
 ----------------------------------------------------------------
 component ARM is port(
-			CLK			: in 	std_logic;
-			RESET		: in 	std_logic;
-			--Interrupt	: in	std_logic;  -- for optional future use
-			Instr		: in 	std_logic_vector(31 downto 0);
-			ReadData	: in 	std_logic_vector(31 downto 0);
-			MemWrite	: out	std_logic;
-			PC			: out	std_logic_vector(31 downto 0);
-			ALUResult	: out 	std_logic_vector(31 downto 0);
-			WriteData	: out 	std_logic_vector(31 downto 0)
+			CLK : in std_logic;
+			RESET : in std_logic;
+			--Interrupt : in std_logic;  -- for optional future use
+			Instr : in std_logic_vector(31 downto 0);
+			ReadData : in std_logic_vector(31 downto 0);
+			MemWrite : out std_logic;
+			PC : out std_logic_vector(31 downto 0);
+			ALUResult : out std_logic_vector(31 downto 0);
+			WriteData : out std_logic_vector(31 downto 0)
 			);
 end component ARM;
 
 ----------------------------------------------------------------
 -- ARM signals
 ----------------------------------------------------------------
-signal PC 	             : STD_LOGIC_VECTOR (31 downto 0);
-signal Instr 			: STD_LOGIC_VECTOR (31 downto 0);
-signal ReadData			: STD_LOGIC_VECTOR (31 downto 0);
-signal ALUResult		: STD_LOGIC_VECTOR (31 downto 0);
-signal WriteData		: STD_LOGIC_VECTOR (31 downto 0);
-signal MemWrite 		: STD_LOGIC;
+signal PC : STD_LOGIC_VECTOR (31 downto 0);
+signal Instr : STD_LOGIC_VECTOR (31 downto 0);
+signal ReadData : STD_LOGIC_VECTOR (31 downto 0);
+signal ALUResult : STD_LOGIC_VECTOR (31 downto 0);
+signal WriteData : STD_LOGIC_VECTOR (31 downto 0);
+signal MemWrite : STD_LOGIC;
 
 ----------------------------------------------------------------
 -- Others signals
 ----------------------------------------------------------------
 signal dec_DATA_CONST, dec_DATA_VAR, dec_LED, dec_DIP, dec_CONSOLE, dec_PB : std_logic;  -- data memory address decoding
-signal CLK 			: std_logic; -- divided (low freq) clock
-signal RESET_EXT	: std_logic; -- effective reset
+signal CLK : std_logic; -- divided (low freq) clock
+signal RESET_EXT : std_logic; -- effective reset
 
 ----------------------------------------------------------------
 -- Memory type declaration
@@ -164,28 +163,27 @@ signal DATA_VAR_MEM : MEM_128x32 := (others=> x"00000000");
 -- Constants
 ----------------------------------------------------------------------------
 
-constant BAUD_RATE				: positive 	:= 115200;
-constant CLOCK_FREQUENCY		: positive 	:= 50000000;
+constant BAUD_RATE : positive := 115200;
+constant CLOCK_FREQUENCY : positive := 50000000;
 
 ----------------------------------------------------------------------------
 -- UART component
 ----------------------------------------------------------------------------
 component UART is
     generic (
-            BAUD_RATE           : positive;
-            CLOCK_FREQUENCY     : positive
-        );
+            BAUD_RATE : positive;
+            CLOCK_FREQUENCY : positive );
     port (  -- General
-            CLOCK		        : in      std_logic;
-            RESET               : in      std_logic;
-            DATA_STREAM_IN      : in      std_logic_vector(7 downto 0);
-            DATA_STREAM_IN_STB  : in      std_logic;
-            DATA_STREAM_IN_ACK  : out     std_logic;
-            DATA_STREAM_OUT     : out     std_logic_vector(7 downto 0);
-            DATA_STREAM_OUT_STB : out     std_logic;
-            DATA_STREAM_OUT_ACK : in      std_logic;
-            TX                  : out     std_logic;
-            RX                  : in      std_logic
+            CLOCK : in std_logic;
+            RESET : in std_logic;
+            DATA_STREAM_IN : in std_logic_vector(7 downto 0);
+            DATA_STREAM_IN_STB : in std_logic;
+            DATA_STREAM_IN_ACK : out std_logic;
+            DATA_STREAM_OUT : out std_logic_vector(7 downto 0);
+            DATA_STREAM_OUT_STB : out std_logic;
+            DATA_STREAM_OUT_ACK : in std_logic;
+            TX : out std_logic;
+            RX : in std_logic
          );
 end component UART;
 
@@ -194,12 +192,12 @@ end component UART;
 -- UART signals
 ----------------------------------------------------------------------------
 
-signal uart_data_in             : std_logic_vector(7 downto 0);
-signal uart_data_out            : std_logic_vector(7 downto 0);
-signal uart_data_in_stb         : std_logic;
-signal uart_data_in_ack         : std_logic;
-signal uart_data_out_stb        : std_logic;
-signal uart_data_out_ack        : std_logic;
+signal uart_data_in : std_logic_vector(7 downto 0);
+signal uart_data_out : std_logic_vector(7 downto 0);
+signal uart_data_in_stb : std_logic;
+signal uart_data_in_ack : std_logic;
+signal uart_data_out_stb : std_logic;
+signal uart_data_out_ack : std_logic;
 
 ----------------------------------------------------------------------------
 -- Other UART wrapper signals
@@ -256,8 +254,7 @@ ARM1 : ARM port map (
 ----------------------------------------------------------------------------
 -- UART port map
 ----------------------------------------------------------------------------
-UART1 : UART
-generic map (
+UART1 : UART generic map (
 		BAUD_RATE           => BAUD_RATE,
 		CLOCK_FREQUENCY     => CLOCK_FREQUENCY
 )

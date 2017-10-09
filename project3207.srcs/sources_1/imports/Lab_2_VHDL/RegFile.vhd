@@ -18,8 +18,7 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -34,15 +33,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity RegFile is port (
-			CLK			: in	std_logic;
-			WE3			: in	std_logic;
-			A1			: in	std_logic_vector(3 downto 0);
-			A2			: in	std_logic_vector(3 downto 0);
-			A3			: in	std_logic_vector(3 downto 0);
-			WD3			: in	std_logic_vector(31 downto 0);
-			R15			: in 	std_logic_vector(31 downto 0);
-			RD1			: out	std_logic_vector(31 downto 0);
-			RD2			: out	std_logic_vector(31 downto 0)
+			CLK : in std_logic;
+			WE3 : in std_logic;
+			A1 : in std_logic_vector(3 downto 0);
+			A2 : in std_logic_vector(3 downto 0);
+			A3 : in std_logic_vector(3 downto 0);
+			WD3 : in std_logic_vector(31 downto 0);
+			R15 : in std_logic_vector(31 downto 0);
+			RD1 : out std_logic_vector(31 downto 0);
+			RD2 : out std_logic_vector(31 downto 0)
 			);
 end RegFile;
 

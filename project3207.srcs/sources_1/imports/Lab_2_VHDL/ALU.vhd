@@ -18,8 +18,7 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -34,22 +33,22 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is port(
-			Src_A		: in 	std_logic_vector(31 downto 0);
-			Src_B		: in 	std_logic_vector(31 downto 0);
-			ALUControl	: in	std_logic_vector(1 downto 0);
-			ALUResult	: out 	std_logic_vector(31 downto 0);
-			ALUFlags	: out 	std_logic_vector(3 downto 0)
+			Src_A : in std_logic_vector(31 downto 0);
+			Src_B : in std_logic_vector(31 downto 0);
+			ALUControl : in std_logic_vector(1 downto 0);
+			ALUResult : out std_logic_vector(31 downto 0);
+			ALUFlags : out std_logic_vector(3 downto 0)
 			);
 end ALU;
 
 
 architecture ALU_arch of ALU is
-	signal S_wider 		: std_logic_vector(32 downto 0);
-	signal Src_A_comp	: std_logic_vector(32 downto 0);
-	signal Src_B_comp	: std_logic_vector(32 downto 0);
-	signal ALUResult_i	: std_logic_vector(31 downto 0);
-	signal C_0			: std_logic_vector(32 downto 0);
-	signal N, Z, C, V  	: std_logic;
+	signal S_wider : std_logic_vector(32 downto 0);
+	signal Src_A_comp : std_logic_vector(32 downto 0);
+	signal Src_B_comp : std_logic_vector(32 downto 0);
+	signal ALUResult_i : std_logic_vector(31 downto 0);
+	signal C_0 : std_logic_vector(32 downto 0);
+	signal N, Z, C, V : std_logic;
 begin
 	S_wider <= std_logic_vector( unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0) );
 	process(Src_A, Src_B, ALUControl, S_wider)

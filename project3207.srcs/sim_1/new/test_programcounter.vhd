@@ -11,18 +11,18 @@ architecture test_programcounter_behavioral of test_programcounter is
 
     component ProgramCounter
     port ( 
-        CLK   : in std_logic;
+        CLK : in std_logic;
         RESET : in std_logic;
         WE_PC : in std_logic;
         PC_IN : in std_logic_vector (31 downto 0);
-        PC    : out std_logic_vector (31 downto 0) := (others => '0'));
+        PC : out std_logic_vector (31 downto 0) := (others => '0'));
     end component;
 
-    signal t_CLK   : std_logic;
+    signal t_CLK : std_logic;
     signal t_RESET : std_logic;
     signal t_WE_PC : std_logic;
     signal t_PC_IN : std_logic_vector (31 downto 0);
-    signal t_PC    : std_logic_vector (31 downto 0) := (others => '0');
+    signal t_PC : std_logic_vector (31 downto 0) := (others => '0');
 
     constant ClkPeriod : time := 1 ns; 
 

@@ -10,34 +10,34 @@ architecture test_decoder_behavioral of test_decoder is
 
     component Decoder
     port (
-        Rd         : in 	std_logic_vector(3 downto 0);
-        Op         : in 	std_logic_vector(1 downto 0);
-        Funct      : in 	std_logic_vector(5 downto 0);
-        PCS        : out	std_logic;
-        RegW       : out	std_logic;
-        MemW       : out	std_logic;
-        MemtoReg   : out	std_logic;
-        ALUSrc     : out	std_logic;
-        ImmSrc     : out	std_logic_vector(1 downto 0);
-        RegSrc     : out	std_logic_vector(1 downto 0);
-        NoWrite    : out	std_logic;
-        ALUControl : out	std_logic_vector(1 downto 0);
-        FlagW      : out	std_logic_vector(1 downto 0));
+        Rd : in std_logic_vector(3 downto 0);
+        Op : in std_logic_vector(1 downto 0);
+        Funct : in std_logic_vector(5 downto 0);
+        PCS : out std_logic;
+        RegW : out std_logic;
+        MemW : out std_logic;
+        MemtoReg : out std_logic;
+        ALUSrc : out std_logic;
+        ImmSrc : out std_logic_vector(1 downto 0);
+        RegSrc : out std_logic_vector(1 downto 0);
+        NoWrite : out std_logic;
+        ALUControl : out std_logic_vector(1 downto 0);
+        FlagW : out std_logic_vector(1 downto 0));
     end component;
 
-    signal t_Rd             : std_logic_vector(3 downto 0);
-    signal t_Op             : std_logic_vector(1 downto 0);
-    signal t_Funct          : std_logic_vector(5 downto 0);
-    signal t_PCS            : std_logic;
-    signal t_RegW           : std_logic;
-    signal t_MemW           : std_logic;
-    signal t_MemtoReg       : std_logic;
-    signal t_ALUSrc         : std_logic;
-    signal t_ImmSrc         : std_logic_vector(1 downto 0);
-    signal t_RegSrc         : std_logic_vector(1 downto 0);
-    signal t_NoWrite        : std_logic;
-    signal t_ALUControl     : std_logic_vector(1 downto 0);
-    signal t_FlagW          : std_logic_vector(1 downto 0);
+    signal t_Rd : std_logic_vector(3 downto 0);
+    signal t_Op : std_logic_vector(1 downto 0);
+    signal t_Funct : std_logic_vector(5 downto 0);
+    signal t_PCS : std_logic;
+    signal t_RegW : std_logic;
+    signal t_MemW : std_logic;
+    signal t_MemtoReg : std_logic;
+    signal t_ALUSrc : std_logic;
+    signal t_ImmSrc : std_logic_vector(1 downto 0);
+    signal t_RegSrc : std_logic_vector(1 downto 0);
+    signal t_NoWrite : std_logic;
+    signal t_ALUControl : std_logic_vector(1 downto 0);
+    signal t_FlagW : std_logic_vector(1 downto 0);
 
 begin
 

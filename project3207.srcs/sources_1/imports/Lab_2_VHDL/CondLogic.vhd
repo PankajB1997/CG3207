@@ -18,8 +18,7 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -34,25 +33,25 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity CondLogic is port(
-			CLK			: in	std_logic;
-			PCS			: in	std_logic;
-			RegW		: in	std_logic;
-			NoWrite		: in	std_logic;
-			MemW		: in	std_logic;
-			FlagW		: in	std_logic_vector(1 downto 0);
-			Cond		: in	std_logic_vector(3 downto 0);
-			ALUFlags	: in	std_logic_vector(3 downto 0);
-			PCSrc		: out	std_logic;
-			RegWrite	: out	std_logic;
-			MemWrite	: out	std_logic
+			CLK : in std_logic;
+			PCS : in std_logic;
+			RegW : in std_logic;
+			NoWrite : in std_logic;
+			MemW : in std_logic;
+			FlagW : in std_logic_vector(1 downto 0);
+			Cond : in std_logic_vector(3 downto 0);
+			ALUFlags : in std_logic_vector(3 downto 0);
+			PCSrc : out std_logic;
+			RegWrite : out std_logic;
+			MemWrite : out std_logic
 			);
 end CondLogic;
 
 architecture CondLogic_arch of CondLogic is
-	signal CondEx		: std_logic;
+	signal CondEx : std_logic;
 	-- Flags are ordered as NZCV
-	signal N, Z, C, V	: std_logic := '0';
-	signal FlagWrite    : std_logic_vector(1 downto 0);
+	signal N, Z, C, V : std_logic := '0';
+	signal FlagWrite : std_logic_vector(1 downto 0);
 begin
 	
 	with Cond select CondEx <= 	Z						when "0000",	-- EQ

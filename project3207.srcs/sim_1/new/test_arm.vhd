@@ -16,30 +16,29 @@ end test_arm;
 
 architecture test_arm_behavioral of test_arm is
     component ARM
-        port (CLK       : in std_logic;
-              RESET     : in std_logic;
-              Instr     : in std_logic_vector (31 downto 0);
-              ReadData  : in std_logic_vector (31 downto 0);
-              MemWrite  : out std_logic;
-              PC        : out std_logic_vector (31 downto 0);
+        port (CLK : in std_logic;
+              RESET : in std_logic;
+              Instr : in std_logic_vector (31 downto 0);
+              ReadData : in std_logic_vector (31 downto 0);
+              MemWrite : out std_logic;
+              PC : out std_logic_vector (31 downto 0);
               ALUResult : out std_logic_vector (31 downto 0);
               WriteData : out std_logic_vector (31 downto 0));
     end component;
 
-    signal t_CLK       : std_logic;
-    signal t_RESET     : std_logic;
-    signal t_Instr     : std_logic_vector (31 downto 0);
-    signal t_ReadData  : std_logic_vector (31 downto 0);
-    signal t_MemWrite  : std_logic;
-    signal t_PC        : std_logic_vector (31 downto 0);
+    signal t_CLK : std_logic;
+    signal t_RESET : std_logic;
+    signal t_Instr : std_logic_vector (31 downto 0);
+    signal t_ReadData : std_logic_vector (31 downto 0);
+    signal t_MemWrite : std_logic;
+    signal t_PC : std_logic_vector (31 downto 0);
     signal t_ALUResult : std_logic_vector (31 downto 0);
     signal t_WriteData : std_logic_vector (31 downto 0);
 
     constant ClkPeriod : time := 1ns;
 begin
 
-    test_arm_module : ARM
-    port map (
+    test_arm_module : ARM port map (
         -- Inputs
         CLK       => t_CLK,
         RESET     => t_RESET,

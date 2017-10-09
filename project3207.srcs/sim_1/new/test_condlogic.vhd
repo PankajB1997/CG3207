@@ -9,28 +9,28 @@ architecture test_condlogic_behavioral of test_condlogic is
 
     component CondLogic
     port (
-        CLK      : in std_logic;
-        PCS      : in std_logic;
-        RegW     : in std_logic;
-        NoWrite  : in std_logic;
-        MemW     : in std_logic;
-        FlagW    : in std_logic_vector (1 downto 0);
-        Cond     : in std_logic_vector (3 downto 0);
+        CLK : in std_logic;
+        PCS : in std_logic;
+        RegW : in std_logic;
+        NoWrite : in std_logic;
+        MemW : in std_logic;
+        FlagW : in std_logic_vector (1 downto 0);
+        Cond : in std_logic_vector (3 downto 0);
         ALUFlags : in std_logic_vector (3 downto 0);
-        PCSrc    : out std_logic;
+        PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic);
     end component;
 
-    signal t_CLK      : std_logic;
-    signal t_PCS      : std_logic;
-    signal t_RegW     : std_logic;
-    signal t_NoWrite  : std_logic;
-    signal t_MemW     : std_logic;
-    signal t_FlagW    : std_logic_vector (1 downto 0);
-    signal t_Cond     : std_logic_vector (3 downto 0);
+    signal t_CLK : std_logic;
+    signal t_PCS : std_logic;
+    signal t_RegW : std_logic;
+    signal t_NoWrite : std_logic;
+    signal t_MemW : std_logic;
+    signal t_FlagW : std_logic_vector (1 downto 0);
+    signal t_Cond : std_logic_vector (3 downto 0);
     signal t_ALUFlags : std_logic_vector (3 downto 0);
-    signal t_PCSrc    : std_logic;
+    signal t_PCSrc : std_logic;
     signal t_RegWrite : std_logic;
     signal t_MemWrite : std_logic;
 

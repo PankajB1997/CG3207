@@ -7,21 +7,20 @@ end test_alu;
 
 architecture test_alu_behavioral of test_alu is
     component ALU
-        port (Src_A      : in std_logic_vector (31 downto 0);
-              Src_B      : in std_logic_vector (31 downto 0);
+        port (Src_A : in std_logic_vector (31 downto 0);
+              Src_B : in std_logic_vector (31 downto 0);
               ALUControl : in std_logic_vector (1 downto 0);
-              ALUResult  : out std_logic_vector (31 downto 0);
-              ALUFlags   : out std_logic_vector (3 downto 0));
+              ALUResult : out std_logic_vector (31 downto 0);
+              ALUFlags : out std_logic_vector (3 downto 0));
     end component;
 
-    signal t_Src_A      : std_logic_vector (31 downto 0);
-    signal t_Src_B      : std_logic_vector (31 downto 0);
+    signal t_Src_A : std_logic_vector (31 downto 0);
+    signal t_Src_B : std_logic_vector (31 downto 0);
     signal t_ALUControl : std_logic_vector (1 downto 0);
-    signal t_ALUResult  : std_logic_vector (31 downto 0);
-    signal t_ALUFlags   : std_logic_vector (3 downto 0);
+    signal t_ALUResult : std_logic_vector (31 downto 0);
+    signal t_ALUFlags : std_logic_vector (3 downto 0);
 begin
-    test_alu_module : ALU
-    port map (
+    test_alu_module : ALU port map (
         -- Inputs
         Src_A      => t_Src_A,
         Src_B      => t_Src_B,

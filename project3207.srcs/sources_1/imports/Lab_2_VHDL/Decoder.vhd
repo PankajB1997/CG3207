@@ -18,8 +18,7 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
+--	License terms : --	You are free to use this code as long as you
 --		(i) DO NOT post it on any public repository;
 --		(ii) use it only for educational purposes;
 --		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
@@ -34,31 +33,31 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity Decoder is port(
-    Rd         : in 	std_logic_vector(3 downto 0);
-    Op         : in 	std_logic_vector(1 downto 0);
-    Funct      : in 	std_logic_vector(5 downto 0);
-    PCS        : out	std_logic;
-    RegW       : out	std_logic;
-    MemW       : out	std_logic;
-    MemtoReg   : out	std_logic;
-    ALUSrc     : out	std_logic;
-    ImmSrc     : out	std_logic_vector(1 downto 0);
-    RegSrc     : out	std_logic_vector(1 downto 0);
-    NoWrite    : out	std_logic;
-    ALUControl : out	std_logic_vector(1 downto 0);
-    FlagW      : out	std_logic_vector(1 downto 0)
+    Rd : in std_logic_vector(3 downto 0);
+    Op : in std_logic_vector(1 downto 0);
+    Funct : in std_logic_vector(5 downto 0);
+    PCS : out std_logic;
+    RegW : out std_logic;
+    MemW : out std_logic;
+    MemtoReg : out std_logic;
+    ALUSrc : out std_logic;
+    ImmSrc : out std_logic_vector(1 downto 0);
+    RegSrc : out std_logic_vector(1 downto 0);
+    NoWrite : out std_logic;
+    ALUControl : out std_logic_vector(1 downto 0);
+    FlagW : out std_logic_vector(1 downto 0)
 );
 end Decoder;
 
 architecture Decoder_arch of Decoder is
-    signal ALUOp 			   : std_logic_vector (1 downto 0);
-    signal Branch 			   : std_logic;
-    signal RdEquals15          : std_logic;
-    signal RegWInternal       : std_logic;
-    signal MemWInternal       : std_logic;
-    signal FlagWInternal      : std_logic_vector (1 downto 0);
+    signal ALUOp : std_logic_vector (1 downto 0);
+    signal Branch : std_logic;
+    signal RdEquals15 : std_logic;
+    signal RegWInternal : std_logic;
+    signal MemWInternal : std_logic;
+    signal FlagWInternal : std_logic_vector (1 downto 0);
     signal IllegalMainDecoder : std_logic;
-    signal IllegalALUDecoder  : std_logic;
+    signal IllegalALUDecoder : std_logic;
     signal IllegalInstruction : std_logic;
 
 begin

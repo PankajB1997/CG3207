@@ -17,14 +17,14 @@ architecture test_top_behavioral of test_top is
         generic (
             CLK_DIV_BITS : integer);
         port (
-            DIP : in  std_logic_vector(15 downto 0);
-            PB : in  std_logic_vector(3 downto 0);
-            LED : out  std_logic_vector(15 downto 0);
-            TX : out  std_logic;
-            RX : in  std_logic;
-            PAUSE : in  std_logic;
-            RESET : in  std_logic;
-            CLK_undiv : in  std_logic);
+            DIP : in std_logic_vector(15 downto 0);
+            PB : in std_logic_vector(3 downto 0);
+            LED : out std_logic_vector(15 downto 0);
+            TX : out std_logic;
+            RX : in std_logic;
+            PAUSE : in std_logic;
+            RESET : in std_logic;
+            CLK_undiv : in std_logic);
     end component;
     
     --Inputs
