@@ -9,27 +9,26 @@ architecture test_shifter_behavioral of test_shifter is
 
     component Shifter
     port (
-        Sh      : in std_logic_vector (1 downto 0);
-        Shamt5  : in std_logic_vector (4 downto 0);
-        ShIn    : in std_logic_vector (31 downto 0);
-        ShOut   : out std_logic_vector (31 downto 0));
+        Sh : in std_logic_vector (1 downto 0);
+        Shamt5 : in std_logic_vector (4 downto 0);
+        ShIn : in std_logic_vector (31 downto 0);
+        ShOut : out std_logic_vector (31 downto 0));
     end component;
 
-    signal t_Sh     : std_logic_vector (1 downto 0);
+    signal t_Sh : std_logic_vector (1 downto 0);
     signal t_Shamt5 : std_logic_vector (4 downto 0);
-    signal t_ShOut  : std_logic_vector (31 downto 0);
-    signal t_ShIn   : std_logic_vector (31 downto 0);
+    signal t_ShOut : std_logic_vector (31 downto 0);
+    signal t_ShIn : std_logic_vector (31 downto 0);
 
 begin
 
-    test_shifter_module : Shifter
-    port map (
+    test_shifter_module : Shifter port map (
         -- Inputs
-        Sh     => t_Sh,
+        Sh => t_Sh,
         Shamt5 => t_Shamt5,
-        ShIn   => t_ShIn,
+        ShIn => t_ShIn,
         -- Outputs
-        ShOut  => t_ShOut
+        ShOut => t_ShOut
     );
 
     stim_proc: process begin

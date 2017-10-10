@@ -18,15 +18,14 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	(c) Rajesh Panicker
---	License terms :
---	You are free to use this code as long as you
---		(i) DO NOT post it on any public repository;
---		(ii) use it only for educational purposes;
---		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
---		(iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
---		(v) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
---		(vi) retain this notice in this file or any files derived from this.
+--    (c) Rajesh Panicker
+--    License terms : --    You are free to use this code as long as you
+--        (i) DO NOT post it on any public repository;
+--        (ii) use it only for educational purposes;
+--        (iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
+--        (iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
+--        (v) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
+--        (vi) retain this notice in this file or any files derived from this.
 ----------------------------------------------------------------------------------
 
 library ieee;
@@ -42,21 +41,21 @@ end test_mcycle;
 
 architecture test_mcycle_behavioral of test_mcycle is
 
-  -- Component Declaration for the Unit Under Test (UUT)
+    -- Component Declaration for the Unit Under Test (UUT)
 
-  component MCycle
+    component MCycle
     port (
-       CLK : in std_logic;
-       RESET : in std_logic;
-       Start : in std_logic;
-       MCycleOp : in std_logic_vector(1 downto 0);
-       Operand1 : in std_logic_vector(3 downto 0);
-       Operand2 : in std_logic_vector(3 downto 0);
-       Result1 : out std_logic_vector(3 downto 0);
-       Result2 : out std_logic_vector(3 downto 0);
-       Busy : out std_logic
-      );
-  end component;
+        CLK : in std_logic;
+        RESET : in std_logic;
+        Start : in std_logic;
+        MCycleOp : in std_logic_vector(1 downto 0);
+        Operand1 : in std_logic_vector(3 downto 0);
+        Operand2 : in std_logic_vector(3 downto 0);
+        Result1 : out std_logic_vector(3 downto 0);
+        Result2 : out std_logic_vector(3 downto 0);
+        Busy : out std_logic
+    );
+    end component;
 
     --Inputs
     signal t_CLK : std_logic := '0';
@@ -77,152 +76,152 @@ architecture test_mcycle_behavioral of test_mcycle is
 begin
 
 	-- Instantiate the Unit Under Test (UUT)
-  test_mcycle_module: MCycle port map (
-    -- Inputs
-    CLK => t_CLK,
-    RESET => t_RESET,
-    Start => t_Start,
-    MCycleOp => t_MCycleOp,
-    Operand1 => t_Operand1,
-    Operand2 => t_Operand2,
-    -- Outputs
-    Result1 => t_Result1,
-    Result2 => t_Result2,
-    Busy => t_Busy
-  );
+    test_mcycle_module: MCycle port map (
+        -- Inputs
+        CLK => t_CLK,
+        RESET => t_RESET,
+        Start => t_Start,
+        MCycleOp => t_MCycleOp,
+        Operand1 => t_Operand1,
+        Operand2 => t_Operand2,
+        -- Outputs
+        Result1 => t_Result1,
+        Result2 => t_Result2,
+        Busy => t_Busy
+    );
 
-  -- Clock generation
-  clk_process: process begin
-    t_CLK <= '1';
-    wait for ClkPeriod / 2;
-    t_CLK <= '0';
-    wait for ClkPeriod / 2;
-  end process;
+    -- Clock generation
+    clk_process: process begin
+        t_CLK <= '1';
+        wait for ClkPeriod / 2;
+        t_CLK <= '0';
+        wait for ClkPeriod / 2;
+    end process;
 
-  stim_proc: process begin
-    -- Set initial value for inputs.
-    t_RESET <= '1';
+    stim_proc: process begin
+        -- Set initial value for inputs.
+        t_RESET <= '1';
 
-    -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
-    -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is
-    -- since some of the tests will be using the clock.
-    wait for ClkPeriod / 2;
+        -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
+        -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is
+        -- since some of the tests will be using the clock.
+        wait for ClkPeriod / 2;
 
-    -- Before time = ClkPeriod, some signals may be U or X. That is expected, as the processor is only reset
-    -- at the first clock edge, and this is when the PC is set to 0. Before this, PC is indeterminate.
+        -- Before time = ClkPeriod, some signals may be U or X. That is expected, as the processor is only reset
+        -- at the first clock edge, and this is when the PC is set to 0. Before this, PC is indeterminate.
 
-    -- RESET = 0 to set PC to 0.
-    t_RESET <= '0';
-    wait for ClkPeriod;
+        -- RESET = 0 to set PC to 0.
+        t_RESET <= '0';
+        wait for ClkPeriod;
 
-    -- Tests for multiplication start below
+        -- Tests for multiplication start below
 
-    -- Multiplication Test Case 1: Checking (-1)*(-1); Result1: 1, Result2: 0 (i.e. product 1)
-    t_MCycleOp <= "00";
-    t_Operand1 <= "1111";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 1" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Multiplication Test Case 1: Checking (-1)*(-1); Result1: 1, Result2: 0 (i.e. product 1)
+        t_MCycleOp <= "00";
+        t_Operand1 <= "1111";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 1" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Multiplication Test Case 2: Checking (-2)*(-1); Result1: 2, Result2: 0 (i.e. product 2)
-    t_Operand1 <= "1110";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0010" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 2" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Multiplication Test Case 2: Checking (-2)*(-1); Result1: 2, Result2: 0 (i.e. product 2)
+        t_Operand1 <= "1110";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0010" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 2" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Multiplication Test Case 3: Checking 15*15; Result1: 1, Result2: 14 (i.e. product 225)
-    t_MCycleOp <= "01";
-    t_Operand1 <= "1111";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0001" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 3" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Multiplication Test Case 3: Checking 15*15; Result1: 1, Result2: 14 (i.e. product 225)
+        t_MCycleOp <= "01";
+        t_Operand1 <= "1111";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 3" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Multiplication Test Case 4: Checking 14*15; Result1: 2, Result2: 13 (i.e. product 210)
-    t_Operand1 <= "1110";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0010" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 4" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Multiplication Test Case 4: Checking 14*15; Result1: 2, Result2: 13 (i.e. product 210)
+        t_Operand1 <= "1110";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0010" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 4" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Tests for division start below
+        -- Tests for division start below
 
-    -- Division Test Case 1: Checking 13/2; Quotient: 6, Remainder: 1
-    t_MCycleOp <= "11";
-    t_Operand1 <= "1101";
-    t_Operand2 <= "0010";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0110" and t_Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Division Test Case 1: Checking 13/2; Quotient: 6, Remainder: 1
+        t_MCycleOp <= "11";
+        t_Operand1 <= "1101";
+        t_Operand2 <= "0010";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0110" and t_Result2 = "0001") report "Failed MCycle Division Test Case 1" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Division Test Case 2: Checking 15/15; Quotient: 1, Remainder: 0
-    t_Operand1 <= "1111";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Division Test Case 2: Checking 15/15; Quotient: 1, Remainder: 0
+        t_Operand1 <= "1111";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Division Test Case 2" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Division Test Case 3: Checking 1/15; Quotient: 0, Remainder: 1
-    t_Operand1 <= "0001";
-    t_Operand2 <= "1111";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0000" and t_Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Division Test Case 3: Checking 1/15; Quotient: 0, Remainder: 1
+        t_Operand1 <= "0001";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0000" and t_Result2 = "0001") report "Failed MCycle Division Test Case 3" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Division Test Case 4: Checking 15/1; Quotient: 15, Remainder: 0
-    t_Operand1 <= "1111";
-    t_Operand2 <= "0001";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Division Test Case 4: Checking 15/1; Quotient: 15, Remainder: 0
+        t_Operand1 <= "1111";
+        t_Operand2 <= "0001";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    -- Division Test Case 5: Checking 2/10; Quotient: 0, Remainder: 2
-    t_Operand1 <= "0010";
-    t_Operand2 <= "1010";
-    t_Start <= '1';
-    wait for ClkPeriod * 2;
-    t_Start <= '0';
-    wait until t_Busy = '0';
-    wait for ClkPeriod / 2;
-    assert (t_Result1 = "0000" and t_Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
-    wait for 3 * (ClkPeriod / 2);
+        -- Division Test Case 5: Checking 2/10; Quotient: 0, Remainder: 2
+        t_Operand1 <= "0010";
+        t_Operand2 <= "1010";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0000" and t_Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
+        wait for 3 * (ClkPeriod / 2);
 
-    wait;
+        wait;
 
-  end process;
+    end process;
 
 end test_mcycle_behavioral;
