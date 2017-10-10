@@ -177,20 +177,22 @@ begin
                     FlagWInternal <= "00";
                 else
                     -- N and Z flags
-                    if Funct(4 downto 1) = "0100" or -- ADD
-                       Funct(4 downto 1) = "0010" or -- SUB
-                       Funct(4 downto 1) = "1010" then -- CMP
+                    if MCycleFunct /= "1001" and -- Not MUL/DIV
+                       (Funct(4 downto 1) = "0100" or -- ADD
+                        Funct(4 downto 1) = "0010" or -- SUB
+                        Funct(4 downto 1) = "1010") then -- CMP
                         FlagWInternal(0) <= '1';
                     else
                         FlagWInternal(0) <= '0';
                     end if;
 
                     -- C and V flags
-                    if Funct(4 downto 1) = "0100" or -- ADD
-                       Funct(4 downto 1) = "0010" or -- SUB
-                       Funct(4 downto 1) = "0000" or -- AND
-                       Funct(4 downto 1) = "1100" or -- ORR
-                       Funct(4 downto 1) = "1010" then -- CMP
+                    if MCycleFunct /= "1001" and -- Not MUL/DIV
+                       (Funct(4 downto 1) = "0100" or -- ADD
+                        Funct(4 downto 1) = "0010" or -- SUB
+                        Funct(4 downto 1) = "0000" or -- AND
+                        Funct(4 downto 1) = "1100" or -- ORR
+                        Funct(4 downto 1) = "1010") then -- CMP
                         FlagWInternal(1) <= '1';
                     else
                         FlagWInternal(1) <= '0';
