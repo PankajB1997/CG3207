@@ -11,9 +11,9 @@ architecture test_regfile_behavioral of test_regfile is
     port (
         CLK : in std_logic;
         WE3 : in std_logic;
-        A1  : in std_logic_vector (3 downto 0);
-        A2  : in std_logic_vector (3 downto 0);
-        A3  : in std_logic_vector (3 downto 0);
+        A1 : in std_logic_vector (3 downto 0);
+        A2 : in std_logic_vector (3 downto 0);
+        A3 : in std_logic_vector (3 downto 0);
         WD3 : in std_logic_vector (31 downto 0);
         R15 : in std_logic_vector (31 downto 0);
         RD1 : out std_logic_vector (31 downto 0);
@@ -22,9 +22,9 @@ architecture test_regfile_behavioral of test_regfile is
 
     signal t_CLK : std_logic;
     signal t_WE3 : std_logic;
-    signal t_A1  : std_logic_vector (3 downto 0);
-    signal t_A2  : std_logic_vector (3 downto 0);
-    signal t_A3  : std_logic_vector (3 downto 0);
+    signal t_A1 : std_logic_vector (3 downto 0);
+    signal t_A2 : std_logic_vector (3 downto 0);
+    signal t_A3 : std_logic_vector (3 downto 0);
     signal t_WD3 : std_logic_vector (31 downto 0);
     signal t_R15 : std_logic_vector (31 downto 0);
     signal t_RD1 : std_logic_vector (31 downto 0);
@@ -33,14 +33,13 @@ architecture test_regfile_behavioral of test_regfile is
     constant ClkPeriod : time := 1 ns;
 begin
 
-    test_regfile_module : RegFile
-    port map (
+    test_regfile_module : RegFile port map (
         -- Inputs
         CLK => t_CLK,
         WE3 => t_WE3,
-        A1  => t_A1,
-        A2  => t_A2,
-        A3  => t_A3,
+        A1 => t_A1,
+        A2 => t_A2,
+        A3 => t_A3,
         WD3 => t_WD3,
         R15 => t_R15,
         -- Outputs

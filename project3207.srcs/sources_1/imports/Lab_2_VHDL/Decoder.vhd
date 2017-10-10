@@ -18,15 +18,14 @@
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
---	License terms :
---	You are free to use this code as long as you
---		(i) DO NOT post it on any public repository;
---		(ii) use it only for educational purposes;
---		(iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
---		(iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
---		(v)	acknowledge that the program was written based on the microarchitecture described in the book Digital Design and Computer Architecture, ARM Edition by Harris and Harris;
---		(vi) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
---		(vii) retain this notice in this file or any files derived from this.
+--    License terms : --    You are free to use this code as long as you
+--        (i) DO NOT post it on any public repository;
+--        (ii) use it only for educational purposes;
+--        (iii) accept the responsibility to ensure that your implementation does not violate any intellectual property of ARM Holdings or other entities.
+--        (iv) accept that the program is provided "as is" without warranty of any kind or assurance regarding its suitability for any particular purpose;
+--        (v)    acknowledge that the program was written based on the microarchitecture described in the book Digital Design and Computer Architecture, ARM Edition by Harris and Harris;
+--        (vi) send an email to rajesh.panicker@ieee.org briefly mentioning its use (except when used for the course CG3207 at the National University of Singapore);
+--        (vii) retain this notice in this file or any files derived from this.
 ----------------------------------------------------------------------------------
 
 library IEEE;
@@ -55,14 +54,14 @@ entity Decoder is port(
 end Decoder;
 
 architecture Decoder_arch of Decoder is
-    signal ALUOp 			   : std_logic_vector (1 downto 0);
-    signal Branch 			   : std_logic;
-    signal RdEquals15          : std_logic;
-    signal RegWInternal       : std_logic;
-    signal MemWInternal       : std_logic;
-    signal FlagWInternal      : std_logic_vector (1 downto 0);
+    signal ALUOp : std_logic_vector (1 downto 0);
+    signal Branch : std_logic;
+    signal RdEquals15 : std_logic;
+    signal RegWInternal : std_logic;
+    signal MemWInternal : std_logic;
+    signal FlagWInternal : std_logic_vector (1 downto 0);
     signal IllegalMainDecoder : std_logic;
-    signal IllegalALUDecoder  : std_logic;
+    signal IllegalALUDecoder : std_logic;
     signal IllegalInstruction : std_logic;
 
 begin
@@ -83,7 +82,7 @@ begin
                 RegWInternal <= '0';
                 RegSrc <= "0-1";
                 ALUOp <= "11"; -- ADD always
-            
+
             -- Memory Instruction
             when "01" =>
                 Branch <= '0';
@@ -94,7 +93,7 @@ begin
                 else
                     ALUOp <= "11"; -- LDR/STR with Positive offset
                 end if;
-                
+
                 -- STR Instruction
                 if Funct(0) = '0' then
                     MemtoReg <= '-';
@@ -108,7 +107,7 @@ begin
                     RegWInternal <= '1';
                     RegSrc <= "0-0";
                 end if;
-            
+
             -- Data Processing Instruction
             when "00" =>
                 Branch <= '0';
@@ -116,7 +115,7 @@ begin
                 MemWInternal <= '0';
                 RegWInternal <= '1';
                 ALUOp <= "00";
-                
+
                 if MCycleFunct = "1001" then
                     -- MUL/DIV Instruction
                     ALUSrc <= '0';
@@ -135,7 +134,7 @@ begin
                         RegSrc <= "0-0";
                     end if;
                 end if;
-            
+
             -- Invalid Op
             when others =>
                 Branch <= '-';
@@ -171,8 +170,7 @@ begin
                 MCycleOp <= "--";
 
             -- ALU operations for DP instructions
-            when "00" =>
-                NoWrite <= '0';  -- Should write by default.
+            when "00" =>                 NoWrite <= '0';  -- Should write by default.
                 if Funct(0) = '0' then
                     FlagWInternal <= "00";
                 else

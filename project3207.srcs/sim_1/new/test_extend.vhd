@@ -9,24 +9,24 @@ architecture test_extend_behavioral of test_extend is
 
     component Extend
     port (
-        ImmSrc   : in std_logic_vector (1 downto 0);
+        ImmSrc : in std_logic_vector (1 downto 0);
         InstrImm : in std_logic_vector (23 downto 0);
-        ExtImm   : out std_logic_vector (31 downto 0));
+        ExtImm : out std_logic_vector (31 downto 0));
     end component;
 
-    signal t_ImmSrc   : std_logic_vector (1 downto 0);
+    signal t_ImmSrc : std_logic_vector (1 downto 0);
     signal t_InstrImm : std_logic_vector (23 downto 0);
-    signal t_ExtImm   : std_logic_vector (31 downto 0);
+    signal t_ExtImm : std_logic_vector (31 downto 0);
 
 begin
 
     test_extend_module: Extend
     port map (
         -- Inputs
-        ImmSrc   => t_ImmSrc,
+        ImmSrc => t_ImmSrc,
         InstrImm => t_InstrImm,
         -- Outputs
-        ExtImm   => t_ExtImm
+        ExtImm => t_ExtImm
     );
 
     stim_proc: process begin
