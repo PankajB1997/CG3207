@@ -344,6 +344,7 @@ port map(
     ALUSrc		=>	ALUSrc		,
     ImmSrc		=>	ImmSrc		,
     RegSrc		=>	RegSrc		,
+    ALUResultSrc => ALUResultSrc,
     NoWrite		=>	NoWrite		,
     MCycleStart =>  MCycleStart ,
     MCycleOp    =>  MCycleOp    ,
