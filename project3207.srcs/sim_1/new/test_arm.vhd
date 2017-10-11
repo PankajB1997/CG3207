@@ -116,7 +116,7 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 4" severity error;
 
         wait for ClkPeriod * 9 / 10;
-
+        
         -- Test Case 5: AND two registers and update flags: ANDS R15, R1, R0
         -- ALUResult = 3 & 8 = 0
         -- R15 is being written into, so PC should update to 0
@@ -166,7 +166,27 @@ begin
 
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000014") report "Failed ARM Test Case 8.2" severity error;
+        
+        -- Test case 9: Multiply two registers - MUL R3, R2, R1
+        -- R3 = R2 * R1 = 0x14 * 0x8 = 0x70
+        t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"3" & x"0" & x"1" & x"9" & x"2";
+        -- Wait until PC increments.
+        wait until t_PC = x"00000018";
+        assert (t_MemWrite = '0' and t_ALUResult = x"000000a0") report "Failed ARM Test Case 9" severity error;
+        
+        -- Test case 10: Divide two registers - DIV R4, R3, R2 (MLA R4, R3, R2, R-)
+        -- R4 = R3 * R2 = 0xa0 / 0x14 = 0x8
+        t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"4" & x"0" & x"2" & x"9" & x"3";
+        -- Wait until PC increments.
+        wait until t_PC = x"0000001C";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 10" severity error;
 
+        -- Test case 11: Multiply a register by itself - MUL R1, R1, R1
+        -- R1 = R1 * R1 = 0x8 / 0x8 = 0x40
+        t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"1" & x"0" & x"1" & x"9" & x"1";
+        -- Wait until PC increments.
+        wait until t_PC = x"00000020";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000040") report "Failed ARM Test Case 11" severity error;
         wait;
 
     end process;
