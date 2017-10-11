@@ -93,6 +93,12 @@ begin
     variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
     variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
     variable temp : std_logic_vector(width downto 0) := (others => '0');
+    variable tempOp1 : std_logic_vector(width - 1 downto 0) := (others => '0');
+    variable tempOp2 : std_logic_vector(width - 1 downto 0) := (others => '0');
+    variable negFlag : std_logic_vector(1 downto 0) := (others => '0');
+    variable signDiff : std_logic := '0';
+    variable tempResult1 : std_logic_vector(width - 1 downto 0) := (others => '0');
+    variable tempResult2 : std_logic_vector(width - 1 downto 0) := (others => '0');
     -- variable canSubtract : std_logic := '0';
     begin
         if (CLK'event and CLK = '1') then
@@ -120,6 +126,7 @@ begin
     		else -- Divide
     			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
     			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
+    			if(MCycleOp(0)='1') then -- Unsigned Division
     			temp := shifted_dividend(2 * width downto width) + not shifted_divisor + '1';
     			if temp(width) = '0' then -- store subtracted result only if it is positive
     				shifted_dividend := temp(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
@@ -128,11 +135,41 @@ begin
     			end if;
     			Result2 <= shifted_dividend(2 * width downto width + 1);
     			Result1 <= shifted_dividend(width - 1 downto 0);
+    			
+    			else -- Signed Division
+    			 if operand1(width-1) = '1' then
+    			     tempOp1 := not operand1 + '1';
+    			     negFlag(0) := '1';
+    			 end if;
+    			 if operand2(width-1) = '1' then
+    			     tempOp2 := not operand2 + '1';
+    			     negFlag(1) := '1';
+    			end if;
+ 
+                temp := shifted_dividend(2 * width downto width) + not shifted_divisor + '1';
+                if temp(width) = '0' then -- store subtracted result only if it is positive
+                    shifted_dividend := temp(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                else
+                    shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+                end if;
+                tempResult2 := shifted_dividend(2 * width downto width + 1);
+                tempResult1 := shifted_dividend(width - 1 downto 0); 			
     		end if;
+    		
+    	
     		-- regardless of multiplication or division, check if last cycle is reached
     		-- right now, below assumes that signed division takes (2 * width) cycles, may need to change
     		if (MCycleOp(0) = '1' and count = width - 1) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
-    			done <= '1';
+    			signDiff := negFlag(0) xor negFlag(1);
+    			if signDiff = '1' then
+    			 tempResult2 := not tempResult2 + '1';
+    			 tempResult1 := not tempResult1 + '1';
+    			else
+    			-- do nothing 
+    			end if;
+    			 Result2 <= tempResult2;
+    			 Result1 <= tempResult1;
+    			 done <= '1';
     		end if;
     		count := count + 1;
     	end if;
