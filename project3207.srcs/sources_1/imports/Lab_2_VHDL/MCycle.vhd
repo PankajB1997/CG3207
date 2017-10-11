@@ -111,7 +111,7 @@ begin
     			temp_sum := (others => '0');
     			shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
     			shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
-    			shifted_dividend := (2 * width downto width + 1 => '0') & '0' & Operand1;
+    			shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
     			shifted_divisor := '0' & Operand2;
     			sum_reg := '1' & (width - 1 downto 0 => '0');
     		end if;
@@ -130,9 +130,9 @@ begin
     		else -- Divide
     			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
     			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-    			if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
-    			    shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
-    			else
+    			if RESET /= '1' and (n_state /= COMPUTING or state /= IDLE) then
+--    			    shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+--    			else
                     if sum(width) = '0' then -- store subtracted result only if it is positive
                         shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
                     else
