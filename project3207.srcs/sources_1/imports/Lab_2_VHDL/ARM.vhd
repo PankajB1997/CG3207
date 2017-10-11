@@ -238,7 +238,8 @@ architecture ARM_arch of ARM is
     -- Other internal signals
     signal PCPlus4 : std_logic_vector(31 downto 0);
     signal PCPlus8 : std_logic_vector(31 downto 0);
-    signal Result : std_logic_vector(31 downto 0);
+    signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
+    signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
 
 begin
 
@@ -265,7 +266,7 @@ begin
           else Instr(15 downto 12);
     WD3 <= Result;
     R15 <= PCPlus8;
-    WE3 <= RegW;
+    WE3 <= RegWrite and not MCycleBusy;
 
     -- Extend inputs
     InstrImm <= Instr(23 downto 0);
@@ -277,8 +278,11 @@ begin
     -- ALUControl connected already
 
     -- MCycle inputs
-    Operand1 <= Src_A;
-    Operand2 <= Src_B;
+    -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
+    -- Operand1 for Division should be RD2. Switching it around makes no 
+    -- difference to Multiplication.
+    Operand1 <= RD2;
+    Operand2 <= RD1;
 
     -- Shifter inputs
     Sh <= Instr(6 downto 5);
@@ -286,12 +290,13 @@ begin
     ShIn <= RD2;
 
     -- Data Memory inputs
-    ALUResult <= MCycleResult when ALUResultSrc = '1' else ALUResult_sig;
+    OpResult <= MCycleResult when ALUResultSrc = '1' else ALUResult_sig;
+    ALUResult <= OpResult;
     WriteData <= RD2;
     -- MemW connected already
 
     -- Data Memory outputs
-    Result <= ReadData when MemToReg = '1' else ALUResult_sig;
+    Result <= ReadData when MemToReg = '1' else OpResult;
 
     -- Decoder inputs
     Op <= Instr(27 downto 26);
