@@ -32,7 +32,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity Decoder is port(
+entity Decoder is
+port(
     Rd : in std_logic_vector(3 downto 0);
     Op : in std_logic_vector(1 downto 0);
     Funct : in std_logic_vector(5 downto 0);
