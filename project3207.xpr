@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="20" Path="C:/Users/Varun/Documents/CG3207/Labs/Project/project3207/project3207.xpr">
+<Project Version="7" Minor="20" Path="C:/Users/Sneha Prabakar/Documents/cg3207/project3207.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="bca7e3ccb3814e87ae07dbada2a553f2"/>

@@ -1,4 +1,4 @@
-set_property SRC_FILE_INFO {cfile:C:/Users/Varun/Documents/CG3207/Labs/Project/project3207/project3207.srcs/constrs_1/imports/Nexys4_Master_xdc/Nexys4_Master.xdc rfile:../../../project3207.srcs/constrs_1/imports/Nexys4_Master_xdc/Nexys4_Master.xdc id:1} [current_design]
+set_property SRC_FILE_INFO {cfile:{C:/Users/Sneha Prabakar/Documents/cg3207/project3207.srcs/constrs_1/imports/Nexys4_Master_xdc/Nexys4_Master.xdc} rfile:../../../project3207.srcs/constrs_1/imports/Nexys4_Master_xdc/Nexys4_Master.xdc id:1} [current_design]
 set_property src_info {type:XDC file:1 line:8 export:INPUT save:INPUT read:READ} [current_design]
 set_property PACKAGE_PIN E3 [get_ports CLK_undiv]
 set_property src_info {type:XDC file:1 line:9 export:INPUT save:INPUT read:READ} [current_design]
