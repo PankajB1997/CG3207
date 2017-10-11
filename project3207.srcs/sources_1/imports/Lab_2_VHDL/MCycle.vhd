@@ -55,6 +55,12 @@ architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
+    signal sum : std_logic_vector(width downto 0);
+    signal srcA : std_logic_vector(width downto 0);
+    signal srcB : std_logic_vector(width downto 0);
+    signal cIn : std_logic_vector(width downto 0);
+    signal a : std_logic_vector(2 * width downto 0);
+    signal b : std_logic_vector(width downto 0);
 begin
 
     idle_process : process (state, done, Start, RESET)
@@ -84,6 +90,8 @@ begin
             end case;
         end if;
     end process;
+    
+    sum <= srcA + srcB + cIn;
 
     computing_process : process (CLK) -- process which does the actual computation
     variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
@@ -92,7 +100,8 @@ begin
     variable shifted_op2 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
     variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
     variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
-    variable temp : std_logic_vector(width downto 0) := (others => '0');
+    variable sum_reg : std_logic_vector(width downto 0) := (others => '0');
+--    variable temp : std_logic_vector(width downto 0) := (others => '0');
     -- variable canSubtract : std_logic := '0';
     begin
         if (CLK'event and CLK = '1') then
@@ -102,8 +111,9 @@ begin
     			temp_sum := (others => '0');
     			shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
     			shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
-    			shifted_dividend := (2 * width downto width + 1 => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1 & '0';
+    			shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
     			shifted_divisor := '0' & Operand2;
+    			sum_reg := '1' & (width - 1 downto 0 => '0');
     		end if;
     		done <= '0';
 
@@ -120,18 +130,27 @@ begin
     		else -- Divide
     			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
     			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-    			temp := shifted_dividend(2 * width downto width) + not shifted_divisor + '1';
-    			if temp(width) = '0' then -- store subtracted result only if it is positive
-    				shifted_dividend := temp(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
-    			else
-    				shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+    			if RESET /= '1' and (n_state /= COMPUTING or state /= IDLE) then
+--    			    shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+--    			else
+                    if sum(width) = '0' then -- store subtracted result only if it is positive
+                        shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                    else
+                        shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+    			    end if;
     			end if;
     			Result2 <= shifted_dividend(2 * width downto width + 1);
     			Result1 <= shifted_dividend(width - 1 downto 0);
+    			srcA <= shifted_dividend(2 * width downto width);
+                srcB <= not shifted_divisor;
+                cIn <= (width downto 1 => '0') & '1';
+                
     		end if;
     		-- regardless of multiplication or division, check if last cycle is reached
     		-- right now, below assumes that signed division takes (2 * width) cycles, may need to change
-    		if (MCycleOp(0) = '1' and count = width - 1) or (MCycleOp(0) = '0' and count = 2 * width - 1) then	 -- If last cycle
+    		if (MCycleOp = "00" and count = 2 * width - 1) or 
+    		   (MCycleOp = "01" and count = width - 1) or
+    		   (MCycleOp(1) = '1' and count = width) then	 -- If last cycle
     			done <= '1';
     		end if;
     		count := count + 1;
