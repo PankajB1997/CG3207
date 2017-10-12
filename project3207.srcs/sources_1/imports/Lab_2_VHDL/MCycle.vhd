@@ -130,9 +130,7 @@ begin
     		else -- Divide
     			-- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
     			-- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-    			if RESET /= '1' and (n_state /= COMPUTING or state /= IDLE) then
---    			    shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
---    			else
+    			if count /= 0 then
                     if sum(width) = '0' then -- store subtracted result only if it is positive
                         shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
                     else
