@@ -59,10 +59,6 @@ architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
---    signal sum : std_logic_vector(width downto 0);
---    signal srcA : std_logic_vector(width downto 0);
---    signal srcB : std_logic_vector(width downto 0);
---    signal cIn : std_logic_vector(width downto 0);
 begin
 
     idle_process : process (state, done, Start, RESET)
@@ -99,7 +95,7 @@ begin
         variable shifted_op1 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_op2 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
-        variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
+        variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -109,7 +105,7 @@ begin
                 shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
                 shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
-                shifted_divisor := '0' & Operand2;
+                divisor := Operand2;
             end if;
             done <= '0';
 
@@ -135,8 +131,8 @@ begin
                 end if;
                 Result2 <= shifted_dividend(2 * width downto width + 1);
                 Result1 <= shifted_dividend(width - 1 downto 0);
-                ALUSrc1 <= shifted_dividend(2 * width downto width);
-                ALUSrc2 <= shifted_divisor;
+                ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
+                ALUSrc2 <= divisor;
             end if;
             -- regardless of multiplication or division, check if last cycle is reached
             -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
