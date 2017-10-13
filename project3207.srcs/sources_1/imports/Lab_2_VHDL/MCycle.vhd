@@ -46,9 +46,10 @@ port (
     Operand1 : in std_logic_vector (width - 1 downto 0); -- Multiplicand / Dividend
     Operand2 : in std_logic_vector (width - 1 downto 0); -- Multiplier / Divisor
     ALUResult : in std_logic_vector (width - 1 downto 0);
-    ALUBorrowFlag : in std_logic;
+    ALUCarryFlag : in std_logic;
     ALUSrc1 : out std_logic_vector (width - 1 downto 0);
     ALUSrc2 : out std_logic_vector (width - 1 downto 0);
+    ALUControl : out std_logic_vector (1 downto 0);
     Result1 : out std_logic_vector (width - 1 downto 0); -- LSW of Product / Quotient
     Result2 : out std_logic_vector (width - 1 downto 0); -- MSW of Product / Remainder
     Busy : out std_logic );  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
@@ -125,7 +126,7 @@ begin
                 -- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
                 if count /= 0 then
-                    if ALUBorrowFlag = '0' then -- store subtracted result only if it is positive
+                    if ALUCarryFlag = '1' then -- store subtracted result only if it is positive
                         shifted_dividend := ALUResult(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
                     else
                         shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
@@ -133,6 +134,7 @@ begin
                 end if;
                 Result2 <= shifted_dividend(2 * width downto width + 1);
                 Result1 <= shifted_dividend(width - 1 downto 0);
+                ALUControl <= "01";  -- Subtract
                 ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                 ALUSrc2 <= divisor;
             end if;

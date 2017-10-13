@@ -141,9 +141,10 @@ architecture ARM_arch of ARM is
         Operand1 : in std_logic_vector (width-1 downto 0);
         Operand2 : in std_logic_vector (width-1 downto 0);
         ALUResult : in std_logic_vector (width - 1 downto 0);
-        ALUBorrowFlag : in std_logic;
+        ALUCarryFlag : in std_logic;
         ALUSrc1 : out std_logic_vector (width - 1 downto 0);
         ALUSrc2 : out std_logic_vector (width - 1 downto 0);
+        ALUControl : out std_logic_vector (1 downto 0);
         Result1 : out std_logic_vector (width-1 downto 0);
         Result2 : out std_logic_vector (width-1 downto 0);
         Busy : out std_logic
@@ -230,9 +231,10 @@ architecture ARM_arch of ARM is
     signal Operand1 : std_logic_vector(31 downto 0);
     signal Operand2 : std_logic_vector(31 downto 0);
     signal MCycleALUResult : std_logic_vector(31 downto 0);
-    signal MCycleALUBorrowFlag : std_logic;
+    signal MCycleALUCarryFlag : std_logic;
     signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
     signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
+    signal MCycleALUControl : std_logic_vector (1 downto 0);
     signal MCycleResult : std_logic_vector(31 downto 0);
     signal MCycleResultUnused : std_logic_vector(31 downto 0);
     signal MCycleBusy : std_logic;
@@ -249,6 +251,7 @@ architecture ARM_arch of ARM is
     signal PCPlus8 : std_logic_vector(31 downto 0);
     signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
+    signal ALUFinalControl : std_logic_vector(1 downto 0);  -- From Decoder or MCycle.
 
 begin
 
@@ -288,7 +291,7 @@ begin
              else ExtImm
                   when ALUSrc = '1'
                   else ShOut; --to enable DP instructions with shift operation
-    -- ALUControl connected already
+    ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControl;
 
     -- MCycle inputs
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
@@ -297,7 +300,7 @@ begin
     Operand1 <= RD2;
     Operand2 <= RD1;
     MCycleALUResult <= ALUResult_sig;
-    MCycleALUBorrowFlag <= not ALUFlags(1);
+    MCycleALUCarryFlag <= ALUFlags(1);
 
     -- Shifter inputs
     Sh <= Instr(6 downto 5);
@@ -393,7 +396,7 @@ begin
     port map(
         Src_A => Src_A,
         Src_B => Src_B,
-        ALUControl => ALUControl,
+        ALUControl => ALUFinalControl,
         ALUResult => ALUResult_sig,
         ALUFlags => ALUFlags
     );
@@ -410,9 +413,10 @@ begin
         Operand1 => Operand1,
         Operand2 => Operand2,
         ALUResult => MCycleALUResult,
-        ALUBorrowFlag => MCycleALUBorrowFlag,
+        ALUCarryFlag => MCycleALUCarryFlag,
         ALUSrc1 => MCycleALUSrc1,
         ALUSrc2 => MCycleALUSrc2,
+        ALUControl => MCycleALUControl,
         Result1 => MCycleResult,
         Result2 => MCycleResultUnused,
         Busy => MCycleBusy
