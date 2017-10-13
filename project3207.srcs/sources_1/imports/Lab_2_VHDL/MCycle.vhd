@@ -45,6 +45,10 @@ port (
     MCycleOp : in STD_LOGIC_VECTOR (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
     Operand1 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplicand / Dividend
     Operand2 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplier / Divisor
+    ALUResult : in STD_LOGIC_VECTOR (width - 1 downto 0);
+    ALUBorrowFlag : in STD_LOGIC;
+    ALUSrc1 : out STD_LOGIC_VECTOR (width - 1 downto 0);
+    ALUSrc2 : out STD_LOGIC_VECTOR (width - 1 downto 0);
     Result1 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- LSW of Product / Quotient
     Result2 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- MSW of Product / Remainder
     Busy : out STD_LOGIC);  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
@@ -55,10 +59,10 @@ architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
-    signal sum : std_logic_vector(width downto 0);
+--    signal sum : std_logic_vector(width downto 0);
     signal srcA : std_logic_vector(width downto 0);
     signal srcB : std_logic_vector(width downto 0);
-    signal cIn : std_logic_vector(width downto 0);
+--    signal cIn : std_logic_vector(width downto 0);
     signal a : std_logic_vector(2 * width downto 0);
     signal b : std_logic_vector(width downto 0);
 begin
@@ -90,8 +94,6 @@ begin
             end case;
         end if;
     end process;
-
-    sum <= srcA + srcB + cIn;
 
     computing_process : process (CLK) -- process which does the actual computation
     variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
