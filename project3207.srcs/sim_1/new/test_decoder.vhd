@@ -211,24 +211,24 @@ begin
         assert (t_PCS='1' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="00" and t_RegSrc="0-0" and t_NoWrite='1' and t_ALUControl="01" and t_FlagW="11") report "Failed Decoder Test Case 24" severity error;
 
         -- Test case 25.1: DP (MUL) Instruction
-        t_Op <= "00"; t_Funct <= "000000"; t_MCycleFunct <= "1001";
+        t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000000"; t_MCycleFunct <= "1001";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="00" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="01") report "Failed Decoder Test Case 25.1" severity error;
 
         -- Test case 25.2: DP (MUL) Instruction
         -- S flag set, but MUL does not set any flags.
-        t_Op <= "00"; t_Funct <= "000001"; t_MCycleFunct <= "1001";
+        t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000001"; t_MCycleFunct <= "1001";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="00" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="01") report "Failed Decoder Test Case 25.2" severity error;
 
         -- Test case 26.1: DP (DIV) Instruction
-        t_Op <= "00"; t_Funct <= "000010"; t_MCycleFunct <= "1001";
+        t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000010"; t_MCycleFunct <= "1001";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="00" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="11") report "Failed Decoder Test Case 26.1" severity error;
 
         -- Test case 26.2: DP (DIV) Instruction
         -- S flag set, but DIV does not set any flags.
-        t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001";
+       t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="00" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="11") report "Failed Decoder Test Case 26.2" severity error;
 
