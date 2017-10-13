@@ -114,7 +114,7 @@ begin
             done <= '0';
 
             if MCycleOp(1) = '0' then -- Multiply
-                -- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1) * signed(Operand2)
+                -- MCycleOp(0) = '0' takes '2 * width + 1' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if count /= 0 then
                   temp := sum & temp(width - 1 downto 1);
@@ -130,8 +130,8 @@ begin
                 end if;
                 cIn <= (others => '0');
             else -- Divide
-                -- MCycleOp(0) = '0' takes ??? cycles to execute, returns signed(Operand1)/signed(Operand2)
-                -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
+                -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1)/signed(Operand2)
+                -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
                 if count /= 0 then
                     if sum(width) = '0' then -- store subtracted result only if it is positive
                         shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
@@ -147,10 +147,10 @@ begin
 
             end if;
             -- regardless of multiplication or division, check if last cycle is reached
-            -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
             if (MCycleOp = "00" and count = 2 * width) or
                (MCycleOp = "01" and count = width) or
-               (MCycleOp(1) = '1' and count = width) then     -- If last cycle
+               (MCycleOp = "10" and count = width + 4) or
+               (MCycleOp = "11" and count = width) then     -- If last cycle
                 done <= '1';
             end if;
             count := count + 1;
