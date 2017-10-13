@@ -201,13 +201,14 @@ begin
                     -- MUL/DIV instruction
                     ALUResultSrc <= '1';
                     MCycleStart <= '1';
-                    ALUControl <= "--";
                     if Funct(1) = '0' then
                         -- MUL instruction
                         MCycleOp <= "01";
+                        ALUControl <= "00";
                     else
                         -- DIV instruction
                         MCycleOp <= "11";
+                        ALUControl <= "01";
                     end if;
                 else
                     -- Not MUL/DIV
