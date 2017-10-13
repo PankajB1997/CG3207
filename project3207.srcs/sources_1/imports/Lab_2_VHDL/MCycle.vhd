@@ -59,6 +59,7 @@ begin
     sum <= srcA + srcB + cIn;
 
     computing_process : process (CLK) -- process which does the actual computation
+
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable temp_sum : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_op1 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
@@ -67,7 +68,6 @@ begin
         variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
         variable sum_reg : std_logic_vector(width downto 0) := (others => '0');
         variable signDiff : std_logic := '0';
-
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -80,7 +80,7 @@ begin
                 shifted_divisor := '0' & Operand2;
                 sum_reg := '1' & (width - 1 downto 0 => '0');
             end if;
-
+              
             done <= '0';
 
             if MCycleOp(1) = '0' then -- Multiply
@@ -90,7 +90,7 @@ begin
                 if shifted_op2(0) = '1' then -- add only if b0 = 1
                     temp_sum := temp_sum + shifted_op1;
                 end if;
-
+                  
                 shifted_op2 := '0'& shifted_op2(2 * width - 1 downto 1);
                 shifted_op1 := shifted_op1(2 * width - 2 downto 0) & '0';
                 Result2 <= temp_sum(2 * width - 1 downto width);
