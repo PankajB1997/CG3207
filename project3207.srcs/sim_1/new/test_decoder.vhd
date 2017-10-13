@@ -228,7 +228,7 @@ begin
 
         -- Test case 26.2: DP (DIV) Instruction
         -- S flag set, but DIV does not set any flags.
-       t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001";
+        t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001";
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="00" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="11" and t_ALUControl="01") report "Failed Decoder Test Case 26.2" severity error;
 
