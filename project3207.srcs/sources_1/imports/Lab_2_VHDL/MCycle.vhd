@@ -42,16 +42,16 @@ port (
     CLK : in std_logic;
     RESET : in std_logic;  -- Connect this to the reset of the ARM processor.
     Start : in std_logic;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
-    MCycleOp : in std_logic_vector (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
-    Operand1 : in std_logic_vector (width - 1 downto 0); -- Multiplicand / Dividend
-    Operand2 : in std_logic_vector (width - 1 downto 0); -- Multiplier / Divisor
-    ALUResult : in std_logic_vector (width - 1 downto 0);
+    MCycleOp : in std_logic_vector(1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
+    Operand1 : in std_logic_vector(width - 1 downto 0); -- Multiplicand / Dividend
+    Operand2 : in std_logic_vector(width - 1 downto 0); -- Multiplier / Divisor
+    ALUResult : in std_logic_vector(width - 1 downto 0);
     ALUCarryFlag : in std_logic;
-    ALUSrc1 : out std_logic_vector (width - 1 downto 0);
-    ALUSrc2 : out std_logic_vector (width - 1 downto 0);
-    ALUControl : out std_logic_vector (1 downto 0);
-    Result1 : out std_logic_vector (width - 1 downto 0); -- LSW of Product / Quotient
-    Result2 : out std_logic_vector (width - 1 downto 0); -- MSW of Product / Remainder
+    ALUSrc1 : out std_logic_vector(width - 1 downto 0);
+    ALUSrc2 : out std_logic_vector(width - 1 downto 0);
+    ALUControl : out std_logic_vector(1 downto 0);
+    Result1 : out std_logic_vector(width - 1 downto 0); -- LSW of Product / Quotient
+    Result2 : out std_logic_vector(width - 1 downto 0); -- MSW of Product / Remainder
     Busy : out std_logic );  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
 end MCycle;
 
