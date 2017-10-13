@@ -39,19 +39,19 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity MCycle is
 generic (width : integer := 4); -- Keep this at 4 to verify your algorithms with 4 bit numbers (easier). When using MCycle as a component in ARM, generic map it to 32.
 port (
-    CLK : in STD_LOGIC;
-    RESET : in STD_LOGIC;  -- Connect this to the reset of the ARM processor.
-    Start : in STD_LOGIC;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
-    MCycleOp : in STD_LOGIC_VECTOR (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
-    Operand1 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplicand / Dividend
-    Operand2 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplier / Divisor
-    ALUResult : in STD_LOGIC_VECTOR (width - 1 downto 0);
-    ALUBorrowFlag : in STD_LOGIC;
-    ALUSrc1 : out STD_LOGIC_VECTOR (width - 1 downto 0);
-    ALUSrc2 : out STD_LOGIC_VECTOR (width - 1 downto 0);
-    Result1 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- LSW of Product / Quotient
-    Result2 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- MSW of Product / Remainder
-    Busy : out STD_LOGIC);  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
+    CLK : in std_logic;
+    RESET : in std_logic;  -- Connect this to the reset of the ARM processor.
+    Start : in std_logic;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
+    MCycleOp : in std_logic_vector (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
+    Operand1 : in std_logic_vector (width - 1 downto 0); -- Multiplicand / Dividend
+    Operand2 : in std_logic_vector (width - 1 downto 0); -- Multiplier / Divisor
+    ALUResult : in std_logic_vector (width - 1 downto 0);
+    ALUBorrowFlag : in std_logic;
+    ALUSrc1 : out std_logic_vector (width - 1 downto 0);
+    ALUSrc2 : out std_logic_vector (width - 1 downto 0);
+    Result1 : out std_logic_vector (width - 1 downto 0); -- LSW of Product / Quotient
+    Result2 : out std_logic_vector (width - 1 downto 0); -- MSW of Product / Remainder
+    Busy : out std_logic );  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
 end MCycle;
 
 
@@ -74,11 +74,13 @@ begin
             --Busy <= '0';    --implicit
         else
             case state is
-                when IDLE =>             if Start = '1' then
+                when IDLE =>
+                    if Start = '1' then
                         n_state <= COMPUTING;
                         Busy <= '1';
                     end if;
-                when COMPUTING =>             if done = '1' then
+                when COMPUTING =>
+                    if done = '1' then
                         n_state <= IDLE;
                         --Busy <= '0'; --implicit
                     else
