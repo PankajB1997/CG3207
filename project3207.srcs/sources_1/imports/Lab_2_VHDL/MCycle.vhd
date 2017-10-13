@@ -96,8 +96,7 @@ begin
     computing_process : process (CLK) -- process which does the actual computation
     variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
     variable temp : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
-    variable shifted_op1 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
-    variable shifted_op2 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
+    variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
     variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
     variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
     variable sum_reg : std_logic_vector(width downto 0) := (others => '0');
@@ -107,8 +106,7 @@ begin
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
                 temp := (others => '0');
-                shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
-                shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
+                shifted_multiplier := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 shifted_divisor := '0' & Operand2;
                 sum_reg := '1' & (width - 1 downto 0 => '0');
@@ -120,12 +118,12 @@ begin
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if count /= 0 then
                   temp := sum & temp(width - 1 downto 1);
-                  shifted_op2 := '0' & shifted_op2(2 * width - 1 downto 1);
+                  shifted_multiplier := '0' & shifted_multiplier(2 * width - 1 downto 1);
                 end if;
                 Result2 <= temp(2 * width - 1 downto width);
                 Result1 <= temp(width - 1 downto 0);
                 srcA <= '0' & temp(2 * width - 1 downto width);
-                if shifted_op2(0) = '1' then -- add only if b0 = 1
+                if shifted_multiplier(0) = '1' then -- add only if b0 = 1
                   srcB <= '0' & Operand1;
                 else
                   srcB <= (others => '0');
