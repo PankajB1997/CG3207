@@ -118,24 +118,24 @@ begin
                     if Operand1(width-1) = '1' then
                         if count = 0 then
                             srcA <= (width downto 0 => '0');
-                            srcB <= '1' & (not Operand1);
+                            srcB <= '0'  & (not Operand1);
                             cIn <= (width downto 1 => '0') & '1';
                         end if;
                         
                         if count = 1 then
-                            shifted_dividend := (2 * width downto width + 1 => '1') & sum;
+                            shifted_dividend := (2 * width downto width + 1 => '0') & sum(width-1 downto 0) & '0';
                         end if;
                     end if;
                   
                     if Operand2(width-1) = '1' then
-                        if count = 0 then
+                        if count = 1 then
                             srcA <= (width downto 0 => '0');
-                            srcB <= '1' & (not Operand2);
+                            srcB <= '0' & (not Operand2);
                             cIn <= (width downto 1 => '0') & '1';
                         end if;
                         
-                        if count = 1 then
-                            shifted_divisor := sum;
+                        if count = 2 then
+                            shifted_divisor := '0' & sum(width-1 downto 0);
                         end if;
                     end if;
                                                       
