@@ -61,6 +61,7 @@ begin
     computing_process : process (CLK) -- process which does the actual computation
 
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
+        variable count2 : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable temp_sum : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_op1 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_op2 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
@@ -71,11 +72,13 @@ begin
         variable flag1 : std_logic := '0';
         variable flag2 : std_logic := '0';
         variable stFlag : std_logic := '0';
+       
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
+                count2 := (others => '0');
                 temp_sum := (others => '0');
                 shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
                 shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
@@ -85,7 +88,6 @@ begin
             end if;
               
             done <= '0';
-
             if MCycleOp(1) = '0' then -- Multiply
                 -- MCycleOp(0) = '0' takes 2 * 'width' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
@@ -118,7 +120,7 @@ begin
                         srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
                         
-                   else-- Signed Division
+                else-- Signed Division
                         signDiff := Operand1(width - 1) xor Operand2(width - 1);
                     
                     if Operand2(width-1) = '1' then
@@ -134,7 +136,7 @@ begin
                     if count = 0 then
                         if Operand1(width-1) = '1' then
                             srcA <= (width downto 0 => '0');
-                            srcB <= not ('1' & Operand1);
+                            srcB <= not ('0' & Operand1);
                             cIn <= (width downto 1 => '0') & '1';
                         end if;
                         
@@ -146,15 +148,14 @@ begin
                          end if;
                     end if;
                         
-                   if count = 1 then
+                    if count = 1 then
                         if Operand1 (width - 1) = '1' then
-                            --shifted_dividend := (2 * width downto width + 1 => '0') & sum(width-1 downto 0) & '0';
-                            shifted_dividend := (2 * width downto width + 1 => '0') & sum(width downto 0);
+                            shifted_dividend := (2 * width downto width + 1 => '0') & sum;
                         end if;
                         
                         if Operand2(width - 1) = '1' then
                             srcA <= (width downto 0 => '0');
-                            srcB <= not ('1' & Operand2);
+                            srcB <= not ('0' & Operand2);
                             cIn <= (width downto 1 => '0') & '1';
                         end if;
                         
@@ -163,13 +164,14 @@ begin
                              srcB <= not shifted_divisor;
                              cIn <= (width downto 1 => '0') & '1';
                              stFlag := '1';
-                         end if;
+                        end if;
                     end if;
                             
                     if count = 2 then
                         if Operand2(width - 1) = '1' then
                             --shifted_divisor := '0' & sum(width-1 downto 0);
-                            shifted_divisor := sum(width downto 0);
+                            shifted_divisor := sum;
+                            srcA <= shifted_dividend(2 * width downto width);
                             srcB <= not shifted_divisor;
                             cIn <= (width downto 1 => '0') & '1';
                             stFlag := '1';
@@ -177,28 +179,32 @@ begin
                     end if;
                    
                  if count /= 0 then
-                    if stFlag = '1' then
+                    if stFlag = '1' then -- Negative operands (where present) have been converted to their positive values in all cases
                         if sum(width) = '0' then -- store subtracted result only if it is positive
                             shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
+                        count2 := count2 + 1; --As depending on the number of negative operands, the clock cycle at which that particular set of values enter the loop varies. Hence, count2 is used to keep track of number of clock cycles passed, ever since the division started
                     end if;
                 end if;
-                
+                if count2 = width + 1 then
+                    count := count2;
+                end if;
                 stFlag := '0';
                                 
                 if signDiff = '1' then 
                     if count = width + 1 then
-                        srcA <= (width downto 0 => '0');
-                        srcB <= not ('1' & shifted_dividend(2 * width downto width + 1));
-                        cIn <= (width downto 1 => '0') & '1';
+                            srcA <= (width downto 0 => '0');
+                            srcB <= not ('0' & shifted_dividend(2 * width downto width + 1));
+                            cIn <= (width downto 1 => '0') & '1';
                     end if;
                         
                     if count = width + 2 then
                         Result2 <= sum(width-1 downto 0);
                         srcA <= (width downto 0 => '0');
-                        srcB <= not ('1' & shifted_dividend(width - 1 downto 0));
+                        srcB <= not ('0' & shifted_dividend(width - 1 downto 0));
                         cIn <= (width downto 1 => '0') & '1';
                     end if;
                     
@@ -206,23 +212,24 @@ begin
                         Result1 <= sum (width-1 downto 0);
                     end if;
                     
-                    else       
-                        Result2 <= shifted_dividend(2 * width downto width + 1);
-                        Result1 <= shifted_dividend(width - 1 downto 0);
-                    end if;
+                else       
+                    Result2 <= shifted_dividend(2 * width downto width + 1);
+                    Result1 <= shifted_dividend(width - 1 downto 0);
+                end if;
             end if;
+            
+        end if;
   
-    
             -- regardless of multiplication or division, check if last cycle is reached
             -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
             if (MCycleOp = "00" and count =   2 * width - 1) or
                (MCycleOp = "01" and count = width - 1) or
-               (MCycleOp(1) = '1' and count = width) then     -- If last cycle
+               (MCycleOp = "11" and count = width) or
+               (MCycleOp = "10" and count = width + 3) then     -- If last cycle
                 done <= '1';
             end if;
-
+            
             count := count + 1;
-        end if;
     end if;
  end process;
 
