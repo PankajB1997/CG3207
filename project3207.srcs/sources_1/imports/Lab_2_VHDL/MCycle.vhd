@@ -222,10 +222,9 @@ begin
             end if;
 
             count := count + 1;
-              end if;
-
         end if;
-    end process;
+    end if;
+ end process;
 
     state_update_process : process (CLK) -- state updating
     begin
