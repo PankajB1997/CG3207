@@ -211,7 +211,7 @@ begin
                         Result1 <= shifted_dividend(width - 1 downto 0);
                     end if;
             end if;
-    end if;
+  
     
             -- regardless of multiplication or division, check if last cycle is reached
             -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
@@ -222,6 +222,7 @@ begin
             end if;
 
             count := count + 1;
+              end if;
 
         end if;
     end process;
