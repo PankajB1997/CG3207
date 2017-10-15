@@ -118,8 +118,8 @@ begin
                         srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
                         
-                   else -- Signed Division
-                    signDiff := Operand1(width - 1) xor Operand2(width - 1);
+                   else-- Signed Division
+                        signDiff := Operand1(width - 1) xor Operand2(width - 1);
                     
                     if Operand2(width-1) = '1' then
                         flag1 := '1'; -- The second operand is negative
@@ -137,12 +137,13 @@ begin
                             srcB <= not ('1' & Operand1);
                             cIn <= (width downto 1 => '0') & '1';
                         end if;
+                        
                         if flag2 = '1' then
                              srcA <= shifted_dividend(2 * width downto width);
                              srcB <= not shifted_divisor;
                              cIn <= (width downto 1 => '0') & '1';
                              stFlag := '1';
-                        end if;
+                         end if;
                     end if;
                         
                    if count = 1 then
@@ -163,7 +164,7 @@ begin
                              cIn <= (width downto 1 => '0') & '1';
                              stFlag := '1';
                          end if;
-                     end if;
+                    end if;
                             
                     if count = 2 then
                         if Operand2(width - 1) = '1' then
@@ -204,14 +205,12 @@ begin
                     if count = width + 3 then
                         Result1 <= sum (width-1 downto 0);
                     end if;
-                 
-                 else       
-           
-                    Result2 <= shifted_dividend(2 * width downto width + 1);
-                    Result1 <= shifted_dividend(width - 1 downto 0);
-                  
-                end if;
-        end if;
+                    
+                    else       
+                        Result2 <= shifted_dividend(2 * width downto width + 1);
+                        Result1 <= shifted_dividend(width - 1 downto 0);
+                    end if;
+            end if;
     end if;
     
             -- regardless of multiplication or division, check if last cycle is reached
