@@ -210,8 +210,8 @@ begin
         wait for 3 * (ClkPeriod / 2);
 
         -- Division Test Case 5: Checking 2/6; Quotient: 0, Remainder: 2
-        t_Operand1 <= "0010";
-        t_Operand2 <= "0110";
+        t_Operand1 <= "1000";
+        t_Operand2 <= "0100";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';

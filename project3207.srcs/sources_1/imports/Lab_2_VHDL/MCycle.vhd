@@ -114,26 +114,7 @@ begin
             else -- Divide
                 -- MCycleOp(0) = '0' takes 'width + 4' cycles to execute, returns signed(Operand1)/signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
-
-             --   if MCycleOp(0) = '1' then
---                    if MCycleOp(0) = '1' and
---                        count = 1 then
---                            stFlag := '1';
---                    end if;
---                    if MCycleOp(0) = '0' then
---                        if count = 3 then
---                            stFlag := '1';
---                        end if;
---                        if count = width + 3 then
---                          -- count = width + 4 then
---                            stFlag := '0';
---                        end if;
---                    end if;
-                    
---                    a <= shifted_dividend;
---                    b <= shifted_divisor;
-                         
---                    if stFlag = '1' then
+                a <= (others => '0');
                 if MCycleOp(0) = '1' then
                     if count /= 0 then
                         if sum(width) = '0' then -- store subtracted result only if it is positive
@@ -172,6 +153,11 @@ begin
                         srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
                     elsif count = width + 2 then
+                        if sum(width) = '0' then -- store subtracted result only if it is positive
+                            shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                        else
+                            shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
+                        end if;
                         srcA <= (width downto 0 => '0');
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             srcB <= not ('1' & shifted_dividend(2 * width downto width + 1));
@@ -191,8 +177,9 @@ begin
                             cIn <= (width downto 1 => '0') & '0';
                         end if;
                     elsif count = width + 4 then
-                        Result1 <= sum (width-1 downto 0);
+                        Result1 <= sum(width-1 downto 0);
                     else
+                        a <= (2 * width downto 1 => '0') & '1';
                         if sum(width) = '0' then -- store subtracted result only if it is positive
                             shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
                         else
