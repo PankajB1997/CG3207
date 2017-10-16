@@ -209,9 +209,9 @@ begin
         assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 4" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Division Test Case 5: Checking 2/10; Quotient: 0, Remainder: 2
+        -- Division Test Case 5: Checking 2/6; Quotient: 0, Remainder: 2
         t_Operand1 <= "0010";
-        t_Operand2 <= "1010";
+        t_Operand2 <= "0110";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
@@ -220,7 +220,7 @@ begin
         assert (t_Result1 = "0000" and t_Result2 = "0010") report "Failed MCycle Division Test Case 5" severity error;
         wait for 3 * (ClkPeriod / 2);
         
-         --Division (Signed) Test Case 6: Checking -2/6; Quotient: 0 , Remainder: -2
+        --Division (Signed) Test Case 6: Checking -2/6; Quotient: 0 , Remainder: -2
         t_MCycleOp <= "10";
         t_Operand1 <= "1110";
         t_Operand2 <= "0110";
@@ -228,7 +228,7 @@ begin
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
-        wait for ClkPeriod/2;
+        wait for ClkPeriod / 2;
         assert (t_Result1 = "0000" and t_Result2 = "1110") report "Failed MCycle Division Test Case 6" severity error;
         wait for 3 * (ClkPeriod / 2);
        
@@ -239,42 +239,42 @@ begin
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
-        wait for ClkPeriod/2;
+        wait for ClkPeriod / 2;
         assert (t_Result1 = "1110" and t_Result2 = "0000") report "Failed MCycle Division Test Case 7" severity error;
         wait for 3 * (ClkPeriod / 2);
         
        
-        -- Division (Signed) Test Case 8: Checking -8/1; Quotient: -8 , Remainder: 0
+        -- Division (Signed) Test Case 8: Checking -8/-4; Quotient: 2 , Remainder: 0
         t_Operand1 <= "1000";
-        t_Operand2 <= "0001";
+        t_Operand2 <= "1100";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
-        wait for ClkPeriod/2;
-        assert (t_Result1 = "1000" and t_Result2 = "0000") report "Failed MCycle Division Test Case 8" severity error;
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0010" and t_Result2 = "0000") report "Failed MCycle Division Test Case 8" severity error;
         wait for 3 * (ClkPeriod / 2);
       
-        -- Division (Signed) Test Case 9: Checking 7/-1; Quotient: -7 , Remainder: 0
-        t_Operand1 <= "0111";
+        -- Division (Signed) Test Case 9: Checking -7/-1; Quotient: 7 , Remainder: 0
+        t_Operand1 <= "1001";
         t_Operand2 <= "1111";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
-        wait for ClkPeriod/2;
-        assert (t_Result1 = "1001" and t_Result2 = "0000") report "Failed MCycle Division Test Case 9" severity error;
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0111" and t_Result2 = "0000") report "Failed MCycle Division Test Case 9" severity error;
         wait for 3 * (ClkPeriod / 2);
        
-        -- Division (Signed) Test Case 10: Checking 7/-8; Quotient: 0 , Remainder: -7
+        -- Division (Signed) Test Case 10: Checking 7/4; Quotient: 1 , Remainder: 3
         t_Operand1 <= "0111";
-        t_Operand2 <= "1000";
+        t_Operand2 <= "0100";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
-        wait for ClkPeriod/2;
-        assert (t_Result1 = "0000" and t_Result2 = "1001") report "Failed MCycle Division Test Case 10" severity error;
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "0011") report "Failed MCycle Division Test Case 10" severity error;
         wait for 3 * (ClkPeriod / 2);
       
         

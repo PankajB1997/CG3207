@@ -26,6 +26,8 @@ architecture Arch_MCycle of MCycle is
     signal srcA : std_logic_vector(width downto 0);
     signal srcB : std_logic_vector(width downto 0);
     signal cIn : std_logic_vector(width downto 0);
+    signal a : std_logic_vector(2 * width downto 0) := (others => '0');
+    signal b : std_logic_vector(width downto 0) := (others => '0');
 begin
 
     idle_process : process (state, done, Start, RESET)
@@ -68,25 +70,33 @@ begin
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
         variable sum_reg : std_logic_vector(width downto 0) := (others => '0');
-        variable signDiff : std_logic := '0';
+        variable negative_operand_present : std_logic := '0';
+        variable is_result_negated : std_logic := '0';
         variable flag1 : std_logic := '0';
         variable flag2 : std_logic := '0';
         variable stFlag : std_logic := '0';
+        variable temp_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
+        
        
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                count2 := (others => '0');
+                --count2 := (others => '0');
                 temp_sum := (others => '0');
                 shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
                 shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 shifted_divisor := '0' & Operand2;
                 sum_reg := '1' & (width - 1 downto 0 => '0');
+                temp_dividend := (2 * width downto 0 => '0');
+                negative_operand_present := Operand1(width - 1) or Operand2(width - 1);
+                is_result_negated := Operand1(width - 1) xor Operand2(width - 1);
+                stFlag := '0';
+
             end if;
-              
+     
             done <= '0';
             if MCycleOp(1) = '0' then -- Multiply
                 -- MCycleOp(0) = '0' takes 2 * 'width' cycles to execute, returns signed(Operand1) * signed(Operand2)
@@ -105,6 +115,25 @@ begin
                 -- MCycleOp(0) = '0' takes 'width + 4' cycles to execute, returns signed(Operand1)/signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
 
+             --   if MCycleOp(0) = '1' then
+--                    if MCycleOp(0) = '1' and
+--                        count = 1 then
+--                            stFlag := '1';
+--                    end if;
+--                    if MCycleOp(0) = '0' then
+--                        if count = 3 then
+--                            stFlag := '1';
+--                        end if;
+--                        if count = width + 3 then
+--                          -- count = width + 4 then
+--                            stFlag := '0';
+--                        end if;
+--                    end if;
+                    
+--                    a <= shifted_dividend;
+--                    b <= shifted_divisor;
+                         
+--                    if stFlag = '1' then
                 if MCycleOp(0) = '1' then
                     if count /= 0 then
                         if sum(width) = '0' then -- store subtracted result only if it is positive
@@ -113,123 +142,80 @@ begin
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
                     end if;
-                  
-                        Result2 <= shifted_dividend(2 * width downto width + 1);
-                        Result1 <= shifted_dividend(width - 1 downto 0);
+                    
+                    Result2 <= shifted_dividend(2 * width downto width + 1);
+                    Result1 <= shifted_dividend(width - 1 downto 0);
+                    srcA <= shifted_dividend(2 * width downto width);
+                    srcB <= not shifted_divisor;
+                    cIn <= (width downto 1 => '0') & '1';    
+                else
+                    if count = 0 then
+                        srcA <= (width downto 0 => '0');
+                        cIn <= (width downto 1 => '0') & Operand1(width - 1);
+                        if Operand1(width-1) = '1' then -- Op1 is negative                                
+                            srcB <= not ('1' & Operand1);
+                        else   
+                            srcB <= '0' & Operand1;
+                        end if;                        
+                    elsif count = 1 then
+                        shifted_dividend := (2 * width downto width + 1 => '0') & sum;
+                        srcA <= (width downto 0 => '0');
+                        cIn <= (width downto 1 => '0') & Operand2(width - 1);
+                        if Operand2(width-1) = '1' then -- Op2 is negative                                
+                            srcB <= not ('1' & Operand2);
+                        else   
+                            srcB <= '0' & Operand2;
+                        end if;                            
+                    elsif count = 2 then
+                        shifted_divisor := sum;
                         srcA <= shifted_dividend(2 * width downto width);
                         srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
-                        
-                else-- Signed Division
-                        signDiff := Operand1(width - 1) xor Operand2(width - 1);
-                    
-                    if Operand2(width-1) = '1' then
-                        flag1 := '1'; -- The second operand is negative
-                    end if;
-                    
-                    if Operand1(width-1) = '0' then
-                        if Operand2(width-1) = '0' then
-                            flag2 := '1'; -- Both operands are positive
-                        end if;
-                    end if;
-                    
-                    if count = 0 then
-                        if Operand1(width-1) = '1' then
-                            srcA <= (width downto 0 => '0');
-                            srcB <= not ('0' & Operand1);
+                    elsif count = width + 2 then
+                        srcA <= (width downto 0 => '0');
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            srcB <= not ('1' & shifted_dividend(2 * width downto width + 1));
                             cIn <= (width downto 1 => '0') & '1';
+                        else
+                            srcB <= '0' & shifted_dividend(2 * width downto width + 1);
+                            cIn <= (width downto 1 => '0') & '0';
                         end if;
-                        
-                        if flag2 = '1' then
-                             srcA <= shifted_dividend(2 * width downto width);
-                             srcB <= not shifted_divisor;
-                             cIn <= (width downto 1 => '0') & '1';
-                             stFlag := '1';
-                         end if;
-                    end if;
-                        
-                    if count = 1 then
-                        if Operand1 (width - 1) = '1' then
-                            shifted_dividend := (2 * width downto width + 1 => '0') & sum;
-                        end if;
-                        
-                        if Operand2(width - 1) = '1' then
-                            srcA <= (width downto 0 => '0');
-                            srcB <= not ('0' & Operand2);
+                    elsif count = width + 3 then
+                        Result2 <= sum(width-1 downto 0);
+                        srcA <= (width downto 0 => '0');
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            srcB <= not ('1' & shifted_dividend(width - 1 downto 0));
                             cIn <= (width downto 1 => '0') & '1';
+                        else
+                            srcB <= '0' & shifted_dividend(width - 1 downto 0);
+                            cIn <= (width downto 1 => '0') & '0';
                         end if;
-                        
-                        if flag1 = '0' then
-                             srcA <= shifted_dividend(2 * width downto width);
-                             srcB <= not shifted_divisor;
-                             cIn <= (width downto 1 => '0') & '1';
-                             stFlag := '1';
-                        end if;
-                    end if;
-                            
-                    if count = 2 then
-                        if Operand2(width - 1) = '1' then
-                            --shifted_divisor := '0' & sum(width-1 downto 0);
-                            shifted_divisor := sum;
-                            srcA <= shifted_dividend(2 * width downto width);
-                            srcB <= not shifted_divisor;
-                            cIn <= (width downto 1 => '0') & '1';
-                            stFlag := '1';
-                        end if;
-                    end if;
-                   
-                 if count /= 0 then
-                    if stFlag = '1' then -- Negative operands (where present) have been converted to their positive values in all cases
+                    elsif count = width + 4 then
+                        Result1 <= sum (width-1 downto 0);
+                    else
                         if sum(width) = '0' then -- store subtracted result only if it is positive
                             shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
-
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
-                        count2 := count2 + 1; --As depending on the number of negative operands, the clock cycle at which that particular set of values enter the loop varies. Hence, count2 is used to keep track of number of clock cycles passed, ever since the division started
-                    end if;
-                end if;
-                if count2 = width + 1 then
-                    count := count2;
-                end if;
-                stFlag := '0';
-                                
-                if signDiff = '1' then 
-                    if count = width + 1 then
-                            srcA <= (width downto 0 => '0');
-                            srcB <= not ('0' & shifted_dividend(2 * width downto width + 1));
-                            cIn <= (width downto 1 => '0') & '1';
-                    end if;
-                        
-                    if count = width + 2 then
-                        Result2 <= sum(width-1 downto 0);
-                        srcA <= (width downto 0 => '0');
-                        srcB <= not ('0' & shifted_dividend(width - 1 downto 0));
+                        srcA <= shifted_dividend(2 * width downto width);
+                        srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
                     end if;
-                    
-                    if count = width + 3 then
-                        Result1 <= sum (width-1 downto 0);
-                    end if;
-                    
-                else       
-                    Result2 <= shifted_dividend(2 * width downto width + 1);
-                    Result1 <= shifted_dividend(width - 1 downto 0);
                 end if;
-            end if;
-            
+           
         end if;
   
-            -- regardless of multiplication or division, check if last cycle is reached
-            -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
-            if (MCycleOp = "00" and count =   2 * width - 1) or
-               (MCycleOp = "01" and count = width - 1) or
-               (MCycleOp = "11" and count = width) or
-               (MCycleOp = "10" and count = width + 3) then     -- If last cycle
-                done <= '1';
-            end if;
-            
-            count := count + 1;
+        -- regardless of multiplication or division, check if last cycle is reached
+        -- right now, below assumes that signed division takes (2 * width) cycles, may need to change
+        if (MCycleOp = "00" and count =   2 * width - 1) or
+           (MCycleOp = "01" and count = width - 1) or
+           (MCycleOp = "11" and count = width) or
+           (MCycleOp = "10" and count = width + 4) then     -- If last cycle
+            done <= '1';
+        end if;
+        
+        count := count + 1;
     end if;
  end process;
 
