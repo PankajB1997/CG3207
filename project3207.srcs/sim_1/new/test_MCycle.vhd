@@ -128,18 +128,51 @@ begin
         assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 1" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Multiplication Test Case 2: Checking (-2)*(-1); Result1: 2, Result2: 0 (i.e. product 2)
-        t_Operand1 <= "1110";
-        t_Operand2 <= "1111";
+        -- Multiplication Test Case 2: Checking (+2)*(+3); Result1: 6, Result2: 0 (i.e. product 6)
+        t_Operand1 <= "0010";
+        t_Operand2 <= "0011";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
         wait for ClkPeriod / 2;
-        assert (t_Result1 = "0010" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 2" severity error;
+        assert (t_Result1 = "0110" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 2" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Multiplication Test Case 3: Checking 15*15; Result1: 1, Result2: 14 (i.e. product 225)
+        -- Multiplication Test Case 3: Checking (-8)*(+6); Result1: 0, Result2: 13 in unsigned notation (i.e. product -48)
+        t_Operand1 <= "1000";
+        t_Operand2 <= "0110";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0000" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 3" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 4: Checking (+7)*(-3); Result1: 11, Result2: 14 in unsigned notation (i.e. product -21)
+        t_Operand1 <= "0111";
+        t_Operand2 <= "1101";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1011" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 4" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 5: Checking (-8)*(-8); Result1: 8, Result2: 0 in unsigned notation (i.e. product 64)
+        t_Operand1 <= "1000";
+        t_Operand2 <= "1000";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0000" and t_Result2 = "0100") report "Failed MCycle Multiplication Test Case 5" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 6: Checking 15*15; Result1: 1, Result2: 14 (i.e. product 225)
         t_MCycleOp <= "01";
         t_Operand1 <= "1111";
         t_Operand2 <= "1111";
@@ -148,18 +181,51 @@ begin
         t_Start <= '0';
         wait until t_Busy = '0';
         wait for ClkPeriod / 2;
-        assert (t_Result1 = "0001" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 3" severity error;
+        assert (t_Result1 = "0001" and t_Result2 = "1110") report "Failed MCycle Multiplication Test Case 6" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Multiplication Test Case 4: Checking 14*15; Result1: 2, Result2: 13 (i.e. product 210)
-        t_Operand1 <= "1110";
+        -- Multiplication Test Case 7: Checking 1*1; Result1: 1, Result2: 0 (i.e. product 1)
+        t_Operand1 <= "0001";
+        t_Operand2 <= "0001";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 7" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 8: Checking 1*15; Result1: 15, Result2: 0 (i.e. product 15)
+        t_Operand1 <= "0001";
         t_Operand2 <= "1111";
         t_Start <= '1';
         wait for ClkPeriod * 2;
         t_Start <= '0';
         wait until t_Busy = '0';
         wait for ClkPeriod / 2;
-        assert (t_Result1 = "0010" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 4" severity error;
+        assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 8" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 9: Checking 15*1; Result1: 15, Result2: 0 (i.e. product 15)
+        t_Operand1 <= "1111";
+        t_Operand2 <= "0001";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 9" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 10: Checking 6*7; Result1: 12, Result2: 2 (i.e. product 42)
+        t_Operand1 <= "0110";
+        t_Operand2 <= "0111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1010" and t_Result2 = "0010") report "Failed MCycle Multiplication Test Case 10" severity error;
         wait for 3 * (ClkPeriod / 2);
 
         -- Tests for division start below

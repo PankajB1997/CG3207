@@ -63,20 +63,21 @@ begin
         variable shifted_op2 : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
+
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                temp_sum := (others => '0');
-                shifted_op1 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand1(width - 1)) & Operand1;
-                shifted_op2 := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
+                shifted_multiplier := Operand1;
+                shifted_multiplicand := (2 * width - 1 downto width => '0') & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 shifted_divisor := '0' & Operand2;
             end if;
      
             done <= '0';
             if MCycleOp(1) = '0' then -- Multiply
+
                 -- MCycleOp(0) = '0' takes 2 * 'width' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
 
@@ -157,6 +158,7 @@ begin
                         end if;
                     elsif count = width + 4 then
                         Result1 <= sum(width-1 downto 0);
+
                     else
                         if sum(width) = '0' then -- store subtracted result only if it is positive
                             shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
@@ -169,6 +171,7 @@ begin
                         cIn <= (width downto 1 => '0') & '1';
                     end if;
                 end if;
+
         end if;
   
         -- regardless of multiplication or division, check if last cycle is reached
