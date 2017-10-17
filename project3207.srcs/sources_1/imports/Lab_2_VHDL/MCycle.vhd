@@ -25,7 +25,6 @@ architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
-    signal cIn : std_logic_vector(width downto 0);
 begin
     idle_process : process (state, done, Start, RESET)
     begin
@@ -60,7 +59,7 @@ begin
         variable shifted_multiplier : std_logic_vector(width - 1 downto 0) := (others => '0');
         variable shifted_multiplicand : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
-        variable shifted_divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
+        variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -69,7 +68,7 @@ begin
                 shifted_multiplier := Operand1;
                 shifted_multiplicand := (2 * width - 1 downto width => '0') & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
-                shifted_divisor := Operand2;
+                divisor := Operand2;
             end if;
 
             done <= '0';
@@ -167,8 +166,10 @@ begin
                 -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
                 if MCycleOp(0) = '1' then -- Unsigned Division
                     if count /= 0 then
-                        if sum(width) = '0' then -- store subtracted result only if it is positive
-                            shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                        -- ALUCarryFlag is complement of Borrow.
+                        if ALUCarryFlag = '1' then
+                            -- store subtracted result only if it is positive
+                            shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
@@ -176,72 +177,72 @@ begin
 
                     Result2 <= shifted_dividend(2 * width downto width + 1);
                     Result1 <= shifted_dividend(width - 1 downto 0);
-                    srcA <= shifted_dividend(2 * width downto width);
-                    srcB <= not shifted_divisor;
-                    cIn <= (width downto 1 => '0') & '1';
+                    ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
+                    ALUSrc2 <= divisor;
+                    ALUControl <= "01";
                 else -- Signed Division
                     if count = 0 then
-                        srcA <= (width downto 0 => '0');
-                        cIn <= (width downto 1 => '0') & Operand1(width - 1);
-                        if Operand1(width-1) = '1' then -- Op1(Dividend) is negative
-                            srcB <= not ('1' & Operand1);
-                        else                            -- Op1(Dividend) is positive
-                            srcB <= '0' & Operand1;
+                        ALUSrc1 <= (width - 1 downto 0 => '0');
+                        ALUSrc2 <= Operand1;
+                        if Operand1(width - 1) = '1' then
+                            ALUControl <= "01";
+                        else
+                            ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        shifted_dividend := (2 * width downto width + 1 => '0') & sum(width - 1  downto 0) & '0';
+                        shifted_dividend := (2 * width downto width + 1 => '0') & ALUResult & '0';
 
-                        srcA <= (width downto 0 => '0');
-                        cIn <= (width downto 1 => '0') & Operand2(width - 1);
-                        if Operand2(width-1) = '1' then -- Op2(Divisor) is negative
-                            srcB <= not ('1' & Operand2);
-                        else                            -- Op2(Divisor) is positive
-                            srcB <= '0' & Operand2;
+                        ALUSrc1 <= (width - 1 downto 0 => '0');
+                        ALUSrc2 <= Operand2;
+                        if Operand2(width - 1) = '1' then
+                            ALUControl <= "01";
+                        else
+                            ALUControl <= "00";
                         end if;
                     elsif count = 2 then
-                        shifted_divisor := sum;
+                        divisor := ALUResult;
 
-                        srcA <= shifted_dividend(2 * width downto width);
-                        srcB <= not shifted_divisor;
-                        cIn <= (width downto 1 => '0') & '1';
-                    elsif count = width + 2 then        -- Perform division
-                        if sum(width) = '0' then -- store subtracted result only if it is positive
-                            shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                        ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
+                        ALUSrc2 <= divisor;
+                        ALUControl <= "01";
+                    elsif count = width + 2 then  -- Perform division
+                        if ALUCarryFlag = '1' then  -- store subtracted result only if it is positive
+                            shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
 
-                        srcA <= (width downto 0 => '0');
+                        ALUSrc1 <= (width - 1 downto 0 => '0');
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then -- XOR to check if the operands are of different signs
-                            srcB <= not ('1' & shifted_dividend(2 * width downto width + 1)); -- If operands are of different signs, then take 2's complement of the remainder
-                            cIn <= (width downto 1 => '0') & '1';
+                            ALUSrc2 <= shifted_dividend(2 * width downto width + 1); -- If operands are of different signs, then take 2's complement of the remainder
+                            ALUControl <= "01";
                         else
-                            srcB <= '0' & shifted_dividend(2 * width downto width + 1);
-                            cIn <= (width downto 1 => '0') & '0';
+                            ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
+                            ALUControl <= "00";
                         end if;
                     elsif count = width + 3 then
-                        Result2 <= sum(width-1 downto 0);
+                        Result2 <= ALUResult;
 
-                        srcA <= (width downto 0 => '0');
+                        ALUSrc1 <= (width - 1 downto 0 => '0');
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then -- XOR to check if the operands are of different signs
-                            srcB <= not ('1' & shifted_dividend(width - 1 downto 0)); -- If operands are of different signs, then take 2's complement of the quotient
-                            cIn <= (width downto 1 => '0') & '1';
+                            ALUSrc2 <= shifted_dividend(width - 1 downto 0); -- If operands are of different signs, then take 2's complement of the quotient
+                            ALUControl <= "01";
                         else
-                            srcB <= '0' & shifted_dividend(width - 1 downto 0);
-                            cIn <= (width downto 1 => '0') & '0';
+                            ALUSrc2 <= shifted_dividend(width - 1 downto 0);
+                            ALUControl <= "00";
                         end if;
                     elsif count = width + 4 then
-                        Result1 <= sum(width-1 downto 0);
+                        Result1 <= ALUResult;
                     else
-                        if sum(width) = '0' then -- store subtracted result only if it is positive
-                            shifted_dividend := sum(width - 1 downto 0) & shifted_dividend(width - 1 downto 0) & '1';
+                        if ALUCarryFlag = '1' then -- store subtracted result only if it is positive
+                            shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
 
-                        srcA <= shifted_dividend(2 * width downto width);
-                        srcB <= not shifted_divisor;
-                        cIn <= (width downto 1 => '0') & '1';
+                        ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
+                        ALUSrc2 <= divisor;
+                        ALUControl <= "01";
                     end if;
                 end if;
             end if;
