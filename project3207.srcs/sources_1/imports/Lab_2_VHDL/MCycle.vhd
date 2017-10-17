@@ -139,7 +139,7 @@ begin
                             srcB <= '0' & Operand1;
                         end if;                        
                     elsif count = 1 then
-                        shifted_dividend := (2 * width downto width + 1 => '0') & sum;
+                        shifted_dividend := (2 * width downto width + 1 => '0') & sum(width - 1  downto 0) & '0';
                         srcA <= (width downto 0 => '0');
                         cIn <= (width downto 1 => '0') & Operand2(width - 1);
                         if Operand2(width-1) = '1' then -- Op2 is negative                                
