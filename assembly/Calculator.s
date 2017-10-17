@@ -56,7 +56,7 @@ operator
 
 ; Get user input.
 		LDR R5, [R8]
-		AND R5, R5, #1
+		AND R5, R5, #3
 
 ; Wait for user to release button.
 operatordone
@@ -85,7 +85,11 @@ input2done
 ; Do the operation.
 		CMP R5, #1
 		BEQ addoperator
-		BNE suboperator
+		CMP R5, #2
+		BEQ suboperator
+		CMP R5, #3
+		BEQ muloperator
+		BNE divoperator
 
 addoperator
 		ADD R7, R4, R6
@@ -93,12 +97,20 @@ addoperator
 
 suboperator
 		SUB R7, R4, R6
+		B computationdone
+
+muloperator
+		MUL R7, R4, R6
+		B computationdone
+
+divoperator
+		MLA R7, R4, R6, R5 ; R5 here is a randomly chosen register to meet MLA's instruction format; to perform division with MLA, only R4/R6 is calculated
 
 ; Display result of computation on LEDS
 computationdone
 		STR R7, [R8, #-4]
 
-; Loop back to input.
+; Loop back to input1 to restart input.
 		B  input1
 
 
