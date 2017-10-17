@@ -60,7 +60,6 @@ architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
-    signal sum : std_logic_vector(width downto 0);
     signal cIn : std_logic_vector(width downto 0);
 begin
 
@@ -94,8 +93,6 @@ begin
         end if;
     end process;
 
-    sum <= ALUCarryFlag & ALUResult;
-
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable shifted_multiplier : std_logic_vector(width - 1 downto 0) := (others => '0');
@@ -119,7 +116,7 @@ begin
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if MCycleOp(0) = '1' then
                     if count /= 0 then
-                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
                     end if;
                     Result2 <= shifted_multiplicand(2 * width - 1 downto width);
                     Result1 <= shifted_multiplicand(width - 1 downto 0);
@@ -141,7 +138,7 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        shifted_multiplier := sum(width - 1 downto 0);
+                        shifted_multiplier := ALUResult;
 
                         ALUSrc1 <= (others => '0');
                         ALUSrc2 <= Operand2;
@@ -151,7 +148,7 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 2 then
-                        shifted_multiplicand := (2 * width - 1 downto width => '0') & sum(width - 1 downto 0);
+                        shifted_multiplicand := (2 * width - 1 downto width => '0') & ALUResult;
 
                         ALUControl <= "00";
                         ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
@@ -161,7 +158,7 @@ begin
                             ALUSrc2 <= (others => '0');
                         end if;
                     elsif count = width + 2 then
-                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
 
                         ALUSrc1 <= (others => '0');
                         ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
@@ -171,11 +168,11 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 3 then
-                        Result1 <= sum(width - 1 downto 0);
+                        Result1 <= ALUResult;
 
                         ALUSrc1 <= (others => '0');
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
-                            if sum(width) = '1' then
+                            if ALUCarryFlag = '1' then
                                 -- If there is a carry from negating LSW, then do 2's complement.
                                 ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
                                 ALUControl <= "01";
@@ -189,9 +186,9 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 4 then
-                        Result2 <= sum(width - 1 downto 0);
+                        Result2 <= ALUResult;
                     else
-                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
 
                         ALUControl <= "00";
                         ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
