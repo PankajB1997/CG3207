@@ -5,24 +5,26 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity MCycle is
 generic (width : integer := 4); -- Keep this at 4 to verify your algorithms with 4 bit numbers (easier). When using MCycle as a component in ARM, generic map it to 32.
 port (
-    CLK : in STD_LOGIC;
-    RESET : in STD_LOGIC;  -- Connect this to the reset of the ARM processor.
-    Start : in STD_LOGIC;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
-    MCycleOp : in STD_LOGIC_VECTOR (1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
-    Operand1 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplicand / Dividend
-    Operand2 : in STD_LOGIC_VECTOR (width - 1 downto 0); -- Multiplier / Divisor
-    Result1 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- LSW of Product / Quotient
-    Result2 : out STD_LOGIC_VECTOR (width - 1 downto 0); -- MSW of Product / Remainder
-    Busy : out STD_LOGIC);  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
+    CLK : in std_logic;
+    RESET : in std_logic;  -- Connect this to the reset of the ARM processor.
+    Start : in std_logic;  -- Multi-cycle Enable. The control unit should assert this when an instruction with a multi-cycle operation is detected.
+    MCycleOp : in std_logic_vector(1 downto 0); -- Multi-cycle Operation. "00" for signed multiplication, "01" for unsigned multiplication, "10" for signed division, "11" for unsigned division.
+    Operand1 : in std_logic_vector(width - 1 downto 0); -- Multiplicand / Dividend
+    Operand2 : in std_logic_vector(width - 1 downto 0); -- Multiplier / Divisor
+    ALUResult : in std_logic_vector(width - 1 downto 0);
+    ALUCarryFlag : in std_logic;
+    ALUSrc1 : out std_logic_vector(width - 1 downto 0);
+    ALUSrc2 : out std_logic_vector(width - 1 downto 0);
+    ALUControl : out std_logic_vector(1 downto 0);
+    Result1 : out std_logic_vector(width - 1 downto 0); -- LSW of Product / Quotient
+    Result2 : out std_logic_vector(width - 1 downto 0); -- MSW of Product / Remainder
+    Busy : out std_logic );  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
 end MCycle;
 
 architecture Arch_MCycle of MCycle is
     type states is (IDLE, COMPUTING);
     signal state, n_state : states := IDLE;
     signal done : std_logic;
-    signal sum : std_logic_vector(width downto 0);
-    signal srcA : std_logic_vector(width downto 0);
-    signal srcB : std_logic_vector(width downto 0);
     signal cIn : std_logic_vector(width downto 0);
 begin
     idle_process : process (state, done, Start, RESET)
@@ -37,7 +39,7 @@ begin
         else
             case state is
                 when IDLE =>
-                if Start = '1' then
+                    if Start = '1' then
                         n_state <= COMPUTING;
                         Busy <= '1';
                     end if;
@@ -53,16 +55,12 @@ begin
         end if;
     end process;
 
-    sum <= srcA + srcB + cIn;
-
     computing_process : process (CLK) -- process which does the actual computation
-
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable shifted_multiplier : std_logic_vector(width - 1 downto 0) := (others => '0');
         variable shifted_multiplicand : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
-        variable shifted_divisor : std_logic_vector(width downto 0) := (others => '0');
-
+        variable shifted_divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -71,7 +69,7 @@ begin
                 shifted_multiplier := Operand1;
                 shifted_multiplicand := (2 * width - 1 downto width => '0') & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
-                shifted_divisor := '0' & Operand2;
+                shifted_divisor := Operand2;
             end if;
 
             done <= '0';
@@ -80,76 +78,88 @@ begin
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if MCycleOp(0) = '1' then
                     if count /= 0 then
-                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
                     end if;
                     Result2 <= shifted_multiplicand(2 * width - 1 downto width);
                     Result1 <= shifted_multiplicand(width - 1 downto 0);
-                    srcA <= '0' & shifted_multiplicand(2 * width - 1 downto width);
+
+                    ALUControl <= "00";
+                    ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
                     if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                        srcB <= '0' & shifted_multiplier;
+                        ALUSrc2 <= shifted_multiplier;
                     else
-                        srcB <= (others => '0');
+                        ALUSrc2 <= (others => '0');
                     end if;
-                    cIn <= (others => '0');
                 else
                     if count = 0 then
-                        srcA <= (others => '0');
-                        cIn <= (width downto 1 => '0') & Operand1(width - 1);
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= Operand1;
                         if Operand1(width - 1) = '1' then
-                            srcB <= not ('1' & Operand1);
+                            ALUControl <= "01";
                         else
-                            srcB <= '0' & Operand1;
+                            ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        shifted_multiplier := sum(width - 1 downto 0);
-                        srcA <= (others => '0');
-                        cIn <= (width downto 1 => '0') & Operand2(width - 1);
+                        shifted_multiplier := ALUResult;
+
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= Operand2;
                         if Operand2(width - 1) = '1' then
-                            srcB <= not ('1' & Operand2);
+                            ALUControl <= "01";
                         else
-                            srcB <= '0' & Operand2;
+                            ALUControl <= "00";
                         end if;
                     elsif count = 2 then
-                        shifted_multiplicand := (2 * width - 1 downto width => '0') & sum(width - 1 downto 0);
-                        srcA <= '0' & shifted_multiplicand(2 * width - 1 downto width);
+                        shifted_multiplicand := (2 * width - 1 downto width => '0') & ALUResult;
+
+                        ALUControl <= "00";
+                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
                         if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                            srcB <= '0' & shifted_multiplier;
+                            ALUSrc2 <= shifted_multiplier;
                         else
-                            srcB <= (others => '0');
+                            ALUSrc2 <= (others => '0');
                         end if;
-                        cIn <= (others => '0');
-                  elsif count = width + 2 then
-                      shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
-                      srcA <= (others => '0');
-                      if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
-                          srcB <= not ('1' & shifted_multiplicand(width - 1 downto 0));
-                          cIn <= (width downto 1 => '0') & '1';
-                      else
-                          srcB <= '0' & shifted_multiplicand(width - 1 downto 0);
-                          cIn <= (width downto 1 => '0') & '0';
-                      end if;
-                  elsif count = width + 3 then
-                      Result1 <= sum(width - 1 downto 0);
-                      srcA <= (others => '0');
-                      if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
-                          srcB <= not ('1' & shifted_multiplicand(2 * width - 1 downto width));
-                          cIn <= (width downto 1 => '0') & sum(width);
-                      else
-                          srcB <= '0' & shifted_multiplicand(2 * width - 1 downto width);
-                          cIn <= (others => '0');
-                      end if;
-                  elsif count = width + 4 then
-                      Result2 <= sum(width - 1 downto 0);
-                  else
-                      shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
-                      srcA <= '0' & shifted_multiplicand(2 * width - 1 downto width);
-                      if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                          srcB <= '0' & shifted_multiplier;
-                      else
-                          srcB <= (others => '0');
-                      end if;
-                      cIn <= (others => '0');
-                  end if;
+                    elsif count = width + 2 then
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            ALUControl <= "01";
+                        else
+                            ALUControl <= "00";
+                        end if;
+                    elsif count = width + 3 then
+                        Result1 <= ALUResult;
+
+                        ALUSrc1 <= (others => '0');
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            if ALUCarryFlag = '1' then
+                                -- If there is a carry from negating LSW, then do 2's complement.
+                                ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                                ALUControl <= "01";
+                            else
+                                -- Else do 1's complement.
+                                ALUSrc2 <= not shifted_multiplicand(2 * width - 1 downto width);
+                                ALUControl <= "00";
+                            end if;
+                        else
+                            ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                            ALUControl <= "00";
+                        end if;
+                    elsif count = width + 4 then
+                        Result2 <= ALUResult;
+                    else
+                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+
+                        ALUControl <= "00";
+                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
+                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= shifted_multiplier;
+                        else
+                            ALUSrc2 <= (others => '0');
+                        end if;
+                    end if;
                 end if;
 
             else -- Divide
@@ -169,7 +179,6 @@ begin
                     srcA <= shifted_dividend(2 * width downto width);
                     srcB <= not shifted_divisor;
                     cIn <= (width downto 1 => '0') & '1';
-
                 else -- Signed Division
                     if count = 0 then
                         srcA <= (width downto 0 => '0');
@@ -235,7 +244,6 @@ begin
                         cIn <= (width downto 1 => '0') & '1';
                     end if;
                 end if;
-
             end if;
 
             -- regardless of multiplication or division, check if last cycle is reached

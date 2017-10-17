@@ -199,9 +199,9 @@ begin
                 end if;
                 if MCycleFunct = "1001" then
                     -- MUL/DIV instruction
+                    ALUControl <= "--";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
                     MCycleStart <= '1';
-                    ALUControl <= "--";
                     if Funct(1) = '0' then
                         -- MUL instruction
                         MCycleOp <= "01";

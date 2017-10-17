@@ -131,16 +131,22 @@ architecture ARM_arch of ARM is
 
     component MCycle is
     generic (
-        width : integer );
+        width : integer
+    );
     port (
-        CLK : in STD_LOGIC;
-        RESET : in STD_LOGIC;
-        Start : in STD_LOGIC;
-        MCycleOp : in STD_LOGIC_VECTOR (1 downto 0);
-        Operand1 : in STD_LOGIC_VECTOR (width-1 downto 0);
-        Operand2 : in STD_LOGIC_VECTOR (width-1 downto 0);
-        Result1 : out STD_LOGIC_VECTOR (width-1 downto 0);
-        Result2 : out STD_LOGIC_VECTOR (width-1 downto 0);
+        CLK : in std_logic;
+        RESET : in std_logic;
+        Start : in std_logic;
+        MCycleOp : in std_logic_vector (1 downto 0);
+        Operand1 : in std_logic_vector (width-1 downto 0);
+        Operand2 : in std_logic_vector (width-1 downto 0);
+        ALUResult : in std_logic_vector (width - 1 downto 0);
+        ALUCarryFlag : in std_logic;
+        ALUSrc1 : out std_logic_vector (width - 1 downto 0);
+        ALUSrc2 : out std_logic_vector (width - 1 downto 0);
+        ALUControl : out std_logic_vector (1 downto 0);
+        Result1 : out std_logic_vector (width-1 downto 0);
+        Result2 : out std_logic_vector (width-1 downto 0);
         Busy : out std_logic
     );
     end component MCycle;
@@ -224,6 +230,11 @@ architecture ARM_arch of ARM is
     signal MCycleOp : std_logic_vector(1 downto 0);
     signal Operand1 : std_logic_vector(31 downto 0);
     signal Operand2 : std_logic_vector(31 downto 0);
+    signal MCycleALUResult : std_logic_vector(31 downto 0);
+    signal MCycleALUCarryFlag : std_logic;
+    signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
+    signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
+    signal MCycleALUControl : std_logic_vector (1 downto 0);
     signal MCycleResult : std_logic_vector(31 downto 0);
     signal MCycleResultUnused : std_logic_vector(31 downto 0);
     signal MCycleBusy : std_logic;
@@ -240,6 +251,7 @@ architecture ARM_arch of ARM is
     signal PCPlus8 : std_logic_vector(31 downto 0);
     signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
+    signal ALUFinalControl : std_logic_vector(1 downto 0);  -- From Decoder or MCycle.
 
 begin
 
@@ -273,9 +285,13 @@ begin
     -- ImmSrc connected already
 
     -- ALU inputs
-    Src_A <= RD1;
-    Src_B <= ExtImm when ALUSrc = '1' else ShOut; --to enable DP instructions with shift operation
-    -- ALUControl connected already
+    Src_A <= MCycleALUSrc1 when MCycleBusy = '1' else RD1;
+    Src_B <= MCycleALUSrc2
+             when MCycleBusy = '1'
+             else ExtImm
+                  when ALUSrc = '1'
+                  else ShOut; --to enable DP instructions with shift operation
+    ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControl;
 
     -- MCycle inputs
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
@@ -283,6 +299,8 @@ begin
     -- difference to Multiplication.
     Operand1 <= RD2;
     Operand2 <= RD1;
+    MCycleALUResult <= ALUResult_sig;
+    MCycleALUCarryFlag <= ALUFlags(1);
 
     -- Shifter inputs
     Sh <= Instr(6 downto 5);
@@ -378,7 +396,7 @@ begin
     port map(
         Src_A => Src_A,
         Src_B => Src_B,
-        ALUControl => ALUControl,
+        ALUControl => ALUFinalControl,
         ALUResult => ALUResult_sig,
         ALUFlags => ALUFlags
     );
@@ -394,6 +412,11 @@ begin
         MCycleOp => MCycleOp,
         Operand1 => Operand1,
         Operand2 => Operand2,
+        ALUResult => MCycleALUResult,
+        ALUCarryFlag => MCycleALUCarryFlag,
+        ALUSrc1 => MCycleALUSrc1,
+        ALUSrc2 => MCycleALUSrc2,
+        ALUControl => MCycleALUControl,
         Result1 => MCycleResult,
         Result2 => MCycleResultUnused,
         Busy => MCycleBusy

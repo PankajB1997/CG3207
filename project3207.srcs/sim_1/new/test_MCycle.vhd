@@ -29,7 +29,8 @@
 ----------------------------------------------------------------------------------
 
 library ieee;
-use ieee.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned vMCyclees
@@ -51,6 +52,11 @@ architecture test_mcycle_behavioral of test_mcycle is
         MCycleOp : in std_logic_vector(1 downto 0);
         Operand1 : in std_logic_vector(3 downto 0);
         Operand2 : in std_logic_vector(3 downto 0);
+        ALUResult : in std_logic_vector(3 downto 0);
+        ALUCarryFlag : in std_logic;
+        ALUSrc1 : out std_logic_vector(3 downto 0);
+        ALUSrc2 : out std_logic_vector(3 downto 0);
+        ALUControl : out std_logic_vector(1 downto 0);
         Result1 : out std_logic_vector(3 downto 0);
         Result2 : out std_logic_vector(3 downto 0);
         Busy : out std_logic
@@ -64,14 +70,23 @@ architecture test_mcycle_behavioral of test_mcycle is
     signal t_MCycleOp : std_logic_vector(1 downto 0) := (others => '0');
     signal t_Operand1 : std_logic_vector(3 downto 0) := (others => '0');
     signal t_Operand2 : std_logic_vector(3 downto 0) := (others => '0');
+    signal t_ALUResult : std_logic_vector(3 downto 0) := (others => '0');
+    signal t_ALUCarryFlag : std_logic := '0';
 
     --Outputs
+    signal t_ALUSrc1 : std_logic_vector(3 downto 0) := (others => '0');
+    signal t_ALUSrc2 : std_logic_vector(3 downto 0) := (others => '0');
+    signal t_ALUControl : std_logic_vector(1 downto 0) := (others => '0');
     signal t_Result1 : std_logic_vector(3 downto 0);
     signal t_Result2 : std_logic_vector(3 downto 0);
     signal t_Busy : std_logic;
 
     -- Clock period definitions
     constant ClkPeriod : time := 1 ns;
+    
+    -- Other internal signals
+    signal Sum : std_logic_vector(4 downto 0) := (others => '0');
+    signal Diff : std_logic_vector(4 downto 0) := (others => '0');
 
 begin
 
@@ -84,11 +99,25 @@ begin
         MCycleOp => t_MCycleOp,
         Operand1 => t_Operand1,
         Operand2 => t_Operand2,
+        ALUResult => t_ALUResult,
+        ALUCarryFlag => t_ALUCarryFlag,
         -- Outputs
+        ALUSrc1 => t_ALUSrc1,
+        ALUSrc2 => t_ALUSrc2,
+        ALUControl => t_ALUControl,
         Result1 => t_Result1,
         Result2 => t_Result2,
         Busy => t_Busy
     );
+    
+    Sum <= ('0' & t_ALUSrc1) + ('0' & t_ALUSrc2);
+    Diff <=  ('0' & t_ALUSrc1) + ('0' & (not t_ALUSrc2)) + "00001";
+    t_ALUResult <= Sum(3 downto 0)
+                   when t_ALUControl = "00"
+                   else Diff(3 downto 0);
+    t_ALUCarryFlag <= Sum(4)
+                      when t_ALUControl = "00"
+                      else Diff(4);
 
     -- Clock generation
     clk_process: process begin
