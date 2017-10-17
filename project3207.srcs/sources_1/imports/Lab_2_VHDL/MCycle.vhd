@@ -102,7 +102,7 @@ begin
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
+                shifted_multiplier := (2 * width - 1 downto width => not(MCycleOp(0)) and Operand2(width - 1)) & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 shifted_divisor := '0' & Operand2;
             end if;
@@ -111,12 +111,12 @@ begin
             if MCycleOp(1) = '0' then -- Multiply
                 -- MCycleOp(0) = '0' takes '2 * width + 1' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
-                Result2 <= shifted_multiplier(2 * width - 1 downto width);
-                Result1 <= shifted_multiplier(width - 1 downto 0);
                 if count /= 0 then
                   shifted_multiplier := sum & shifted_multiplier(width - 1 downto 1);
                 end if;
                 a <= shifted_multiplier;
+                Result2 <= shifted_multiplier(2 * width - 1 downto width);
+                Result1 <= shifted_multiplier(width - 1 downto 0);
                 srcA <= '0' & shifted_multiplier(2 * width - 1 downto width);
                 if shifted_multiplier(0) = '1' then -- add only if b0 = 1
                   srcB <= '0' & Operand1;
@@ -143,7 +143,7 @@ begin
             end if;
             -- regardless of multiplication or division, check if last cycle is reached
             if (MCycleOp = "00" and count = 2 * width) or
-               (MCycleOp = "01" and count = width + 1) or
+               (MCycleOp = "01" and count = width) or
                (MCycleOp = "10" and count = width + 4) or
                (MCycleOp = "11" and count = width) then     -- If last cycle
                 done <= '1';

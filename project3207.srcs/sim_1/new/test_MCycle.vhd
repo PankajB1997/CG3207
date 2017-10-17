@@ -162,6 +162,50 @@ begin
         assert (t_Result1 = "0010" and t_Result2 = "1101") report "Failed MCycle Multiplication Test Case 4" severity error;
         wait for 3 * (ClkPeriod / 2);
 
+        -- Multiplication Test Case 5: Checking 1*1; Result1: 1, Result2: 0 (i.e. product 1)
+        t_Operand1 <= "0001";
+        t_Operand2 <= "0001";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "0001" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 5" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 6: Checking 1*15; Result1: 15, Result2: 0 (i.e. product 15)
+        t_Operand1 <= "0001";
+        t_Operand2 <= "1111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 6" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 7: Checking 15*1; Result1: 15, Result2: 0 (i.e. product 15)
+        t_Operand1 <= "1111";
+        t_Operand2 <= "0001";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1111" and t_Result2 = "0000") report "Failed MCycle Multiplication Test Case 7" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
+        -- Multiplication Test Case 8: Checking 6*7; Result1: 12, Result2: 2 (i.e. product 42)
+        t_Operand1 <= "0110";
+        t_Operand2 <= "0111";
+        t_Start <= '1';
+        wait for ClkPeriod * 2;
+        t_Start <= '0';
+        wait until t_Busy = '0';
+        wait for ClkPeriod / 2;
+        assert (t_Result1 = "1010" and t_Result2 = "0010") report "Failed MCycle Multiplication Test Case 8" severity error;
+        wait for 3 * (ClkPeriod / 2);
+
         -- Tests for division start below
 
         -- Division Test Case 1: Checking 13/2; Quotient: 6, Remainder: 1
