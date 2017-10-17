@@ -191,7 +191,7 @@ begin
                         end if;
                     elsif count = 2 then
                         shifted_divisor := sum;
-                        
+
                         srcA <= shifted_dividend(2 * width downto width);
                         srcB <= not shifted_divisor;
                         cIn <= (width downto 1 => '0') & '1';
@@ -236,23 +236,23 @@ begin
                     end if;
                 end if;
 
-        end if;
+            end if;
 
-        -- regardless of multiplication or division, check if last cycle is reached
-        if (MCycleOp(0) = '0' and count = width + 4) or
-           (MCycleOp(0) = '1' and count = width) then     -- If last cycle
-            done <= '1';
-        end if;
+            -- regardless of multiplication or division, check if last cycle is reached
+            if (MCycleOp(0) = '0' and count = width + 4) or
+               (MCycleOp(0) = '1' and count = width) then     -- If last cycle
+                done <= '1';
+            end if;
 
-        count := count + 1;
-    end if;
- end process;
+            count := count + 1;
+        end if;
+    end process;
 
     state_update_process : process (CLK) -- state updating
     begin
-       if (CLK'event and CLK = '1') then
-            state <= n_state;
-       end if;
+        if (CLK'event and CLK = '1') then
+           state <= n_state;
+        end if;
     end process;
 
 end Arch_MCycle;
