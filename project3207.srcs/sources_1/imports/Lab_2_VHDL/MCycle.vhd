@@ -59,7 +59,6 @@ architecture Arch_MCycle of MCycle is
     signal srcA : std_logic_vector(width downto 0);
     signal srcB : std_logic_vector(width downto 0);
     signal cIn : std_logic_vector(width downto 0);
-    signal a : std_logic_vector(2 * width - 1 downto 0);
 begin
 
     idle_process : process (state, done, Start, RESET)
@@ -114,7 +113,6 @@ begin
                 if count /= 0 then
                   shifted_multiplier := sum & shifted_multiplier(width - 1 downto 1);
                 end if;
-                a <= shifted_multiplier;
                 Result2 <= shifted_multiplier(2 * width - 1 downto width);
                 Result1 <= shifted_multiplier(width - 1 downto 0);
                 srcA <= '0' & shifted_multiplier(2 * width - 1 downto width);
