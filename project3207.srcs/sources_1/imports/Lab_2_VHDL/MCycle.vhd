@@ -118,88 +118,89 @@ begin
                 -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if MCycleOp(0) = '1' then
-                  ALUControl <= "00";
-                  if count /= 0 then
-                    shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
-                  end if;
-                  Result2 <= shifted_multiplicand(2 * width - 1 downto width);
-                  Result1 <= shifted_multiplicand(width - 1 downto 0);
-                  ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                  if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                    ALUSrc2 <= shifted_multiplier;
-                  else
-                    ALUSrc2 <= (others => '0');
-                  end if;
-                else
-                  if count = 0 then
-                    ALUSrc1 <= (others => '0');
-                    ALUSrc2 <= Operand1;
-                    if Operand1(width - 1) = '1' then
-                        ALUControl <= "01";
-                    else
-                        ALUControl <= "00";
+                    if count /= 0 then
+                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
                     end if;
-                  elsif count = 1 then
-                    shifted_multiplier := sum(width - 1 downto 0);
-
-                    ALUSrc1 <= (others => '0');
-                    ALUSrc2 <= Operand2;
-                    if Operand2(width - 1) = '1' then
-                        ALUControl <= "01";
-                    else
-                        ALUControl <= "00";
-                    end if;
-                  elsif count = 2 then
-                    shifted_multiplicand := (2 * width - 1 downto width => '0') & sum(width - 1 downto 0);
+                    Result2 <= shifted_multiplicand(2 * width - 1 downto width);
+                    Result1 <= shifted_multiplicand(width - 1 downto 0);
 
                     ALUControl <= "00";
                     ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
                     if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                      ALUSrc2 <= shifted_multiplier;
+                        ALUSrc2 <= shifted_multiplier;
                     else
-                      ALUSrc2 <= (others => '0');
+                        ALUSrc2 <= (others => '0');
                     end if;
-                  elsif count = width + 2 then
-                    shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
-
-                    ALUSrc1 <= (others => '0');
-                    ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
-                    if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
-                        ALUControl <= "01";
-                    else
-                        ALUControl <= "00";
-                    end if;
-                  elsif count = width + 3 then
-                    Result1 <= sum(width - 1 downto 0);
-
-                    ALUSrc1 <= (others => '0');
-                    if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
-                        if sum(width) = '1' then
-                            -- If there is a carry from negating LSW, then do 2's complement.
-                            ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                else
+                    if count = 0 then
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= Operand1;
+                        if Operand1(width - 1) = '1' then
                             ALUControl <= "01";
                         else
-                            -- Else do 1's complement.
-                            ALUSrc2 <= not shifted_multiplicand(2 * width - 1 downto width);
                             ALUControl <= "00";
                         end if;
-                    else
-                        ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
-                        ALUControl <= "00";
-                    end if;
-                  elsif count = width + 4 then
-                    Result2 <= sum(width - 1 downto 0);
-                  else
-                    shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+                    elsif count = 1 then
+                        shifted_multiplier := sum(width - 1 downto 0);
 
-                    ALUControl <= "00";
-                    ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                    if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                      ALUSrc2 <= shifted_multiplier;
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= Operand2;
+                        if Operand2(width - 1) = '1' then
+                            ALUControl <= "01";
+                        else
+                            ALUControl <= "00";
+                        end if;
+                    elsif count = 2 then
+                        shifted_multiplicand := (2 * width - 1 downto width => '0') & sum(width - 1 downto 0);
+
+                        ALUControl <= "00";
+                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
+                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= shifted_multiplier;
+                        else
+                            ALUSrc2 <= (others => '0');
+                        end if;
+                    elsif count = width + 2 then
+                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+
+                        ALUSrc1 <= (others => '0');
+                        ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            ALUControl <= "01";
+                        else
+                            ALUControl <= "00";
+                        end if;
+                    elsif count = width + 3 then
+                        Result1 <= sum(width - 1 downto 0);
+
+                        ALUSrc1 <= (others => '0');
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            if sum(width) = '1' then
+                                -- If there is a carry from negating LSW, then do 2's complement.
+                                ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                                ALUControl <= "01";
+                            else
+                                -- Else do 1's complement.
+                                ALUSrc2 <= not shifted_multiplicand(2 * width - 1 downto width);
+                                ALUControl <= "00";
+                            end if;
+                        else
+                            ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                            ALUControl <= "00";
+                        end if;
+                    elsif count = width + 4 then
+                        Result2 <= sum(width - 1 downto 0);
                     else
-                      ALUSrc2 <= (others => '0');
+                        shifted_multiplicand := sum & shifted_multiplicand(width - 1 downto 1);
+
+                        ALUControl <= "00";
+                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
+                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= shifted_multiplier;
+                        else
+                            ALUSrc2 <= (others => '0');
+                        end if;
                     end if;
-                  end if;
                 end if;
             else -- Divide
                 -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1)/signed(Operand2)
@@ -213,6 +214,7 @@ begin
                 end if;
                 Result2 <= shifted_dividend(2 * width downto width + 1);
                 Result1 <= shifted_dividend(width - 1 downto 0);
+
                 ALUControl <= "01";  -- Subtract
                 ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                 ALUSrc2 <= shifted_divisor;
@@ -222,6 +224,7 @@ begin
                (MCycleOp(0) = '1' and count = width) then     -- If last cycle
                 done <= '1';
             end if;
+
             count := count + 1;
         end if;
     end process;
