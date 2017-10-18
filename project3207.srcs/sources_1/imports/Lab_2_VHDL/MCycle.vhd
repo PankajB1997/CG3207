@@ -63,7 +63,7 @@ begin
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable multiplicand : std_logic_vector(width - 1 downto 0) := (others => '0');
         variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
-        variable booth_shifted_multiplier : std_logic_vector(2 * width downto 0) := (others => '0');
+        variable signed_multiplier_top_bit : std_logic := '0';
         variable shifted_out_bit : std_logic := '0';
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
@@ -74,7 +74,7 @@ begin
                 count := (others => '0');
                 multiplicand := Operand1;
                 shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
-                booth_shifted_multiplier := (2 * width downto width => '0') & Operand2;
+                signed_multiplier_top_bit := '0';
                 shifted_out_bit := '0';
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 divisor := Operand2;
@@ -100,19 +100,20 @@ begin
                     end if;
                 else
                     if count /= 0 then
-                        booth_shifted_multiplier := sumTopBits & ALUResult & booth_shifted_multiplier(width - 1 downto 0);
-                        shifted_out_bit := booth_shifted_multiplier(0);
-                        booth_shifted_multiplier := booth_shifted_multiplier(2 * width) & booth_shifted_multiplier(2 * width downto 1);
+                        signed_multiplier_top_bit := sumTopBits;
+                        shifted_multiplier := ALUResult & shifted_multiplier(width - 1 downto 0);
+                        shifted_out_bit := shifted_multiplier(0);
+                        shifted_multiplier := signed_multiplier_top_bit & shifted_multiplier(2 * width - 1 downto 1);
                     end if;
                     
-                    ALUSrc1 <= booth_shifted_multiplier(2 * width - 1 downto width);
-                    topBit1 <= booth_shifted_multiplier(2 * width);
+                    ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                    topBit1 <= signed_multiplier_top_bit;
                     ALUSrc2 <= Operand1;
-                    if ((not booth_shifted_multiplier(0)) and shifted_out_bit) = '1' then
+                    if ((not shifted_multiplier(0)) and shifted_out_bit) = '1' then
                         -- Add
                         ALUControl <= "00";
                         topBit2 <= Operand1(width - 1);
-                    elsif (booth_shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
+                    elsif (shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
                         -- Subtract
                         ALUControl <= "01";
                         topBit2 <= not Operand1(width - 1);
@@ -122,8 +123,8 @@ begin
                         topBit2 <= '0';
                     end if;
 
-                    Result2 <= booth_shifted_multiplier(2 * width - 1 downto width);
-                    Result1 <= booth_shifted_multiplier(width - 1 downto 0);
+                    Result2 <= shifted_multiplier(2 * width - 1 downto width);
+                    Result1 <= shifted_multiplier(width - 1 downto 0);
                 end if;
 
             else -- Divide
