@@ -405,7 +405,7 @@ begin
         assert (t_Result1 = "0000" and t_Result2 = "1111") report "Failed MCycle Division Test Case 11" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Division (Signed) Test Case 12: Checking 0/7; Quotient: 0 , Remainder: 0
+        -- Division (Unsigned) Test Case 12: Checking 0/7; Quotient: 0 , Remainder: 0
         t_Operand1 <= "0000";
         t_Operand2 <= "0111";
         t_Start <= '1';
@@ -416,7 +416,7 @@ begin
         assert (t_Result1 = "0000" and t_Result2 = "0000") report "Failed MCycle Division Test Case 12" severity error;
         wait for 3 * (ClkPeriod / 2);
 
-        -- Division (Unsigned) Test Case 13: Checking 0/-5; Quotient: 0 , Remainder: 0
+        -- Division (Signed) Test Case 13: Checking 0/-5; Quotient: 0 , Remainder: 0
         t_MCycleOp <= "11";
         t_Operand1 <= "0000";
         t_Operand2 <= "1011";
