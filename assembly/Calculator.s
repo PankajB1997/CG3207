@@ -83,11 +83,11 @@ input2done
 
 
 ; Do the operation.
-		CMP R5, #1
+		CMP R5, #0
 		BEQ addoperator
-		CMP R5, #2
+		CMP R5, #1
 		BEQ suboperator
-		CMP R5, #3
+		CMP R5, #2
 		BEQ muloperator
 		BNE divoperator
 
