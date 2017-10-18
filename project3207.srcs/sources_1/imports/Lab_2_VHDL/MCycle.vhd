@@ -61,7 +61,6 @@ begin
 
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
-        variable multiplicand : std_logic_vector(width - 1 downto 0) := (others => '0');
         variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable signed_multiplier_top_bit : std_logic := '0';
         variable shifted_out_bit : std_logic := '0';
@@ -72,7 +71,6 @@ begin
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                multiplicand := Operand1;
                 shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
                 signed_multiplier_top_bit := '0';
                 shifted_out_bit := '0';
@@ -94,7 +92,7 @@ begin
                     ALUControl <= "00";
                     ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
                     if shifted_multiplier(0) = '1' then -- add only if b0 = 1
-                        ALUSrc2 <= multiplicand;
+                        ALUSrc2 <= Operand1;
                     else
                         ALUSrc2 <= (others => '0');
                     end if;
