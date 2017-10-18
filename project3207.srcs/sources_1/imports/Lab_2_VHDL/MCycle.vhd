@@ -28,12 +28,6 @@ architecture Arch_MCycle of MCycle is
     signal topBit1 : std_logic;
     signal topBit2 : std_logic;
     signal sumTopBits : std_logic;
-    signal sum : std_logic_vector(width downto 0);
-    signal diff : std_logic_vector(width downto 0);
-    signal srcA : std_logic_vector(width downto 0);
-    signal srcB : std_logic_vector(width downto 0);
-    signal doAddition : std_logic;
-    signal opResult : std_logic_vector(width downto 0);
 begin
     idle_process : process (state, done, Start, RESET)
     begin
@@ -64,9 +58,6 @@ begin
     end process;
 
     sumTopBits <= topBit1 xor topBit2 xor ALUCarryFlag;
-    sum <= srcA + srcB;
-    diff <= srcA - srcB;
-    opResult <= sum when doAddition = '1' else diff;
 
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
@@ -109,26 +100,26 @@ begin
                     end if;
                 else
                     if count /= 0 then
-                        booth_shifted_multiplier := opResult & booth_shifted_multiplier(width - 1 downto 0);
+                        booth_shifted_multiplier := sumTopBits & ALUResult & booth_shifted_multiplier(width - 1 downto 0);
                         shifted_out_bit := booth_shifted_multiplier(0);
                         booth_shifted_multiplier := booth_shifted_multiplier(2 * width) & booth_shifted_multiplier(2 * width downto 1);
                     end if;
                     
-                    
+                    ALUSrc1 <= booth_shifted_multiplier(2 * width - 1 downto width);
+                    topBit1 <= booth_shifted_multiplier(2 * width);
+                    ALUSrc2 <= Operand1;
                     if ((not booth_shifted_multiplier(0)) and shifted_out_bit) = '1' then
                         -- Add
-                        srcA <= booth_shifted_multiplier(2 * width downto width);
-                        srcB <= Operand1(width - 1) & Operand1;
-                        doAddition <= '1';
+                        ALUControl <= "00";
+                        topBit2 <= Operand1(width - 1);
                     elsif (booth_shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
                         -- Subtract
-                        srcA <= booth_shifted_multiplier(2 * width downto width);
-                        srcB <= Operand1(width - 1) & Operand1;
-                        doAddition <= '0';
+                        ALUControl <= "01";
+                        topBit2 <= not Operand1(width - 1);
                     else
-                        srcA <= booth_shifted_multiplier(2 * width downto width);
-                        srcB <= (others => '0');
-                        doAddition <= '1';
+                        ALUControl <= "00";
+                        ALUSrc2 <= (others => '0');
+                        topBit2 <= '0';
                     end if;
 
                     Result2 <= booth_shifted_multiplier(2 * width - 1 downto width);
