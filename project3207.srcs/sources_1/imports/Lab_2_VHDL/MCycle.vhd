@@ -32,6 +32,8 @@ architecture Arch_MCycle of MCycle is
     signal diff : std_logic_vector(width downto 0);
     signal srcA : std_logic_vector(width downto 0);
     signal srcB : std_logic_vector(width downto 0);
+    signal doAddition : std_logic;
+    signal opResult : std_logic_vector(width downto 0);
 begin
     idle_process : process (state, done, Start, RESET)
     begin
@@ -64,11 +66,14 @@ begin
     sumTopBits <= topBit1 xor topBit2 xor ALUCarryFlag;
     sum <= srcA + srcB;
     diff <= srcA - srcB;
+    opResult <= sum when doAddition = '1' else diff;
 
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
         variable multiplicand : std_logic_vector(width - 1 downto 0) := (others => '0');
         variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
+        variable booth_shifted_multiplier : std_logic_vector(2 * width downto 0) := (others => '0');
+        variable shifted_out_bit : std_logic := '0';
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
@@ -78,6 +83,8 @@ begin
                 count := (others => '0');
                 multiplicand := Operand1;
                 shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
+                booth_shifted_multiplier := (2 * width downto width => '0') & Operand2;
+                shifted_out_bit := '0';
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 divisor := Operand2;
             end if;
@@ -102,10 +109,30 @@ begin
                     end if;
                 else
                     if count /= 0 then
+                        booth_shifted_multiplier := opResult & booth_shifted_multiplier(width - 1 downto 0);
+                        shifted_out_bit := booth_shifted_multiplier(0);
+                        booth_shifted_multiplier := booth_shifted_multiplier(2 * width) & booth_shifted_multiplier(2 * width downto 1);
+                    end if;
+                    
+                    
+                    if ((not booth_shifted_multiplier(0)) and shifted_out_bit) = '1' then
+                        -- Add
+                        srcA <= booth_shifted_multiplier(2 * width downto width);
+                        srcB <= Operand1(width - 1) & Operand1;
+                        doAddition <= '1';
+                    elsif (booth_shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
+                        -- Subtract
+                        srcA <= booth_shifted_multiplier(2 * width downto width);
+                        srcB <= Operand1(width - 1) & Operand1;
+                        doAddition <= '0';
+                    else
+                        srcA <= booth_shifted_multiplier(2 * width downto width);
+                        srcB <= (others => '0');
+                        doAddition <= '1';
                     end if;
 
-                    Result2 <= shifted_multiplicand(2 * width - 1 downto width);
-                    Result1 <= shifted_multiplicand(width - 1 downto 0);
+                    Result2 <= booth_shifted_multiplier(2 * width - 1 downto width);
+                    Result1 <= booth_shifted_multiplier(width - 1 downto 0);
                 end if;
 
             else -- Divide
@@ -203,7 +230,8 @@ begin
             end if;
 
             -- regardless of multiplication or division, check if last cycle is reached
-            if (MCycleOp(0) = '0' and count = width + 4) or
+            if (McycleOp(1) = '0' and MCycleOp(0) = '0' and count = width) or
+               (McycleOp(1) = '1' and MCycleOp(0) = '0' and count = width + 4) or
                (MCycleOp(0) = '1' and count = width) then     -- If last cycle
                 done <= '1';
             end if;
