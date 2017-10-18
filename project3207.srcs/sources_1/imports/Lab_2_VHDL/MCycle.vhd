@@ -56,8 +56,8 @@ begin
 
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
-        variable shifted_multiplier : std_logic_vector(width - 1 downto 0) := (others => '0');
-        variable shifted_multiplicand : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
+        variable multiplicand : std_logic_vector(width - 1 downto 0) := (others => '0');
+        variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
@@ -65,8 +65,8 @@ begin
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                shifted_multiplier := Operand1;
-                shifted_multiplicand := (2 * width - 1 downto width => '0') & Operand2;
+                multiplicand := Operand1;
+                shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 divisor := Operand2;
             end if;
@@ -75,22 +75,23 @@ begin
             if MCycleOp(1) = '0' then -- Multiply
                 -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
-                if MCycleOp(0) = '1' then
+                if MCycleOp(0) = '1' then -- Unsigned multiplication
                     if count /= 0 then
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
                     end if;
-                    Result2 <= shifted_multiplicand(2 * width - 1 downto width);
-                    Result1 <= shifted_multiplicand(width - 1 downto 0);
+                    Result2 <= shifted_multiplier(2 * width - 1 downto width);
+                    Result1 <= shifted_multiplier(width - 1 downto 0);
 
                     ALUControl <= "00";
-                    ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                    if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                        ALUSrc2 <= shifted_multiplier;
+                    ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                    if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                        ALUSrc2 <= multiplicand;
                     else
                         ALUSrc2 <= (others => '0');
                     end if;
-                else
+                else -- Signed multiplication
                     if count = 0 then
+                        -- negate the multiplicand if it is negative
                         ALUSrc1 <= (others => '0');
                         ALUSrc2 <= Operand1;
                         if Operand1(width - 1) = '1' then
@@ -99,7 +100,8 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        shifted_multiplier := ALUResult;
+                        -- store negated multiplicand from previous step and negate the multiplier if it is negative
+                        multiplicand := ALUResult;
 
                         ALUSrc1 <= (others => '0');
                         ALUSrc2 <= Operand2;
@@ -109,52 +111,58 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 2 then
-                        shifted_multiplicand := (2 * width - 1 downto width => '0') & ALUResult;
+                        -- store negated multiplier from previous step and start multiplication process
+                        shifted_multiplier := (2 * width - 1 downto width => '0') & ALUResult;
 
                         ALUControl <= "00";
-                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                            ALUSrc2 <= shifted_multiplier;
+                        ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                        if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= multiplicand;
                         else
                             ALUSrc2 <= (others => '0');
                         end if;
                     elsif count = width + 2 then
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                        -- modify shifted multiplier based on ALUResult and ALUCarryFlag and negate the answer if it is negative
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
 
                         ALUSrc1 <= (others => '0');
-                        ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
+                        ALUSrc2 <= shifted_multiplier(width - 1 downto 0);
+                        -- if answer will be negative, negate the current value, else keep it unchanged
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             ALUControl <= "01";
                         else
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 3 then
+                        -- store modified/unmodified Result1 from previous step and negate the answer if it is negative
                         Result1 <= ALUResult;
 
                         ALUSrc1 <= (others => '0');
+                        -- if answer will be negative, negate the current value, else keep it unchanged
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             if ALUCarryFlag = '1' then
-                                -- If there is a carry from negating LSW, then do 2's complement.
-                                ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                                -- If there is a carry from negating LSW, then do 2's complement
+                                ALUSrc2 <= shifted_multiplier(2 * width - 1 downto width);
                                 ALUControl <= "01";
                             else
-                                -- Else do 1's complement.
-                                ALUSrc2 <= not shifted_multiplicand(2 * width - 1 downto width);
+                                -- Else do 1's complement
+                                ALUSrc2 <= not shifted_multiplier(2 * width - 1 downto width);
                                 ALUControl <= "00";
                             end if;
                         else
-                            ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                            ALUSrc2 <= shifted_multiplier(2 * width - 1 downto width);
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 4 then
+                        -- store modified/unmodified Result1 from previous step
                         Result2 <= ALUResult;
-                    else
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                    else -- perform multiplication
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
 
                         ALUControl <= "00";
-                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                            ALUSrc2 <= shifted_multiplier;
+                        ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                        if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= multiplicand;
                         else
                             ALUSrc2 <= (others => '0');
                         end if;
@@ -163,10 +171,10 @@ begin
 
             else -- Divide
                 -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1)/signed(Operand2)
-                -- MCycleOp(0) = '1' takes 'width' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
+                -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
                 if MCycleOp(0) = '1' then -- Unsigned Division
                     if count /= 0 then
-                        -- ALUCarryFlag is complement of Borrow.
+                        -- ALUCarryFlag is complement of Borrow
                         if ALUCarryFlag = '1' then
                             -- store subtracted result only if it is positive
                             shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
@@ -182,6 +190,7 @@ begin
                     ALUControl <= "01";
                 else -- Signed Division
                     if count = 0 then
+                        -- negate the dividend if it is negative
                         ALUSrc1 <= (width - 1 downto 0 => '0');
                         ALUSrc2 <= Operand1;
                         if Operand1(width - 1) = '1' then
@@ -190,6 +199,7 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 1 then
+                        -- store negated dividend from previous step and negate the divisor if it is negative
                         shifted_dividend := (2 * width downto width + 1 => '0') & ALUResult & '0';
 
                         ALUSrc1 <= (width - 1 downto 0 => '0');
@@ -200,40 +210,46 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 2 then
+                        -- store negated divisor from previous step and start division process
                         divisor := ALUResult;
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                         ALUSrc2 <= divisor;
                         ALUControl <= "01";
-                    elsif count = width + 2 then  -- Perform division
-                        if ALUCarryFlag = '1' then  -- store subtracted result only if it is positive
+                    elsif count = width + 2 then
+                        -- modify shifted dividend based on ALUResult and ALUCarryFlag and negate the quotient if it is negative
+                        if ALUCarryFlag = '1' then
                             shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
                         else
                             shifted_dividend := shifted_dividend(2 * width - 1 downto 0) & '0';
                         end if;
 
                         ALUSrc1 <= (width - 1 downto 0 => '0');
-                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then -- XOR to check if the operands are of different signs
-                            ALUSrc2 <= shifted_dividend(2 * width downto width + 1); -- If operands are of different signs, then take 2's complement of the remainder
+                        -- if quotient will be negative, negate the current value, else keep it unchanged
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
                             ALUControl <= "01";
                         else
                             ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 3 then
+                        -- store modified/unmodified quotient from previous step in Result2 and negate the remainder if it is negative
                         Result2 <= ALUResult;
 
                         ALUSrc1 <= (width - 1 downto 0 => '0');
-                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then -- XOR to check if the operands are of different signs
-                            ALUSrc2 <= shifted_dividend(width - 1 downto 0); -- If operands are of different signs, then take 2's complement of the quotient
+                        -- if remainder will be negative, negate the current value, else keep it unchanged
+                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                            ALUSrc2 <= shifted_dividend(width - 1 downto 0);
                             ALUControl <= "01";
                         else
                             ALUSrc2 <= shifted_dividend(width - 1 downto 0);
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 4 then
+                        -- store modified/unmodified remainder from previous step in Result1
                         Result1 <= ALUResult;
-                    else
+                    else -- perform division
                         if ALUCarryFlag = '1' then -- store subtracted result only if it is positive
                             shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
                         else
