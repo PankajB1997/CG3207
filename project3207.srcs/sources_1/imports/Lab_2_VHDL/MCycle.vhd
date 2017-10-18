@@ -57,8 +57,8 @@ begin
 
     computing_process : process (CLK) -- process which does the actual computation
         variable count : std_logic_vector(7 downto 0) := (others => '0'); -- assuming no computation takes more than 256 cycles.
-        variable shifted_multiplier : std_logic_vector(width - 1 downto 0) := (others => '0');
-        variable shifted_multiplicand : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
+        variable shifted_multiplicand : std_logic_vector(width - 1 downto 0) := (others => '0');
+        variable shifted_multiplier : std_logic_vector(2 * width - 1 downto 0) := (others => '0');
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
         variable shifted_divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
@@ -66,8 +66,8 @@ begin
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
-                shifted_multiplier := Operand1;
-                shifted_multiplicand := (2 * width - 1 downto width => '0') & Operand2;
+                shifted_multiplicand := Operand1;
+                shifted_multiplier := (2 * width - 1 downto width => '0') & Operand2;
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
                 shifted_divisor := Operand2;
             end if;
@@ -78,15 +78,15 @@ begin
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
                 if MCycleOp(0) = '1' then
                     if count /= 0 then
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
                     end if;
-                    Result2 <= shifted_multiplicand(2 * width - 1 downto width);
-                    Result1 <= shifted_multiplicand(width - 1 downto 0);
+                    Result2 <= shifted_multiplier(2 * width - 1 downto width);
+                    Result1 <= shifted_multiplier(width - 1 downto 0);
 
                     ALUControl <= "00";
-                    ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                    if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                        ALUSrc2 <= shifted_multiplier;
+                    ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                    if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                        ALUSrc2 <= shifted_multiplicand;
                     else
                         ALUSrc2 <= (others => '0');
                     end if;
@@ -100,7 +100,7 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        shifted_multiplier := ALUResult;
+                        shifted_multiplicand := ALUResult;
 
                         ALUSrc1 <= (others => '0');
                         ALUSrc2 <= Operand2;
@@ -110,20 +110,20 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 2 then
-                        shifted_multiplicand := (2 * width - 1 downto width => '0') & ALUResult;
+                        shifted_multiplier := (2 * width - 1 downto width => '0') & ALUResult;
 
                         ALUControl <= "00";
-                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                            ALUSrc2 <= shifted_multiplier;
+                        ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                        if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= shifted_multiplicand;
                         else
                             ALUSrc2 <= (others => '0');
                         end if;
                     elsif count = width + 2 then
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
 
                         ALUSrc1 <= (others => '0');
-                        ALUSrc2 <= shifted_multiplicand(width - 1 downto 0);
+                        ALUSrc2 <= shifted_multiplier(width - 1 downto 0);
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             ALUControl <= "01";
                         else
@@ -136,26 +136,26 @@ begin
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             if ALUCarryFlag = '1' then
                                 -- If there is a carry from negating LSW, then do 2's complement.
-                                ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                                ALUSrc2 <= shifted_multiplier(2 * width - 1 downto width);
                                 ALUControl <= "01";
                             else
                                 -- Else do 1's complement.
-                                ALUSrc2 <= not shifted_multiplicand(2 * width - 1 downto width);
+                                ALUSrc2 <= not shifted_multiplier(2 * width - 1 downto width);
                                 ALUControl <= "00";
                             end if;
                         else
-                            ALUSrc2 <= shifted_multiplicand(2 * width - 1 downto width);
+                            ALUSrc2 <= shifted_multiplier(2 * width - 1 downto width);
                             ALUControl <= "00";
                         end if;
                     elsif count = width + 4 then
                         Result2 <= ALUResult;
                     else
-                        shifted_multiplicand := ALUCarryFlag & ALUResult & shifted_multiplicand(width - 1 downto 1);
+                        shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
 
                         ALUControl <= "00";
-                        ALUSrc1 <= shifted_multiplicand(2 * width - 1 downto width);
-                        if shifted_multiplicand(0) = '1' then -- add only if b0 = 1
-                            ALUSrc2 <= shifted_multiplier;
+                        ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
+                        if shifted_multiplier(0) = '1' then -- add only if b0 = 1
+                            ALUSrc2 <= shifted_multiplicand;
                         else
                             ALUSrc2 <= (others => '0');
                         end if;
