@@ -57,6 +57,8 @@ begin
         end if;
     end process;
 
+    -- This operation is used to compute one-bit addition of the top bits of multiplicand and signed_multiplier
+    -- Since the ALU adder can only add upto 32 bits, we need to separately add the 33rd bits below along with the carry generated from the 32 bit addition
     sumTopBits <= topBit1 xor topBit2 xor ALUCarryFlag;
 
     computing_process : process (CLK) -- process which does the actual computation
@@ -80,9 +82,9 @@ begin
 
             done <= '0';
             if MCycleOp(1) = '0' then -- Multiply
-                -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1) * signed(Operand2)
+                -- MCycleOp(0) = '0' takes 'width + 1' cycles to execute, returns signed(Operand1) * signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1) * unsigned(Operand2)
-                if MCycleOp(0) = '1' then -- Unsigned multiplication
+                if MCycleOp(0) = '1' then -- Unsigned multiplication using Improved Sequential Multiplier
                     if count /= 0 then
                         shifted_multiplier := ALUCarryFlag & ALUResult & shifted_multiplier(width - 1 downto 1);
                     end if;
@@ -96,28 +98,31 @@ begin
                     else
                         ALUSrc2 <= (others => '0');
                     end if;
-                else
+                else -- Signed multiplication using Booth's Algorithm
                     if count /= 0 then
+                        -- Perform shifting at every step
                         signed_multiplier_top_bit := sumTopBits;
                         shifted_multiplier := ALUResult & shifted_multiplier(width - 1 downto 0);
                         shifted_out_bit := shifted_multiplier(0);
                         shifted_multiplier := signed_multiplier_top_bit & shifted_multiplier(2 * width - 1 downto 1);
                     end if;
-                    
+
                     ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
-                    topBit1 <= signed_multiplier_top_bit;
                     ALUSrc2 <= Operand1;
+                    topBit1 <= signed_multiplier_top_bit;
                     if ((not shifted_multiplier(0)) and shifted_out_bit) = '1' then
-                        -- Add
+                        -- If shifted out bit is 1 and current last bit is 0, then add
                         ALUControl <= "00";
                         topBit2 <= Operand1(width - 1);
                     elsif (shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
-                        -- Subtract
+                        -- If shifted out bit is 0 and current last bit is q, then subtract
                         ALUControl <= "01";
                         topBit2 <= not Operand1(width - 1);
                     else
-                        ALUControl <= "00";
+                        -- If shifted out bit and current last bit are same, then do nothing
+                        -- Below code simply sets the adder to add first half of shifted_multiplier with 0
                         ALUSrc2 <= (others => '0');
+                        ALUControl <= "00";
                         topBit2 <= '0';
                     end if;
 
@@ -219,10 +224,10 @@ begin
                 end if;
             end if;
 
-            -- regardless of multiplication or division, check if last cycle is reached
-            if (McycleOp(1) = '0' and MCycleOp(0) = '0' and count = width) or
-               (McycleOp(1) = '1' and MCycleOp(0) = '0' and count = width + 4) or
-               (MCycleOp(0) = '1' and count = width) then     -- If last cycle
+            -- Check if last cycle has been reached
+            if (McycleOp(1) = '0' and MCycleOp(0) = '0' and count = width) or -- Signed multiplication
+               (McycleOp(1) = '1' and MCycleOp(0) = '0' and count = width + 4) or -- Signed division
+               (MCycleOp(0) = '1' and count = width) then     -- Unsigned multiplication/division
                 done <= '1';
             end if;
 
