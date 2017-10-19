@@ -117,7 +117,7 @@ begin
                 RegWInternal <= '1';
                 ALUOp <= "00";
 
-                if MCycleFunct = "1001" then
+                if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV Instruction
                     ALUSrc <= '0';
                     ImmSrc <= "--";
@@ -176,7 +176,7 @@ begin
                     FlagWInternal <= "00";
                 else
                     -- N and Z flags
-                    if MCycleFunct /= "1001" and -- Not MUL/DIV
+                    if (Funct(5) = '1' or MCycleFunct /= "1001") and -- Not MUL/DIV
                        (Funct(4 downto 1) = "0100" or -- ADD
                         Funct(4 downto 1) = "0010" or -- SUB
                         Funct(4 downto 1) = "1010") then -- CMP
@@ -186,7 +186,7 @@ begin
                     end if;
 
                     -- C and V flags
-                    if MCycleFunct /= "1001" and -- Not MUL/DIV
+                    if (Funct(5) = '1' or MCycleFunct /= "1001") and -- Not MUL/DIV
                        (Funct(4 downto 1) = "0100" or -- ADD
                         Funct(4 downto 1) = "0010" or -- SUB
                         Funct(4 downto 1) = "0000" or -- AND
@@ -197,7 +197,7 @@ begin
                         FlagWInternal(1) <= '0';
                     end if;
                 end if;
-                if MCycleFunct = "1001" then
+                if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV instruction
                     ALUControl <= "--";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
