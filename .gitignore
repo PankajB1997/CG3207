@@ -1,5 +1,5 @@
 #########################################################################################################
-##	This is an example .gitignore file for Vivado, please treat it as an example as 
+##	This is an example .gitignore file for Vivado, please treat it as an example as
 ##	it might not be complete. In addition, XAPP 1165 should be followed.
 #########################################################################################################
 #########
@@ -60,8 +60,8 @@
 #########
 #Constraint files
 #########
-#Do NOT ignore *.xdc files
-!*.xdc
+#Only keep specific constraints file.
+!Nexys4_Master.xdc
 #########
 #TCL - files
 #########
@@ -95,4 +95,8 @@
 #########
 #Readme file
 #########
-!readme.txt
+!README.txt
+#########
+#Ignore readme in ip_user_files
+#########
+project3207.ip_user_files/README.txt
