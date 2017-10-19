@@ -115,7 +115,7 @@ begin
                         ALUControl <= "00";
                         topBit2 <= Operand1(width - 1);
                     elsif (shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
-                        -- If shifted out bit is 0 and current last bit is q, then subtract
+                        -- If shifted out bit is 0 and current last bit is 1, then subtract
                         ALUControl <= "01";
                         topBit2 <= not Operand1(width - 1);
                     else

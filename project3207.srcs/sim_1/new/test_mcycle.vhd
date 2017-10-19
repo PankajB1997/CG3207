@@ -406,6 +406,7 @@ begin
         wait for 3 * (ClkPeriod / 2);
 
         -- Division (Unsigned) Test Case 12: Checking 0/7; Quotient: 0 , Remainder: 0
+        t_MCycleOp <= "11";
         t_Operand1 <= "0000";
         t_Operand2 <= "0111";
         t_Start <= '1';
@@ -417,7 +418,7 @@ begin
         wait for 3 * (ClkPeriod / 2);
 
         -- Division (Signed) Test Case 13: Checking 0/-5; Quotient: 0 , Remainder: 0
-        t_MCycleOp <= "11";
+        t_MCycleOp <= "10";
         t_Operand1 <= "0000";
         t_Operand2 <= "1011";
         t_Start <= '1';
