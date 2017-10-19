@@ -37,7 +37,7 @@ generic (
     -- 26 for ~1Hz clock.
     -- Will synthesize with default value given here. A different value can be passed in for simulation.
     -- See the notes in CLK_DIV_PROCESS for obtaining a 100MHz clock frequency,
-    constant CLK_DIV_BITS : integer := 26;
+    constant CLK_DIV_BITS : integer := 25;
     constant N_LEDs_OUT : integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
     -- LED(15-N_LEDs_OUT) showing the divided clock.
     -- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
