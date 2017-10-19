@@ -67,7 +67,6 @@ begin
         variable signed_multiplier_top_bit : std_logic := '0';
         variable shifted_out_bit : std_logic := '0';
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
-        variable divisor : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
         if (CLK'event and CLK = '1') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
@@ -77,7 +76,6 @@ begin
                 signed_multiplier_top_bit := '0';
                 shifted_out_bit := '0';
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
-                divisor := Operand2;
             end if;
 
             done <= '0';
@@ -147,7 +145,7 @@ begin
                     Result2 <= shifted_dividend(2 * width downto width + 1);
                     Result1 <= shifted_dividend(width - 1 downto 0);
                     ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                    ALUSrc2 <= divisor;
+                    ALUSrc2 <= Operand2;
                     ALUControl <= "01";
                 else -- Signed Division
                     if count = 0 then
@@ -163,21 +161,14 @@ begin
                         -- store negated dividend from previous step and negate the divisor if it is negative
                         shifted_dividend := (2 * width downto width + 1 => '0') & ALUResult & '0';
 
-                        ALUSrc1 <= (width - 1 downto 0 => '0');
+                        ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                         ALUSrc2 <= Operand2;
                         if Operand2(width - 1) = '1' then
-                            ALUControl <= "01";
-                        else
                             ALUControl <= "00";
+                        else
+                            ALUControl <= "01";
                         end if;
-                    elsif count = 2 then
-                        -- store negated divisor from previous step and start division process
-                        divisor := ALUResult;
-
-                        ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                        ALUSrc2 <= divisor;
-                        ALUControl <= "01";
-                    elsif count = width + 2 then
+                    elsif count = width + 1 then
                         -- modify shifted dividend based on ALUResult and ALUCarryFlag and negate the quotient if it is negative
                         if ALUCarryFlag = '1' then
                             shifted_dividend := ALUResult & shifted_dividend(width - 1 downto 0) & '1';
@@ -194,7 +185,7 @@ begin
                             ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
                             ALUControl <= "00";
                         end if;
-                    elsif count = width + 3 then
+                    elsif count = width + 2 then
                         -- store modified/unmodified quotient from previous step in Result2 and negate the remainder if it is negative
                         Result2 <= ALUResult;
 
@@ -207,7 +198,7 @@ begin
                             ALUSrc2 <= shifted_dividend(width - 1 downto 0);
                             ALUControl <= "00";
                         end if;
-                    elsif count = width + 4 then
+                    elsif count = width + 3 then
                         -- store modified/unmodified remainder from previous step in Result1
                         Result1 <= ALUResult;
                     else -- perform division
@@ -218,15 +209,23 @@ begin
                         end if;
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                        ALUSrc2 <= divisor;
-                        ALUControl <= "01";
+                        ALUSrc2 <= Operand2;
+                        
+                        -- If divisor is positive, then have to subtract it as normal.
+                        -- If divisor is negative, then have to subtract its absolute value,
+                        -- which is the same as adding it.
+                        if Operand2(width - 1) = '1' then
+                            ALUControl <= "00";
+                        else
+                            ALUControl <= "01";
+                        end if;
                     end if;
                 end if;
             end if;
 
             -- Check if last cycle has been reached
             if (McycleOp(1) = '0' and MCycleOp(0) = '0' and count = width) or -- Signed multiplication
-               (McycleOp(1) = '1' and MCycleOp(0) = '0' and count = width + 4) or -- Signed division
+               (McycleOp(1) = '1' and MCycleOp(0) = '0' and count = width + 3) or -- Signed division
                (MCycleOp(0) = '1' and count = width) then     -- Unsigned multiplication/division
                 done <= '1';
             end if;
