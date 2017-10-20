@@ -129,7 +129,7 @@ begin
                 end if;
 
             else -- Divide
-                -- MCycleOp(0) = '0' takes 'width + 5' cycles to execute, returns signed(Operand1)/signed(Operand2)
+                -- MCycleOp(0) = '0' takes 'width + 4' cycles to execute, returns signed(Operand1)/signed(Operand2)
                 -- MCycleOp(0) = '1' takes 'width + 1' cycles to execute, returns unsigned(Operand1)/unsigned(Operand2)
                 if MCycleOp(0) = '1' then -- Unsigned Division
                     if count /= 0 then
@@ -158,7 +158,7 @@ begin
                             ALUControl <= "00";
                         end if;
                     elsif count = 1 then
-                        -- store negated dividend from previous step and negate the divisor if it is negative
+                        -- store negated dividend from previous step
                         shifted_dividend := (2 * width downto width + 1 => '0') & ALUResult & '0';
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
@@ -210,7 +210,7 @@ begin
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                         ALUSrc2 <= Operand2;
-                        
+
                         -- If divisor is positive, then have to subtract it as normal.
                         -- If divisor is negative, then have to subtract its absolute value,
                         -- which is the same as adding it.
