@@ -53,16 +53,16 @@ begin
             if Shamt5(i) = '1' then
                 case Sh is
                     when "00" =>
-                        CarryTemp := ShTemp((31-2**i) + 1); -- i = 4 evaluates this to 24
+                        CarryTemp := ShTemp((31-2**i) + 1);
                         ShTemp := ShTemp(31-2**i downto 0) & (2**i-1 downto 0 => '0');     -- LSL
                     when "01" =>
-                        CarryTemp := ShTemp(2**i - 1); -- i = 4 evaluates this to 8
+                        CarryTemp := ShTemp(2**i - 1);
                         ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i);         -- LSR
                     when "10" =>
-                        CarryTemp := ShTemp(2**i - 1); -- i = 4 evaluates this to 8
+                        CarryTemp := ShTemp(2**i - 1);
                         ShTemp := (2**i-1 downto 0 => ShIn(31)) & ShTemp(31 downto 2**i);     -- ASR
                     when others =>
-                        CarryTemp := ShTemp(2**i - 1); -- i = 4 evaluates this to 8
+                        CarryTemp := ShTemp(2**i - 1);
                         ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i);         -- ROR
                 end case;
             end if;
