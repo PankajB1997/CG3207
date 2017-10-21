@@ -48,6 +48,7 @@ begin
         variable ShTemp : std_logic_vector(31 downto 0);
         variable CarryTemp : std_logic;
     begin
+        CarryTemp := '0';
         ShTemp := ShIn;
         for i in 0 to 4 loop
             if Shamt5(i) = '1' then
@@ -68,9 +69,6 @@ begin
             end if;
         end loop;
         ShOut <= ShTemp;
-        if Shamt5 = "00000" then
-            Carry <= '0';
-        else Carry <= CarryTemp;
-        end if;
+        Carry <= CarryTemp;
     end process;
 end Shifter_arch;
