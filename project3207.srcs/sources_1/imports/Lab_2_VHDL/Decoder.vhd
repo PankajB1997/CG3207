@@ -250,7 +250,7 @@ begin
                             IllegalALUDecoder <= '1';
                     end case;
                 end if;
-                if Funct(0) = '0' then
+                if Funct(0) = '0' then  -- If S bit is 0, don't write to flags.
                     FlagWInternal <= "00";
                 end if;
             when others =>
