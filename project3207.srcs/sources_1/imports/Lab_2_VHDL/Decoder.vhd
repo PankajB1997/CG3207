@@ -47,7 +47,7 @@ port(
     RegSrc : out std_logic_vector(2 downto 0);
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
-    ALUControl : out std_logic_vector(1 downto 0);
+    ALUControl : out std_logic_vector(3 downto 0);
     MCycleStart : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(1 downto 0)
@@ -64,7 +64,6 @@ architecture Decoder_arch of Decoder is
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder : std_logic;
     signal IllegalInstruction : std_logic;
-
 begin
 
     -- Logic for Main Decoder
@@ -158,20 +157,21 @@ begin
             when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "00";
+                ALUControl <= "0000";
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "01";
+                ALUControl <= "0001";
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
 
             -- ALU operations for DP instructions
-            when "00" =>                 NoWrite <= '0';  -- Should write by default.
+            when "00" =>
+                NoWrite <= '0';  -- Should write by default.
                 if Funct(0) = '0' then
                     FlagWInternal <= "00";
                 else
@@ -199,7 +199,7 @@ begin
                 end if;
                 if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV instruction
-                    ALUControl <= "--";  -- MCycle controls ALU.
+                    ALUControl <= "----";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
                     MCycleStart <= '1';
                     if Funct(1) = '0' then
@@ -217,37 +217,37 @@ begin
                     case Funct (4 downto 1) is
                         -- ADD Instruction
                         when "0100" =>
-                            ALUControl <= "00";
+                            ALUControl <= "0000";
                         -- SUB Instruction
                         when "0010" =>
-                            ALUControl <= "01";
+                            ALUControl <= "0001";
                         -- AND Instruction
                         when "0000" =>
-                            ALUControl <= "10";
+                            ALUControl <= "0010";
                         -- ORR Instruction
                         when "1100" =>
-                            ALUControl <= "11";
+                            ALUControl <= "0011";
                         -- CMP Instruction
                         when "1010" =>
                             if Funct(0)='1' then
                                 NoWrite <= '1';
-                                ALUControl <= "01";
+                                ALUControl <= "0001";
                             else  -- Illegal CMP
                                 NoWrite <= '-';
-                                ALUControl  <= "--";
+                                ALUControl  <= "----";
                                 FlagWInternal <= "--";
                                 IllegalALUDecoder <= '1';
                             end if;
                         when others =>
                             NoWrite <= '-';
-                            ALUControl  <= "--";
+                            ALUControl  <= "----";
                             FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
                     end case;
                 end if;
             when others =>
                 NoWrite <= '-';
-                ALUControl  <= "--";
+                ALUControl  <= "----";
                 FlagWInternal <= "--";
                 ALUResultSrc <= '-';
                 MCycleStart <= '-';

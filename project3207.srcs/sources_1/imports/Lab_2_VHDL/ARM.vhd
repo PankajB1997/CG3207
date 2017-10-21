@@ -123,7 +123,7 @@ architecture ARM_arch of ARM is
     port (
         Src_A : in std_logic_vector(31 downto 0);
         Src_B : in std_logic_vector(31 downto 0);
-        ALUControl : in std_logic_vector(1 downto 0);
+        ALUControl : in std_logic_vector(3 downto 0);
         ALUResult : out std_logic_vector(31 downto 0);
         ALUFlags : out std_logic_vector(3 downto 0)
     );
@@ -144,7 +144,7 @@ architecture ARM_arch of ARM is
         ALUCarryFlag : in std_logic;
         ALUSrc1 : out std_logic_vector (width - 1 downto 0);
         ALUSrc2 : out std_logic_vector (width - 1 downto 0);
-        ALUControl : out std_logic_vector (1 downto 0);
+        ALUControl : out std_logic_vector (3 downto 0);
         Result1 : out std_logic_vector (width-1 downto 0);
         Result2 : out std_logic_vector (width-1 downto 0);
         Busy : out std_logic
@@ -219,7 +219,7 @@ architecture ARM_arch of ARM is
     -- ALU signals
     signal Src_A : std_logic_vector(31 downto 0);
     signal Src_B : std_logic_vector(31 downto 0);
-    signal ALUControl : std_logic_vector(1 downto 0);
+    signal ALUControl : std_logic_vector(3 downto 0);
     signal ALUResult_sig : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
     signal ALUFlags : std_logic_vector(3 downto 0);
 
@@ -234,7 +234,7 @@ architecture ARM_arch of ARM is
     signal MCycleALUCarryFlag : std_logic;
     signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
     signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
-    signal MCycleALUControl : std_logic_vector (1 downto 0);
+    signal MCycleALUControl : std_logic_vector (3 downto 0);
     signal MCycleResult : std_logic_vector(31 downto 0);
     signal MCycleResultUnused : std_logic_vector(31 downto 0);
     signal MCycleBusy : std_logic;
@@ -251,7 +251,7 @@ architecture ARM_arch of ARM is
     signal PCPlus8 : std_logic_vector(31 downto 0);
     signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
-    signal ALUFinalControl : std_logic_vector(1 downto 0);  -- From Decoder or MCycle.
+    signal ALUFinalControl : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
 
 begin
 
