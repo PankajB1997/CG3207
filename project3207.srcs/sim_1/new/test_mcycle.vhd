@@ -56,7 +56,7 @@ architecture test_mcycle_behavioral of test_mcycle is
         ALUCarryFlag : in std_logic;
         ALUSrc1 : out std_logic_vector(3 downto 0);
         ALUSrc2 : out std_logic_vector(3 downto 0);
-        ALUControl : out std_logic_vector(1 downto 0);
+        ALUControl : out std_logic_vector(3 downto 0);
         Result1 : out std_logic_vector(3 downto 0);
         Result2 : out std_logic_vector(3 downto 0);
         Busy : out std_logic
@@ -76,7 +76,7 @@ architecture test_mcycle_behavioral of test_mcycle is
     --Outputs
     signal t_ALUSrc1 : std_logic_vector(3 downto 0) := (others => '0');
     signal t_ALUSrc2 : std_logic_vector(3 downto 0) := (others => '0');
-    signal t_ALUControl : std_logic_vector(1 downto 0) := (others => '0');
+    signal t_ALUControl : std_logic_vector(3 downto 0) := (others => '0');
     signal t_Result1 : std_logic_vector(3 downto 0);
     signal t_Result2 : std_logic_vector(3 downto 0);
     signal t_Busy : std_logic;
@@ -113,10 +113,10 @@ begin
     Sum <= ('0' & t_ALUSrc1) + ('0' & t_ALUSrc2);
     Diff <=  ('0' & t_ALUSrc1) + ('0' & (not t_ALUSrc2)) + "00001";
     t_ALUResult <= Sum(3 downto 0)
-                   when t_ALUControl = "00"
+                   when t_ALUControl = "0100"
                    else Diff(3 downto 0);
     t_ALUCarryFlag <= Sum(4)
-                      when t_ALUControl = "00"
+                      when t_ALUControl = "0100"
                       else Diff(4);
 
     -- Clock generation

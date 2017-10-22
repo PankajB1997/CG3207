@@ -19,7 +19,8 @@ architecture test_condlogic_behavioral of test_condlogic is
         FinalFlags : in std_logic_vector (3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
-        MemWrite : out std_logic);
+        MemWrite : out std_logic;
+        CarryFlag : out std_logic);
     end component;
 
     signal t_CLK : std_logic;
@@ -33,6 +34,7 @@ architecture test_condlogic_behavioral of test_condlogic is
     signal t_PCSrc : std_logic;
     signal t_RegWrite : std_logic;
     signal t_MemWrite : std_logic;
+    signal t_CarryFlag : std_logic;
 
     constant ClkPeriod : time := 1ns;
 begin
@@ -51,7 +53,8 @@ begin
         -- Outputs
         PCSrc => t_PCSrc,
         RegWrite => t_RegWrite,
-        MemWrite => t_MemWrite
+        MemWrite => t_MemWrite,
+        CarryFlag => t_CarryFlag
     );
 
     clk_process: process begin
@@ -74,21 +77,21 @@ begin
         -- Test case 1: For 'always' condition, incoming true signals are transferred out 'immediately'.
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 1" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '0') report "Failed CondLogic Test Case 1" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
         -- Test case 2: For 'always' condition, incoming false signals are transferred out 'immediately'.
         t_PCS <= '0'; t_RegW <= '0'; t_MemW <= '0'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 2" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0' and t_CarryFlag = '0') report "Failed CondLogic Test Case 2" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
         -- Test case 3: For 'always' condition, t_NoWrite prevents t_RegWrite from being true.
         t_RegW <= '1'; t_NoWrite <= '1'; t_Cond <= "1110";
         wait for ClkPeriod / 10;
-        assert (t_RegWrite = '0') report "Failed CondLogic Test Case 3" severity error;
+        assert (t_RegWrite = '0' and t_CarryFlag = '0') report "Failed CondLogic Test Case 3" severity error;
 
         wait for ClkPeriod * 9 / 10;
         t_NoWrite <= '0'; -- reset to 0
@@ -97,7 +100,7 @@ begin
         -- Flags initialised to false, so EQ condition will be false (Z != 1).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 4" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0' and t_CarryFlag = '0') report "Failed CondLogic Test Case 4" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
@@ -105,7 +108,7 @@ begin
         -- Flags initialised to false, so NEQ condition will be true (Z == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 5" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '0') report "Failed CondLogic Test Case 5" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
@@ -117,12 +120,12 @@ begin
         -- Flags are all true, so EQ condition will be true (Z == 1);
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 6.1" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '1') report "Failed CondLogic Test Case 6.1" severity error;
         wait for ClkPeriod / 10;
         -- Flags are all true, so NEQ condition will be false (Z != 0)
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 6.2" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0' and t_CarryFlag = '1') report "Failed CondLogic Test Case 6.2" severity error;
 
         wait for ClkPeriod * 7 / 10;
 
@@ -133,10 +136,10 @@ begin
         -- Flags should still be true, so EQ will be true (Z == 1).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 7.1" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '1') report "Failed CondLogic Test Case 7.1" severity error;
         wait for ClkPeriod * 4 / 10; -- 1 / 10 ClkPeriods after edge.
         -- Flags should be false, so EQ will be false (Z != 1).
-        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0') report "Failed CondLogic Test Case 7.2" severity error;
+        assert (t_PCSrc = '0' and t_RegWrite = '0' and t_MemWrite = '0' and t_CarryFlag = '0') report "Failed CondLogic Test Case 7.2" severity error;
 
         wait for ClkPeriod * 4 / 10;
 
@@ -146,7 +149,7 @@ begin
         -- Flags should still be false, so NEQ will be true (Z == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 8" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '0') report "Failed CondLogic Test Case 8" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
@@ -156,7 +159,7 @@ begin
         -- Flags should still be false, so VC (no overflow) will be true (V == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0111";
         wait for ClkPeriod / 10;
-        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1') report "Failed CondLogic Test Case 9" severity error;
+        assert (t_PCSrc = '1' and t_RegWrite = '1' and t_MemWrite = '1' and t_CarryFlag = '0') report "Failed CondLogic Test Case 9" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
