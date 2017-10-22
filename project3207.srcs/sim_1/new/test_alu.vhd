@@ -10,6 +10,7 @@ architecture test_alu_behavioral of test_alu is
     port (Src_A : in std_logic_vector (31 downto 0);
           Src_B : in std_logic_vector (31 downto 0);
           ALUControl : in std_logic_vector (3 downto 0);
+          CarryFlag : in std_logic;
           ALUResult : out std_logic_vector (31 downto 0);
           ALUFlags : out std_logic_vector (3 downto 0));
     end component;
@@ -17,6 +18,7 @@ architecture test_alu_behavioral of test_alu is
     signal t_Src_A : std_logic_vector (31 downto 0);
     signal t_Src_B : std_logic_vector (31 downto 0);
     signal t_ALUControl : std_logic_vector (3 downto 0);
+    signal t_CarryFlag : std_logic;
     signal t_ALUResult : std_logic_vector (31 downto 0);
     signal t_ALUFlags : std_logic_vector (3 downto 0);
 begin
@@ -25,6 +27,7 @@ begin
         Src_A => t_Src_A,
         Src_B => t_Src_B,
         ALUControl => t_ALUControl,
+        CarryFlag => t_CarryFlag,
         -- Outputs
         ALUResult => t_ALUResult,
         ALUFlags => t_ALUFlags
@@ -32,7 +35,7 @@ begin
 
     stim_proc: process begin
         -- Set initial value for inputs.
-        t_Src_A <= (others => '0'); t_Src_B <= (others => '0'); t_ALUControl <= (others => '0');
+        t_Src_A <= (others => '0'); t_Src_B <= (others => '0'); t_ALUControl <= (others => '0'); t_CarryFlag <= '0';
         wait for 1 ns;
 
         -- Test case 1: Add two numbers

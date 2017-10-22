@@ -106,7 +106,8 @@ architecture ARM_arch of ARM is
         ALUFlags : in std_logic_vector(3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
-        MemWrite : out std_logic
+        MemWrite : out std_logic;
+        CarryFlag : out std_logic
     );
     end component CondLogic;
 
@@ -124,6 +125,7 @@ architecture ARM_arch of ARM is
         Src_A : in std_logic_vector(31 downto 0);
         Src_B : in std_logic_vector(31 downto 0);
         ALUControl : in std_logic_vector(3 downto 0);
+        CarryFlag : in std_logic;
         ALUResult : out std_logic_vector(31 downto 0);
         ALUFlags : out std_logic_vector(3 downto 0)
     );
@@ -209,6 +211,7 @@ architecture ARM_arch of ARM is
     signal PCSrc : std_logic;
     signal RegWrite : std_logic;
     -- signal MemWrite : std_logic;
+    signal CarryFlag : std_logic;
 
     -- Shifter signals
     signal Sh : std_logic_vector(1 downto 0);
@@ -220,6 +223,7 @@ architecture ARM_arch of ARM is
     signal Src_A : std_logic_vector(31 downto 0);
     signal Src_B : std_logic_vector(31 downto 0);
     signal ALUControl : std_logic_vector(3 downto 0);
+    -- signal CarryFlag : std_logic;
     signal ALUResult_sig : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
     signal ALUFlags : std_logic_vector(3 downto 0);
 
@@ -292,6 +296,7 @@ begin
                   when ALUSrc = '1'
                   else ShOut; --to enable DP instructions with shift operation
     ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControl;
+    -- CarryFlag connected already
 
     -- MCycle inputs
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
@@ -381,7 +386,8 @@ begin
         ALUFlags => ALUFlags,
         PCSrc => PCSrc,
         RegWrite => RegWrite,
-        MemWrite => MemWrite
+        MemWrite => MemWrite,
+        CarryFlag => CarryFlag
     );
 
     Shifter1: Shifter
@@ -397,6 +403,7 @@ begin
         Src_A => Src_A,
         Src_B => Src_B,
         ALUControl => ALUFinalControl,
+        CarryFlag => CarryFlag,
         ALUResult => ALUResult_sig,
         ALUFlags => ALUFlags
     );

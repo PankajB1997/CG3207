@@ -37,6 +37,7 @@ port(
     Src_A : in std_logic_vector(31 downto 0);
     Src_B : in std_logic_vector(31 downto 0);
     ALUControl : in std_logic_vector(3 downto 0);
+    CarryFlag : in std_logic;
     ALUResult : out std_logic_vector(31 downto 0);
     ALUFlags : out std_logic_vector(3 downto 0)
 );
