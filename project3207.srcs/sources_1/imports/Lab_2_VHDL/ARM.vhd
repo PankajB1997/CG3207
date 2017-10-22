@@ -87,7 +87,7 @@ architecture ARM_arch of ARM is
         RegSrc : out std_logic_vector(2 downto 0);
         ALUResultSrc : out std_logic;
         NoWrite : out std_logic;
-        ALUControl : out std_logic_vector(1 downto 0);
+        ALUControl : out std_logic_vector(3 downto 0);
         MCycleStart : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(1 downto 0)
@@ -295,7 +295,7 @@ begin
 
     -- MCycle inputs
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
-    -- Operand1 for Division should be RD2. Switching it around makes no 
+    -- Operand1 for Division should be RD2. Switching it around makes no
     -- difference to Multiplication.
     Operand1 <= RD2;
     Operand2 <= RD1;
