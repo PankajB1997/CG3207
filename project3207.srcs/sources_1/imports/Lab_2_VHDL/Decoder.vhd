@@ -157,14 +157,14 @@ begin
             when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "0000";
+                ALUControl <= "0100";  -- ADD
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "0001";
+                ALUControl <= "0010";  -- SUB
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
@@ -190,28 +190,33 @@ begin
                     ALUResultSrc <= '0';
                     MCycleStart <= '0';
                     MCycleOp <= "--";
+                    ALUControl <= Funct(4 downto 1);
                     case Funct (4 downto 1) is
-                        -- ADD Instruction
-                        when "0100" =>
-                            ALUControl <= "0000";
-                            FlagWInternal <= "11";
-                        -- SUB Instruction
-                        when "0010" =>
-                            ALUControl <= "0001";
-                            FlagWInternal <= "11";
                         -- AND Instruction
                         when "0000" =>
-                            ALUControl <= "0010";
                             FlagWInternal <= "10";
-                        -- ORR Instruction
-                        when "1100" =>
-                            ALUControl <= "0011";
-                            FlagWInternal <= "10";
+                        -- SUB Instruction
+                        when "0010" =>
+                            FlagWInternal <= "11";
+                        -- RSB Instruction
+                        when "0011" =>
+                            FlagWInternal <= "11";
+                        -- ADD Instruction
+                        when "0100" =>
+                            FlagWInternal <= "11";
+                        -- ADC Instruction
+                        when "0101" =>
+                            FlagWInternal <= "11";
+                        -- SBC Instruction
+                        when "0110" =>
+                            FlagWInternal <= "11";
+                        -- RSC Instruction
+                        when "0111" =>
+                            FlagWInternal <= "11";
                         -- CMP Instruction
                         when "1010" =>
                             if Funct(0)='1' then
                                 NoWrite <= '1';
-                                ALUControl <= "0001";
                                 FlagWInternal <= "11";
                             else  -- Illegal CMP
                                 NoWrite <= '-';
@@ -219,7 +224,21 @@ begin
                                 FlagWInternal <= "--";
                                 IllegalALUDecoder <= '1';
                             end if;
-                        when others =>
+                        -- CMN Instruction
+                        when "1011" =>
+                            if Funct(0)='1' then
+                                NoWrite <= '1';
+                                FlagWInternal <= "11";
+                            else  -- Illegal CMP
+                                NoWrite <= '-';
+                                ALUControl  <= "----";
+                                FlagWInternal <= "--";
+                                IllegalALUDecoder <= '1';
+                            end if;
+                        -- ORR Instruction
+                        when "1100" =>
+                            FlagWInternal <= "10";
+                        when others =>  -- TODO: Remove when all DP instructions implemented.
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "--";
