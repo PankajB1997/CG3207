@@ -75,16 +75,19 @@ begin
             when "0100" | "1011" =>  -- ADD | CMN
                 ALUResult_i <= S_wider(31 downto 0);
                 V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
-            when "0101" =>  -- ADC TODO: Add in carry
+            when "0101" =>  -- ADC
                 ALUResult_i <= S_wider(31 downto 0);
+                C_0(0) <= CarryFlag;
                 V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
-            when "0110" =>  -- SBC TODO: Add in carry
-                C_0(0) <= '1';
+            when "0110" =>  -- SBC
+                -- Subtract NOT carry means if carry is 0, then CIn is 0, else it is 1.
+                C_0(0) <= CarryFlag;
                 Src_B_comp <= '0' & not Src_B;
                 ALUResult_i <= S_wider(31 downto 0);
                 V <= (Src_A(31) xor  Src_B(31))  and (Src_B(31) xnor S_wider(31));
-            when "0111" =>  -- RSC TODO: Add in carry
-                C_0(0) <= '1';
+            when "0111" =>  -- RSC
+                -- Subtract NOT carry means if carry is 0, then CIn is 0, else it is 1.
+                C_0(0) <= CarryFlag;
                 Src_A_comp <= '0' & not Src_A;
                 ALUResult_i <= S_wider(31 downto 0);
                 V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
