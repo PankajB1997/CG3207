@@ -39,9 +39,9 @@ port (
     RegW : in std_logic;
     NoWrite : in std_logic;
     MemW : in std_logic;
-    FlagW : in std_logic_vector(1 downto 0);
+    FlagW : in std_logic_vector(2 downto 0);
     Cond : in std_logic_vector(3 downto 0);
-    ALUFlags : in std_logic_vector(3 downto 0);
+    FinalFlags : in std_logic_vector(3 downto 0);
     PCSrc : out std_logic;
     RegWrite : out std_logic;
     MemWrite : out std_logic
@@ -52,7 +52,7 @@ architecture CondLogic_arch of CondLogic is
     signal CondEx : std_logic;
     -- Flags are ordered as NZCV
     signal N, Z, C, V : std_logic := '0';
-    signal FlagWrite : std_logic_vector(1 downto 0);
+    signal FlagWrite : std_logic_vector(2 downto 0);
 begin
 
     with Cond select CondEx <=  Z when "0000",  -- EQ
@@ -78,20 +78,24 @@ begin
     MemWrite <= MemW and CondEx;
 
     -- Flag write logic
-    FlagWrite <= FlagW when CondEx = '1' else "00";
+    FlagWrite <= FlagW when CondEx = '1' else "000";
 
     flag_write: process (CLK) begin
        if CLK'event and CLK = '1' then
-           -- Write to C and V
-           if FlagWrite(0) = '1' then
-               V <= ALUFlags(0);
-               C <= ALUFlags(1);
+           -- Write to N and Z
+           if FlagWrite(2) = '1' then
+               Z <= FinalFlags(2);
+               N <= FinalFlags(3);
            end if;
 
-           -- Write to N and Z
+           -- Write to C
            if FlagWrite(1) = '1' then
-               Z <= ALUFlags(2);
-               N <= ALUFlags(3);
+               C <= FinalFlags(1);
+           end if;
+
+           -- Write to V
+           if FlagWrite(0) = '1' then
+               V <= FinalFlags(0);
            end if;
        end if;
     end process;
