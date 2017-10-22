@@ -215,26 +215,12 @@ begin
                             FlagWInternal <= "11";
                         -- CMP Instruction
                         when "1010" =>
-                            if Funct(0)='1' then
-                                NoWrite <= '1';
-                                FlagWInternal <= "11";
-                            else  -- Illegal CMP
-                                NoWrite <= '-';
-                                ALUControl  <= "----";
-                                FlagWInternal <= "--";
-                                IllegalALUDecoder <= '1';
-                            end if;
+                            NoWrite <= '1';
+                            FlagWInternal <= "11";
                         -- CMN Instruction
                         when "1011" =>
-                            if Funct(0)='1' then
-                                NoWrite <= '1';
-                                FlagWInternal <= "11";
-                            else  -- Illegal CMP
-                                NoWrite <= '-';
-                                ALUControl  <= "----";
-                                FlagWInternal <= "--";
-                                IllegalALUDecoder <= '1';
-                            end if;
+                            NoWrite <= '1';
+                            FlagWInternal <= "11";
                         -- ORR Instruction
                         when "1100" =>
                             FlagWInternal <= "10";
@@ -246,7 +232,18 @@ begin
                     end case;
                 end if;
                 if Funct(0) = '0' then  -- If S bit is 0, don't write to flags.
-                    FlagWInternal <= "00";
+                    if Funct (4 downto 1) = "1000" or
+                       Funct (4 downto 1) = "1001" or
+                       Funct (4 downto 1) = "1010" or
+                       Funct (4 downto 1) = "1011" then
+                        -- These instructions must have S bit set, otherwise illegal.
+                        NoWrite <= '-';
+                        ALUControl  <= "----";
+                        FlagWInternal <= "--";
+                        IllegalALUDecoder <= '1';
+                    else
+                        FlagWInternal <= "00";
+                    end if;
                 end if;
             when others =>
                 NoWrite <= '-';
