@@ -51,27 +51,46 @@ architecture ALU_arch of ALU is
     signal C_0 : std_logic_vector(32 downto 0);
     signal N, Z, C, V : std_logic;
 begin
-    S_wider <= std_logic_vector( unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0) );
+    S_wider <= std_logic_vector(unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0));
     process(Src_A, Src_B, ALUControl, S_wider)
     begin
         C_0 <= (others => '0'); -- default value, will help avoid latches
         Src_A_comp <= '0' & Src_A;
         Src_B_comp <= '0' & Src_B;
-        ALUResult_i <= Src_B;
         V <= '0';
         case ALUControl is
-            when "0000" =>
-                ALUResult_i <= S_wider(31 downto 0);
-                V <= ( Src_A(31) xnor  Src_B(31) )  and ( Src_B(31) xor S_wider(31) );
-            when "0001" =>
+            when "0000" =>  -- AND
+                ALUResult_i <= Src_A and Src_B;
+            when "0010" | "1010" =>  -- SUB | CMP
                 C_0(0) <= '1';
                 Src_B_comp <= '0' & not Src_B;
                 ALUResult_i <= S_wider(31 downto 0);
-                V <= ( Src_A(31) xor  Src_B(31) )  and ( Src_B(31) xnor S_wider(31) );
-            when "0010" =>
-                ALUResult_i <= Src_A and Src_B;
-            when others =>
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_B(31) xnor S_wider(31));
+            when "0011" =>  -- RSB
+                C_0(0) <= '1';
+                Src_A_comp <= '0' & not Src_A;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
+            when "0100" | "1011" =>  -- ADD | CMN
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
+            when "0101" =>  -- ADC TODO: Add in carry
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
+            when "0110" =>  -- SBC TODO: Add in carry
+                C_0(0) <= '1';
+                Src_B_comp <= '0' & not Src_B;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_B(31) xnor S_wider(31));
+            when "0111" =>  -- RSC TODO: Add in carry
+                C_0(0) <= '1';
+                Src_A_comp <= '0' & not Src_A;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
+            when "1100" =>  -- ORR
                 ALUResult_i <= Src_A or Src_B;
+            when others =>  -- TODO: Remove when all instructions are implemented.
+                ALUResult_i <= Src_B;
         end case;
     end process;
     N <= ALUResult_i(31);
