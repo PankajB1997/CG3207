@@ -113,10 +113,10 @@ begin
     Sum <= ('0' & t_ALUSrc1) + ('0' & t_ALUSrc2);
     Diff <=  ('0' & t_ALUSrc1) + ('0' & (not t_ALUSrc2)) + "00001";
     t_ALUResult <= Sum(3 downto 0)
-                   when t_ALUControl = "0000"
+                   when t_ALUControl = "0100"
                    else Diff(3 downto 0);
     t_ALUCarryFlag <= Sum(4)
-                      when t_ALUControl = "0000"
+                      when t_ALUControl = "0100"
                       else Diff(4);
 
     -- Clock generation
