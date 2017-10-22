@@ -173,29 +173,6 @@ begin
             -- ALU operations for DP instructions
             when "00" =>
                 NoWrite <= '0';  -- Should write by default.
-                -- else
-                --     -- N and Z flags
-                --     if (Funct(5) = '1' or MCycleFunct /= "1001") and -- Not MUL/DIV
-                --        (Funct(4 downto 1) = "0100" or -- ADD
-                --         Funct(4 downto 1) = "0010" or -- SUB
-                --         Funct(4 downto 1) = "1010") then -- CMP
-                --         FlagWInternal(0) <= '1';
-                --     else
-                --         FlagWInternal(0) <= '0';
-                --     end if;
-                --
-                --     -- C and V flags
-                --     if (Funct(5) = '1' or MCycleFunct /= "1001") and -- Not MUL/DIV
-                --        (Funct(4 downto 1) = "0100" or -- ADD
-                --         Funct(4 downto 1) = "0010" or -- SUB
-                --         Funct(4 downto 1) = "0000" or -- AND
-                --         Funct(4 downto 1) = "1100" or -- ORR
-                --         Funct(4 downto 1) = "1010") then -- CMP
-                --         FlagWInternal(1) <= '1';
-                --     else
-                --         FlagWInternal(1) <= '0';
-                --     end if;
-                -- end if;
                 if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV instruction
                     ALUControl <= "--";  -- MCycle controls ALU.
