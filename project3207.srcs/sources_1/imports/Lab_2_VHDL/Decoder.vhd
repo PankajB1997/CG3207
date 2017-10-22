@@ -50,7 +50,8 @@ port(
     ALUControl : out std_logic_vector(3 downto 0);
     MCycleStart : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
-    FlagW : out std_logic_vector(1 downto 0)
+    FlagW : out std_logic_vector(1 downto 0);
+    isArithmeticDP : out std_logic
 );
 end Decoder;
 
@@ -161,6 +162,7 @@ begin
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
+                isArithmeticDP <= '-';
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 NoWrite <= '0';
@@ -168,6 +170,7 @@ begin
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
+                isArithmeticDP <= '-';
 
             -- ALU operations for DP instructions
             when "00" =>
@@ -178,6 +181,7 @@ begin
                     ALUResultSrc <= '1';
                     MCycleStart <= '1';
                     FlagWInternal <= "00";
+                    isArithmeticDP <= '-';
                     if Funct(1) = '0' then
                         -- MUL instruction
                         MCycleOp <= "01";
@@ -195,39 +199,50 @@ begin
                         -- AND Instruction
                         when "0000" =>
                             FlagWInternal <= "10";
+                            isArithmeticDP <= '0';
                         -- SUB Instruction
                         when "0010" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- RSB Instruction
                         when "0011" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- ADD Instruction
                         when "0100" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- ADC Instruction
                         when "0101" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- SBC Instruction
                         when "0110" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- RSC Instruction
                         when "0111" =>
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- CMP Instruction
                         when "1010" =>
                             NoWrite <= '1';
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- CMN Instruction
                         when "1011" =>
                             NoWrite <= '1';
                             FlagWInternal <= "11";
+                            isArithmeticDP <= '1';
                         -- ORR Instruction
                         when "1100" =>
                             FlagWInternal <= "10";
+                            isArithmeticDP <= '0';
                         when others =>  -- TODO: Remove when all DP instructions implemented.
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "--";
+                            isArithmeticDP <= '0';
                             IllegalALUDecoder <= '1';
                     end case;
                 end if;
@@ -252,6 +267,7 @@ begin
                 ALUResultSrc <= '-';
                 MCycleStart <= '-';
                 MCycleOp <= "--";
+                isArithmeticDP <= '-';
                 IllegalALUDecoder <= '1';
         end case;
     end process;
