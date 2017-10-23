@@ -111,11 +111,11 @@ begin
         assert (t_ALUResult = x"00000002" and t_ALUFlags = "0010") report "Failed ALU Test Case 11" severity error;
         
         -- Test case 12: Exclusive-OR two numbers
-        -- 13 xor 9 = 4
-        -- Only Z flag is asserted. 
-        t_Src_A <= x"0000000D"; t_Src_B <= x"0000000D"; t_ALUControl <= "0001";
+        -- 11 xor 3 = 13
+        -- None of the flags are asserted
+        t_Src_A <= x"0000000B"; t_Src_B <= x"00000006"; t_ALUControl <= "0001";
         wait for 1 ns;
-        assert (t_ALUResult = x"00000000" and t_ALUFlags = "0100") report "Failed ALU Test Case 12" severity error;
+        assert (t_ALUResult = x"0000000D" and t_ALUFlags = "0000") report "Failed ALU Test Case 12" severity error;
    
         -- Test case 13: TST two numbers
         -- TST 3, 2 
