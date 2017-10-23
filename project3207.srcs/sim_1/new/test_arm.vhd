@@ -202,7 +202,31 @@ begin
 
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
+        
+        wait for ClkPeriod / 2;
+        
+        -- Test Case 13: TST two registers and update flags: TST R1, R0
+        -- ALUResult = 0 as TST operation does not write the result to any register. It only sets the flags. 
+        t_Instr <= x"E" & "00" & "0" & x"8" & "1" & x"1" & x"0" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 13" severity error;
 
+        wait for ClkPeriod * 9 / 10;
+        
+        -- Test Case 14: MOV the contents of one register into another register: MOV R7, R2
+        -- ALUResult = 0x14
+        t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"7" & "00000" & "00" & "0" & x"2";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 14" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+        
+        -- Test Case 15: BICS two registers and update flags: BICS R8, R4, R0
+        -- ALUResult = 4
+        t_Instr <= x"E" & "00" & "0" & x"E" & "1" & x"4" & x"8" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 15" severity error;
+        
         wait;
 
     end process;
