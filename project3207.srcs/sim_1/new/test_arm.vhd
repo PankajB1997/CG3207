@@ -203,8 +203,6 @@ begin
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
         
-        wait for ClkPeriod / 2;
-        
         -- Test case 13: TST two registers and update flags: TST R0, #12
          t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
          wait for ClkPeriod / 10;
