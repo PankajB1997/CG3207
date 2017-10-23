@@ -111,7 +111,7 @@ begin
         assert (t_ALUResult = x"00000002" and t_ALUFlags = "0010") report "Failed ALU Test Case 11" severity error;
         
         -- Test case 12: Exclusive-OR two numbers
-        -- 11 xor 3 = 13
+        -- 11 xor 6 = 13
         -- None of the flags are asserted
         t_Src_A <= x"0000000B"; t_Src_B <= x"00000006"; t_ALUControl <= "0001";
         wait for 1 ns;
