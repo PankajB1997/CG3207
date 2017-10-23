@@ -203,24 +203,20 @@ begin
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
         
-        -- Test case 13: TST two registers and update flags: TST R0, #12
-        -- R0 = 3 = 0011
-        -- #12 = 1100
-        -- R0 AND #12 = 0011 AND 1100 = 0000
+        -- Test case 13: TST a register and immideate operand. Also update flags: TST R0, #12
+        -- R0 AND 12 = 3 AND 12 = 0
         -- Z flag is set
         t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0') report "Failed ARM Test Case 13" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 13" severity error;
    
         wait for ClkPeriod * 9 / 10;
          
-        -- Test case 14: Check if Z flag was set after the previous TST operation : ADDEQ R5, R0, #1
-        -- R5 = R0 + #1 happens only if Z flag was set in the previous operation
-        -- ALUResult = R5 = 3 + 1 = 4
-        -- Hence, ALUResult = 4 only if Z flag was set in the previous operation (which was TST)
-        t_Instr <= x"0" & "00" & '1' & x"4" & '0' & x"0" & x"5" & x"0" & x"0" & x"1";
+        -- Test case 14: Check if Z flag was set after the previous TST operation : STREQ R4, [R3, #12]
+        -- MemWrite = 1 only if Z flag was set
+        t_Instr <= x"0" & "01" & "011000" & x"3" & x"4" & x"0" & x"0" & "1100";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 14" severity error;
+        assert (t_MemWrite = '1' and t_ALUResult = x"000000AC") report "Failed ARM Test Case 14" severity error;
             
         wait for ClkPeriod * 9 / 10;
 
@@ -238,6 +234,8 @@ begin
         t_Instr <= x"E" & "00" & "0" & x"E" & "1" & x"4" & x"8" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 16" severity error;
+        
+        wait for ClkPeriod * 9 / 10; 
    
         wait;
 
