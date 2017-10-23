@@ -93,7 +93,7 @@ begin
                 V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
             when "1100" =>  -- ORR
                 ALUResult_i <= Src_A or Src_B;
-            when others =>  -- TODO: Remove when all instructions are implemented.
+            when others =>
                 ALUResult_i <= Src_B;
         end case;
     end process;

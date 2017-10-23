@@ -224,7 +224,7 @@ begin
                         -- ORR Instruction
                         when "1100" =>
                             FlagWInternal <= "10";
-                        when others =>  -- TODO: Remove when all DP instructions implemented.
+                        when others =>
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "--";
