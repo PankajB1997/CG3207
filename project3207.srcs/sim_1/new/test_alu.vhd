@@ -109,7 +109,49 @@ begin
         t_Src_A <= x"00000005"; t_Src_B <= x"00000007"; t_CarryFlag <= '1'; t_ALUControl <= "0111";
         wait for 1 ns;
         assert (t_ALUResult = x"00000002" and t_ALUFlags = "0010") report "Failed ALU Test Case 11" severity error;
+        
+        -- Test case 12: Exclusive-OR two numbers
+        -- 13 xor 9 = 4
+        -- Only Z flag is asserted. 
+        t_Src_A <= x"0000000D"; t_Src_B <= x"0000000D"; t_ALUControl <= "0001";
+        wait for 1 ns;
+        assert (t_ALUResult = x"00000000" and t_ALUFlags = "0100") report "Failed ALU Test Case 12" severity error;
+   
+        -- Test case 13: TST two numbers
+        -- TST 3, 2 
+        -- None of the flags are asserted
+        t_Src_A <= x"00000003"; t_Src_B <= x"00000002"; t_ALUControl <= "1000";
+        wait for 1 ns;
+        assert (t_ALUResult = x"00000002" and t_ALUFlags = "0000") report "Failed ALU Test Case 13" severity error;
 
+        -- Test case 14: TEQ two numbers
+        -- TEQ 10, 15
+        -- None of the flags are asserted
+        t_Src_A <= x"0000000A"; t_Src_B <= x"0000000F"; t_ALUControl <= "1001";
+        wait for 1 ns;
+        assert (t_ALUResult = x"00000005" and t_ALUFlags = "0000") report "Failed ALU Test Case 14" severity error;
+        
+        -- Test case 15: MOV a positive number
+        -- MOV #13
+        -- None of the flags are asserted
+        t_Src_B <= x"0000000C"; t_ALUControl <= "1101";
+        wait for 1 ns;
+        assert (t_ALUResult = x"0000000C" and t_ALUFlags = "0000") report "Failed ALU Test Case 15" severity error;
+        
+        -- Test case 16: MOV a negative number
+        -- MVN 4
+        -- N flag is asserted
+        t_Src_B <= x"0000000D"; t_ALUControl <= "1111";
+        wait for 1 ns;
+        assert (t_ALUResult = x"FFFFFFF2" and t_ALUFlags = "1000") report "Failed ALU Test Case 16" severity error;
+        
+        -- Test case 17: BIC two numbers
+        -- BIC 11, 15
+        -- Z flag is asserted
+        t_Src_A <= x"0000000B"; t_Src_B <= x"0000000F"; t_ALUControl <= "1110";
+        wait for 1 ns;
+        assert (t_ALUResult = x"00000000" and t_ALUFlags = "0100") report "Failed ALU Test Case 17" severity error;
+      
         wait;
 
     end process;

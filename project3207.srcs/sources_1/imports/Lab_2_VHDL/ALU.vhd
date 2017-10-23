@@ -60,8 +60,10 @@ begin
         Src_B_comp <= '0' & Src_B;
         V <= '0';
         case ALUControl is
-            when "0000" =>  -- AND
+            when "0000" | "1000" =>  -- AND | TST
                 ALUResult_i <= Src_A and Src_B;
+            when "0001" =>  -- EOR/XOR
+                ALUResult_i <= Src_A xor Src_B;
             when "0010" | "1010" =>  -- SUB | CMP
                 C_0(0) <= '1';
                 Src_B_comp <= '0' & not Src_B;
@@ -91,13 +93,22 @@ begin
                 Src_A_comp <= '0' & not Src_A;
                 ALUResult_i <= S_wider(31 downto 0);
                 V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
+            when "1001" =>  -- TEQ
+                ALUResult_i <= Src_A xor Src_B;
             when "1100" =>  -- ORR
                 ALUResult_i <= Src_A or Src_B;
+            when "1101" =>  -- MOV
+                ALUResult_i <= Src_B;
+            when "1110" =>  -- BIC
+                ALUResult_i <= Src_A and (not Src_B);
+            when "1111" =>  -- MVN
+                ALUResult_i <= not Src_B;
             when others =>  -- TODO: Remove when all instructions are implemented.
                 ALUResult_i <= Src_B;
         end case;
     end process;
-    N <= ALUResult_i(31);
+    
+    N <= (Src_A(31) xor Src_B(31)) when ALUControl = "1001" else ALUResult_i(31);
     Z <= '1' when ALUResult_i = x"00000000" else '0';
     C <= S_wider(32);
     ALUResult <= ALUResult_i;
