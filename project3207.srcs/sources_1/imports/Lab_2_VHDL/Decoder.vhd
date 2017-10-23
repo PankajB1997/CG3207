@@ -151,7 +151,6 @@ begin
 
     -- Logic for ALU Decoder
     alu_decoder: process (ALUOp, Funct, MCycleFunct) 
-            variable tempFlagW : std_logic_vector(1 downto 0) := (others => '0');
     begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
@@ -246,7 +245,7 @@ begin
                         --- MVN Instruction
                         when "1111" =>
                             FlagWInternal <= "10";
-                        when others =>  -- TODO: Remove when all DP instructions implemented.
+                        when others =>  
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "--";
