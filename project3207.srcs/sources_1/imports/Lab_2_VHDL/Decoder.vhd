@@ -150,7 +150,9 @@ begin
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (ALUOp, Funct, MCycleFunct) begin
+    alu_decoder: process (ALUOp, Funct, MCycleFunct) 
+            variable tempFlagW : std_logic_vector(1 downto 0) := (others => '0');
+    begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
             -- Not a DP Instruction
@@ -255,6 +257,12 @@ begin
                     if Funct (4 downto 1) = "1000" or
                        Funct (4 downto 1) = "1001" or
                        Funct (4 downto 1) = "1010" or
+                   --    Funct (4 downto 1) = "0001" or
+                       Funct (4 downto 1) = "1000" or
+                       Funct (4 downto 1) = "1001" or
+                       Funct (4 downto 1) = "1101" or
+                       Funct (4 downto 1) = "1110" or
+                       Funct (4 downto 1) = "1111" or
                        Funct (4 downto 1) = "1011" then
                         -- These instructions must have S bit set, otherwise illegal.
                         NoWrite <= '-';
@@ -262,7 +270,11 @@ begin
                         FlagWInternal <= "--";
                         IllegalALUDecoder <= '1';
                     else
+                        tempFlagW := FlagWInternal;
                         FlagWInternal <= "00";
+                        if Funct( 4 downto 1) = "0001" then
+                            FlagWInternal <= tempFlagW;
+                        end if;
                     end if;
                 end if;
             when others =>
