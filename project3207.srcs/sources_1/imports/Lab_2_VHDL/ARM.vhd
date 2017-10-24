@@ -333,9 +333,9 @@ begin
 
     -- Conditional logic inputs
     Cond <= Instr(31 downto 28);
-    FinalFlags <= ALUFlags;
+    FinalFlags (3 downto 2) <= ALUFlags (3 downto 2);
     FinalFlags(1) <= ShifterCarry when isArithmeticDP = '0' else FinalFlags(1);
-    -- ALUFlags connected already
+    FinalFlags(0) <= ALUFlags(0);
 
 
     -- Port maps
