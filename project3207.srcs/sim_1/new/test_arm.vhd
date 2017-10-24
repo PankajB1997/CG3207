@@ -202,22 +202,22 @@ begin
 
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
-        
+
         -- Test case 13: TST a register and immideate operand. Also update flags: TST R0, #12
         -- R0 AND 12 = 3 AND 12 = 0
         -- Z flag is set
         t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 13" severity error;
-   
+
         wait for ClkPeriod * 9 / 10;
-         
+
         -- Test case 14: Check if Z flag was set after the previous TST operation : STREQ R4, [R3, #12]
         -- MemWrite = 1 only if Z flag was set
         t_Instr <= x"0" & "01" & "011000" & x"3" & x"4" & x"0" & x"0" & "1100";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '1' and t_ALUResult = x"000000AC") report "Failed ARM Test Case 14" severity error;
-            
+
         wait for ClkPeriod * 9 / 10;
 
         -- Test Case 15: MOV the contents of one register into another register: MOV R7, R2
@@ -227,16 +227,38 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 15" severity error;
 
         wait for ClkPeriod * 9 / 10;
-        
+
         -- Test Case 16: BICS two registers and update flags: BICS R8, R4, R0
         -- R4 = 7, R0 = 3
         -- ALUResult = R4 AND (not R0) = 0111 AND (not 0011) = 0111 AND 1100 = 0100 = 4
         t_Instr <= x"E" & "00" & "0" & x"E" & "1" & x"4" & x"8" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 16" severity error;
-        
-        wait for ClkPeriod * 9 / 10; 
-   
+
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test Case 17: ANDS two registers with such values that the 'C' bit is set to 1, then test this with ADC
+        -- ANDS R4, R4, R0, LSR #3 ; sets 'C' bit to 1
+        t_Instr <= x"E" & "00" & "0" & x"0" & "1" & x"4" & x"4" & "00011" & "01" & "0" & x"0";
+        wait for ClkPeriod / 4;
+        -- ADC R5, R4, R0 ; R4 = 7, R0 = 3 => sets R5 to 7 + 3 + 1 = 11 (from 'C' = 1). Hence ALUResult will be 11.
+        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 4;
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 17" severity error;
+
+        wait for ClkPeriod / 2;
+
+        -- Test Case 18: MOVS two registers with such values that the 'C' bit is set to 0, then test this with ADC
+        -- MOVS R4, R0 ; sets 'C' bit to 0
+        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 4;
+        -- ADC R5, R4, R0 ; R4 = 3, R0 = 3 => sets R5 to 3 + 3 + 0 = 6 (from 'C' = 0). Hence ALUResult will be 6.
+        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 4;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 18" severity error;
+
+        wait for ClkPeriod / 2;
+
         wait;
 
     end process;
