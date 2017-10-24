@@ -118,7 +118,7 @@ architecture ARM_arch of ARM is
         Shamt5 : in std_logic_vector(4 downto 0);
         ShIn : in std_logic_vector(31 downto 0);
         ShOut : out std_logic_vector(31 downto 0);
-        Carry : out std_logic
+        ShifterCarry : out std_logic
     );
     end component Shifter;
 
@@ -221,7 +221,7 @@ architecture ARM_arch of ARM is
     signal Shamt5 : std_logic_vector(4 downto 0);
     signal ShIn : std_logic_vector(31 downto 0);
     signal ShOut : std_logic_vector(31 downto 0);
-    signal Carry : std_logic;
+    signal ShifterCarry : std_logic;
 
     -- ALU signals
     signal Src_A : std_logic_vector(31 downto 0);
@@ -334,7 +334,7 @@ begin
     -- Conditional logic inputs
     Cond <= Instr(31 downto 28);
     FinalFlags <= ALUFlags;
-    FinalFlags(1) <= Carry when isArithmeticDP = '0' else FinalFlags(1);
+    FinalFlags(1) <= ShifterCarry when isArithmeticDP = '0' else FinalFlags(1);
     -- ALUFlags connected already
 
 
@@ -403,7 +403,7 @@ begin
         Shamt5 => Shamt5,
         ShIn => ShIn,
         ShOut => ShOut,
-        Carry => Carry
+        ShifterCarry => ShifterCarry
     );
 
     ALU1: ALU
