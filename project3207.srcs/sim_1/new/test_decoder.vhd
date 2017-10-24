@@ -141,7 +141,7 @@ begin
         -- Test case 10: DP Reg (ANDS) Instruction
         t_Rd <= "1000"; t_Op <= "00"; t_Funct <= "000001";
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="0000" and t_FlagW="100" and t_isArithmeticDP='0') report "Failed Decoder Test Case 10" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="0000" and t_FlagW="110" and t_isArithmeticDP='0') report "Failed Decoder Test Case 10" severity error;
 
         -- Test case 11: DP Reg (ORR) Instruction
         t_Rd <= "1001"; t_Op <= "00"; t_Funct <= "011000";
@@ -186,22 +186,22 @@ begin
         -- Test case 19: DP Reg (BICS) Instruction
         t_Rd <= "0101"; t_Op <= "00"; t_Funct <= "011101";
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1110" and t_FlagW="10") report "Failed Decoder Test Case 19" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1110" and t_FlagW="110" and t_isArithmeticDP='0') report "Failed Decoder Test Case 19" severity error;
 
         -- Test case 20: DP Reg (BIC) Instruction
         t_Rd <= "0101"; t_Op <= "00"; t_Funct <= "011100";
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1110" and t_FlagW="00") report "Failed Decoder Test Case 20" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1110" and t_FlagW="000" and t_isArithmeticDP='0') report "Failed Decoder Test Case 20" severity error;
 
         -- Test case 21: DP Reg (MVNS) Instruction
         t_Rd <= "0110"; t_Op <= "00"; t_Funct <= "011111";
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1111" and t_FlagW="10") report "Failed Decoder Test Case 21" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1111" and t_FlagW="110" and t_isArithmeticDP='0') report "Failed Decoder Test Case 21" severity error;
 
         -- Test case 22: DP Reg (MVN) Instruction
         t_Rd <= "0110"; t_Op <= "00"; t_Funct <= "011110";
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1111" and t_FlagW="00") report "Failed Decoder Test Case 22" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_RegSrc="000" and t_NoWrite='0' and t_ALUControl="1111" and t_FlagW="000" and t_isArithmeticDP='0') report "Failed Decoder Test Case 22" severity error;
 
         -- Test case 23: DP Imm (ADD) Instruction
         t_Rd <= "1011"; t_Op <= "00"; t_Funct <= "101000";
