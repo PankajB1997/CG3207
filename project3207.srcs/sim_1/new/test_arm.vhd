@@ -238,26 +238,26 @@ begin
         wait for ClkPeriod * 9 / 10;
 
         -- Test Case 17: ANDS two registers with such values that the 'C' bit is set to 1, then test this with ADC
-        -- ANDS R4, R4, R0, LSR #3 ; sets 'C' bit to 1
-        t_Instr <= x"E" & "00" & "0" & x"0" & "1" & x"4" & x"4" & "00011" & "01" & "0" & x"0";
-        wait for ClkPeriod / 4;
+        -- ANDS R5, R4, R0, LSR #1 ; R4 = 7, R0 = 3 => sets 'C' bit to 1
+        t_Instr <= x"E" & "00" & "0" & x"0" & "1" & x"4" & x"5" & "00001" & "01" & "0" & x"0";
+        wait for ClkPeriod;
         -- ADC R5, R4, R0 ; R4 = 7, R0 = 3 => sets R5 to 7 + 3 + 1 = 11 (from 'C' = 1). Hence ALUResult will be 11.
-        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
-        wait for ClkPeriod / 4;
+        t_Instr <= x"E" & "00" & "0" & x"5" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 17" severity error;
 
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod * 9 / 10;
 
         -- Test Case 18: MOVS two registers with such values that the 'C' bit is set to 0, then test this with ADC
         -- MOVS R4, R0 ; sets 'C' bit to 0
         t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
-        wait for ClkPeriod / 4;
+        wait for ClkPeriod;
         -- ADC R5, R4, R0 ; R4 = 3, R0 = 3 => sets R5 to 3 + 3 + 0 = 6 (from 'C' = 0). Hence ALUResult will be 6.
-        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"0";
-        wait for ClkPeriod / 4;
+        t_Instr <= x"E" & "00" & "0" & x"5" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 18" severity error;
 
-        wait for ClkPeriod / 2;
+        wait for ClkPeriod * 9 / 10;
 
         wait;
 
