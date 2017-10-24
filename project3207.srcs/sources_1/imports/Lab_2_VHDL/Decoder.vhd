@@ -151,7 +151,8 @@ begin
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (ALUOp, Funct, MCycleFunct) begin
+    alu_decoder: process (ALUOp, Funct, MCycleFunct)
+    begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
             -- Not a DP Instruction
@@ -195,35 +196,24 @@ begin
                     MCycleStart <= '0';
                     MCycleOp <= "--";
                     ALUControl <= Funct(4 downto 1);
+                    isArithmeticDP <= '-';
                     case Funct (4 downto 1) is
-                        -- AND Instruction
-                        when "0000" =>
-                            FlagWInternal <= "100";
-                            isArithmeticDP <= '0';
-                        -- SUB Instruction
-                        when "0010" =>
-                            FlagWInternal <= "111";
-                            isArithmeticDP <= '1';
-                        -- RSB Instruction
-                        when "0011" =>
+                        -- ADC Instruction
+                        when "0101" =>
                             FlagWInternal <= "111";
                             isArithmeticDP <= '1';
                         -- ADD Instruction
                         when "0100" =>
                             FlagWInternal <= "111";
                             isArithmeticDP <= '1';
-                        -- ADC Instruction
-                        when "0101" =>
-                            FlagWInternal <= "111";
-                            isArithmeticDP <= '1';
-                        -- SBC Instruction
-                        when "0110" =>
-                            FlagWInternal <= "111";
-                            isArithmeticDP <= '1';
-                        -- RSC Instruction
-                        when "0111" =>
-                            FlagWInternal <= "111";
-                            isArithmeticDP <= '1';
+                        -- AND Instruction
+                        when "0000" =>
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
+                        -- BIC Instruction
+                        when "1110" =>
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
                         -- CMP Instruction
                         when "1010" =>
                             NoWrite <= '1';
@@ -234,15 +224,53 @@ begin
                             NoWrite <= '1';
                             FlagWInternal <= "111";
                             isArithmeticDP <= '1';
+                        -- EOR Instruction
+                        when "0001" =>
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
+                        -- MOV Instruction
+                        when "1101" =>
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
+                        -- MVN Instruction
+                        when "1111" =>
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
                         -- ORR Instruction
                         when "1100" =>
-                            FlagWInternal <= "100";
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
+                        -- RSB Instruction
+                        when "0011" =>
+                            FlagWInternal <= "111";
+                            isArithmeticDP <= '1';
+                        -- RSC Instruction
+                        when "0111" =>
+                            FlagWInternal <= "111";
+                            isArithmeticDP <= '1';
+                        -- SBC Instruction
+                        when "0110" =>
+                            FlagWInternal <= "111";
+                            isArithmeticDP <= '1';
+                        -- SUB Instruction
+                        when "0010" =>
+                            FlagWInternal <= "111";
+                            isArithmeticDP <= '1';
+                        -- TEQ Instruction
+                        when "1001" =>
+                            NoWrite <= '1';
+                            FlagWInternal <= "110";
+                            isArithmeticDP <= '0';
+                        -- TST Instruction
+                        when "1000" =>
+                            NoWrite <= '1';
+                            FlagWInternal <= "110";
                             isArithmeticDP <= '0';
                         when others =>
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "---";
-                            isArithmeticDP <= '0';
+                            isArithmeticDP <= '-';
                             IllegalALUDecoder <= '1';
                     end case;
                 end if;
