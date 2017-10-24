@@ -101,7 +101,7 @@ begin
                 ALUResult_i <= Src_A and (not Src_B);
             when "1111" =>  -- MVN
                 ALUResult_i <= not Src_B;
-            when others =>  -- TODO: Remove when all instructions are implemented.
+            when others =>  
                 ALUResult_i <= Src_B;
         end case;
     end process;
