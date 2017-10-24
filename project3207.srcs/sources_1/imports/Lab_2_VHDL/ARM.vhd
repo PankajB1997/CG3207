@@ -334,7 +334,7 @@ begin
     -- Conditional logic inputs
     Cond <= Instr(31 downto 28);
     FinalFlags (3 downto 2) <= ALUFlags (3 downto 2);
-    FinalFlags(1) <= ShifterCarry when isArithmeticDP = '0' else FinalFlags(1);
+    FinalFlags(1) <= ShifterCarry when isArithmeticDP = '0' else ALUFlags(1);
     FinalFlags(0) <= ALUFlags(0);
 
 
