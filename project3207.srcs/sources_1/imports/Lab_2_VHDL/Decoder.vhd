@@ -238,7 +238,7 @@ begin
                         when "1100" =>
                             FlagWInternal <= "100";
                             isArithmeticDP <= '0';
-                        when others =>  -- TODO: Remove when all DP instructions implemented.
+                        when others =>
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "---";
