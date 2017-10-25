@@ -44,7 +44,8 @@ port (
     ALUFlags : in std_logic_vector(3 downto 0);
     PCSrc : out std_logic;
     RegWrite : out std_logic;
-    MemWrite : out std_logic
+    MemWrite : out std_logic;
+    CarryFlag : out std_logic
 );
 end CondLogic;
 
@@ -54,7 +55,8 @@ architecture CondLogic_arch of CondLogic is
     signal N, Z, C, V : std_logic := '0';
     signal FlagWrite : std_logic_vector(1 downto 0);
 begin
-
+    CarryFlag <= C;
+    
     with Cond select CondEx <=  Z when "0000",  -- EQ
                                 not Z when "0001",  -- NE
                                 C when "0010",  -- CS / HS

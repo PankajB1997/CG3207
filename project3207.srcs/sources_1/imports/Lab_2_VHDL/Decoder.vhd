@@ -47,7 +47,7 @@ port(
     RegSrc : out std_logic_vector(2 downto 0);
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
-    ALUControl : out std_logic_vector(1 downto 0);
+    ALUControl : out std_logic_vector(3 downto 0);
     MCycleStart : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(1 downto 0)
@@ -64,7 +64,6 @@ architecture Decoder_arch of Decoder is
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder : std_logic;
     signal IllegalInstruction : std_logic;
-
 begin
 
     -- Logic for Main Decoder
@@ -158,14 +157,14 @@ begin
             when "11" =>          -- LDR/STR with Positive offset; and Branch instruction
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "00";
+                ALUControl <= "0100";  -- ADD
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
             when "10" =>          -- LDR/STR with Negative offset
                 FlagWInternal <= "00";
                 NoWrite <= '0';
-                ALUControl <= "01";
+                ALUControl <= "0010";  -- SUB
                 ALUResultSrc <= '0';
                 MCycleStart <= '0';
                 MCycleOp <= "--";
@@ -175,7 +174,7 @@ begin
                 NoWrite <= '0';  -- Should write by default.
                 if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV instruction
-                    ALUControl <= "--";  -- MCycle controls ALU.
+                    ALUControl <= "----";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
                     MCycleStart <= '1';
                     FlagWInternal <= "00";
@@ -191,48 +190,64 @@ begin
                     ALUResultSrc <= '0';
                     MCycleStart <= '0';
                     MCycleOp <= "--";
+                    ALUControl <= Funct(4 downto 1);
                     case Funct (4 downto 1) is
-                        -- ADD Instruction
-                        when "0100" =>
-                            ALUControl <= "00";
-                            FlagWInternal <= "11";
-                        -- SUB Instruction
-                        when "0010" =>
-                            ALUControl <= "01";
-                            FlagWInternal <= "11";
                         -- AND Instruction
                         when "0000" =>
-                            ALUControl <= "10";
                             FlagWInternal <= "10";
-                        -- ORR Instruction
-                        when "1100" =>
-                            ALUControl <= "11";
-                            FlagWInternal <= "10";
+                        -- SUB Instruction
+                        when "0010" =>
+                            FlagWInternal <= "11";
+                        -- RSB Instruction
+                        when "0011" =>
+                            FlagWInternal <= "11";
+                        -- ADD Instruction
+                        when "0100" =>
+                            FlagWInternal <= "11";
+                        -- ADC Instruction
+                        when "0101" =>
+                            FlagWInternal <= "11";
+                        -- SBC Instruction
+                        when "0110" =>
+                            FlagWInternal <= "11";
+                        -- RSC Instruction
+                        when "0111" =>
+                            FlagWInternal <= "11";
                         -- CMP Instruction
                         when "1010" =>
-                            if Funct(0)='1' then
-                                NoWrite <= '1';
-                                ALUControl <= "01";
-                                FlagWInternal <= "11";
-                            else  -- Illegal CMP
-                                NoWrite <= '-';
-                                ALUControl  <= "--";
-                                FlagWInternal <= "--";
-                                IllegalALUDecoder <= '1';
-                            end if;
+                            NoWrite <= '1';
+                            FlagWInternal <= "11";
+                        -- CMN Instruction
+                        when "1011" =>
+                            NoWrite <= '1';
+                            FlagWInternal <= "11";
+                        -- ORR Instruction
+                        when "1100" =>
+                            FlagWInternal <= "10";
                         when others =>
                             NoWrite <= '-';
-                            ALUControl  <= "--";
+                            ALUControl  <= "----";
                             FlagWInternal <= "--";
                             IllegalALUDecoder <= '1';
                     end case;
                 end if;
                 if Funct(0) = '0' then  -- If S bit is 0, don't write to flags.
-                    FlagWInternal <= "00";
+                    if Funct (4 downto 1) = "1000" or
+                       Funct (4 downto 1) = "1001" or
+                       Funct (4 downto 1) = "1010" or
+                       Funct (4 downto 1) = "1011" then
+                        -- These instructions must have S bit set, otherwise illegal.
+                        NoWrite <= '-';
+                        ALUControl  <= "----";
+                        FlagWInternal <= "--";
+                        IllegalALUDecoder <= '1';
+                    else
+                        FlagWInternal <= "00";
+                    end if;
                 end if;
             when others =>
                 NoWrite <= '-';
-                ALUControl  <= "--";
+                ALUControl  <= "----";
                 FlagWInternal <= "--";
                 ALUResultSrc <= '-';
                 MCycleStart <= '-';

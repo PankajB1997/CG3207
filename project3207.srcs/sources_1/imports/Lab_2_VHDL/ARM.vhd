@@ -87,7 +87,7 @@ architecture ARM_arch of ARM is
         RegSrc : out std_logic_vector(2 downto 0);
         ALUResultSrc : out std_logic;
         NoWrite : out std_logic;
-        ALUControl : out std_logic_vector(1 downto 0);
+        ALUControl : out std_logic_vector(3 downto 0);
         MCycleStart : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(1 downto 0)
@@ -106,7 +106,8 @@ architecture ARM_arch of ARM is
         ALUFlags : in std_logic_vector(3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
-        MemWrite : out std_logic
+        MemWrite : out std_logic;
+        CarryFlag : out std_logic
     );
     end component CondLogic;
 
@@ -123,7 +124,8 @@ architecture ARM_arch of ARM is
     port (
         Src_A : in std_logic_vector(31 downto 0);
         Src_B : in std_logic_vector(31 downto 0);
-        ALUControl : in std_logic_vector(1 downto 0);
+        ALUControl : in std_logic_vector(3 downto 0);
+        CarryFlag : in std_logic;
         ALUResult : out std_logic_vector(31 downto 0);
         ALUFlags : out std_logic_vector(3 downto 0)
     );
@@ -144,7 +146,7 @@ architecture ARM_arch of ARM is
         ALUCarryFlag : in std_logic;
         ALUSrc1 : out std_logic_vector (width - 1 downto 0);
         ALUSrc2 : out std_logic_vector (width - 1 downto 0);
-        ALUControl : out std_logic_vector (1 downto 0);
+        ALUControl : out std_logic_vector (3 downto 0);
         Result1 : out std_logic_vector (width-1 downto 0);
         Result2 : out std_logic_vector (width-1 downto 0);
         Busy : out std_logic
@@ -209,6 +211,7 @@ architecture ARM_arch of ARM is
     signal PCSrc : std_logic;
     signal RegWrite : std_logic;
     -- signal MemWrite : std_logic;
+    signal CarryFlag : std_logic;
 
     -- Shifter signals
     signal Sh : std_logic_vector(1 downto 0);
@@ -219,7 +222,8 @@ architecture ARM_arch of ARM is
     -- ALU signals
     signal Src_A : std_logic_vector(31 downto 0);
     signal Src_B : std_logic_vector(31 downto 0);
-    signal ALUControl : std_logic_vector(1 downto 0);
+    signal ALUControl : std_logic_vector(3 downto 0);
+    -- signal CarryFlag : std_logic;
     signal ALUResult_sig : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
     signal ALUFlags : std_logic_vector(3 downto 0);
 
@@ -234,7 +238,7 @@ architecture ARM_arch of ARM is
     signal MCycleALUCarryFlag : std_logic;
     signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
     signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
-    signal MCycleALUControl : std_logic_vector (1 downto 0);
+    signal MCycleALUControl : std_logic_vector (3 downto 0);
     signal MCycleResult : std_logic_vector(31 downto 0);
     signal MCycleResultUnused : std_logic_vector(31 downto 0);
     signal MCycleBusy : std_logic;
@@ -251,7 +255,7 @@ architecture ARM_arch of ARM is
     signal PCPlus8 : std_logic_vector(31 downto 0);
     signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
-    signal ALUFinalControl : std_logic_vector(1 downto 0);  -- From Decoder or MCycle.
+    signal ALUFinalControl : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
 
 begin
 
@@ -292,10 +296,11 @@ begin
                   when ALUSrc = '1'
                   else ShOut; --to enable DP instructions with shift operation
     ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControl;
+    -- CarryFlag connected already
 
     -- MCycle inputs
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
-    -- Operand1 for Division should be RD2. Switching it around makes no 
+    -- Operand1 for Division should be RD2. Switching it around makes no
     -- difference to Multiplication.
     Operand1 <= RD2;
     Operand2 <= RD1;
@@ -381,7 +386,8 @@ begin
         ALUFlags => ALUFlags,
         PCSrc => PCSrc,
         RegWrite => RegWrite,
-        MemWrite => MemWrite
+        MemWrite => MemWrite,
+        CarryFlag => CarryFlag
     );
 
     Shifter1: Shifter
@@ -397,6 +403,7 @@ begin
         Src_A => Src_A,
         Src_B => Src_B,
         ALUControl => ALUFinalControl,
+        CarryFlag => CarryFlag,
         ALUResult => ALUResult_sig,
         ALUFlags => ALUFlags
     );

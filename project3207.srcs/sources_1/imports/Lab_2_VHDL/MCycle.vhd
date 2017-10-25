@@ -15,7 +15,7 @@ port (
     ALUCarryFlag : in std_logic;
     ALUSrc1 : out std_logic_vector(width - 1 downto 0);
     ALUSrc2 : out std_logic_vector(width - 1 downto 0);
-    ALUControl : out std_logic_vector(1 downto 0);
+    ALUControl : out std_logic_vector(3 downto 0);
     Result1 : out std_logic_vector(width - 1 downto 0); -- LSW of Product / Quotient
     Result2 : out std_logic_vector(width - 1 downto 0); -- MSW of Product / Remainder
     Busy : out std_logic );  -- Set immediately when Start is set. Cleared when the Results become ready. This bit can be used to stall the processor while multi-cycle operations are on.
@@ -89,7 +89,7 @@ begin
                     Result2 <= shifted_multiplier(2 * width - 1 downto width);
                     Result1 <= shifted_multiplier(width - 1 downto 0);
 
-                    ALUControl <= "00";
+                    ALUControl <= "0100";
                     ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
                     if shifted_multiplier(0) = '1' then -- add only if b0 = 1
                         ALUSrc2 <= Operand1;
@@ -110,17 +110,17 @@ begin
                     topBit1 <= signed_multiplier_top_bit;
                     if ((not shifted_multiplier(0)) and shifted_out_bit) = '1' then
                         -- If shifted out bit is 1 and current last bit is 0, then add
-                        ALUControl <= "00";
+                        ALUControl <= "0100";
                         topBit2 <= Operand1(width - 1);
                     elsif (shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
                         -- If shifted out bit is 0 and current last bit is 1, then subtract
-                        ALUControl <= "01";
+                        ALUControl <= "0010";
                         topBit2 <= not Operand1(width - 1);
                     else
                         -- If shifted out bit and current last bit are same, then do nothing
                         -- Below code simply sets the adder to add first half of shifted_multiplier with 0
                         ALUSrc2 <= (others => '0');
-                        ALUControl <= "00";
+                        ALUControl <= "0100";
                         topBit2 <= '0';
                     end if;
 
@@ -146,16 +146,16 @@ begin
                     Result1 <= shifted_dividend(width - 1 downto 0);
                     ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                     ALUSrc2 <= Operand2;
-                    ALUControl <= "01";
+                    ALUControl <= "0010";
                 else -- Signed Division
                     if count = 0 then
                         -- negate the dividend if it is negative
                         ALUSrc1 <= (width - 1 downto 0 => '0');
                         ALUSrc2 <= Operand1;
                         if Operand1(width - 1) = '1' then
-                            ALUControl <= "01";
+                            ALUControl <= "0010";
                         else
-                            ALUControl <= "00";
+                            ALUControl <= "0100";
                         end if;
                     elsif count = 1 then
                         -- store negated dividend from previous step
@@ -164,9 +164,9 @@ begin
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
                         ALUSrc2 <= Operand2;
                         if Operand2(width - 1) = '1' then
-                            ALUControl <= "00";
+                            ALUControl <= "0100";
                         else
-                            ALUControl <= "01";
+                            ALUControl <= "0010";
                         end if;
                     elsif count = width + 1 then
                         -- modify shifted dividend based on ALUResult and ALUCarryFlag and negate the quotient if it is negative
@@ -180,10 +180,10 @@ begin
                         -- if quotient will be negative, negate the current value, else keep it unchanged
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
-                            ALUControl <= "01";
+                            ALUControl <= "0010";
                         else
                             ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
-                            ALUControl <= "00";
+                            ALUControl <= "0100";
                         end if;
                     elsif count = width + 2 then
                         -- store modified/unmodified quotient from previous step in Result2 and negate the remainder if it is negative
@@ -193,10 +193,10 @@ begin
                         -- if remainder will be negative, negate the current value, else keep it unchanged
                         if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
                             ALUSrc2 <= shifted_dividend(width - 1 downto 0);
-                            ALUControl <= "01";
+                            ALUControl <= "0010";
                         else
                             ALUSrc2 <= shifted_dividend(width - 1 downto 0);
-                            ALUControl <= "00";
+                            ALUControl <= "0100";
                         end if;
                     elsif count = width + 3 then
                         -- store modified/unmodified remainder from previous step in Result1
@@ -215,9 +215,9 @@ begin
                         -- If divisor is negative, then have to subtract its absolute value,
                         -- which is the same as adding it.
                         if Operand2(width - 1) = '1' then
-                            ALUControl <= "00";
+                            ALUControl <= "0100";
                         else
-                            ALUControl <= "01";
+                            ALUControl <= "0010";
                         end if;
                     end if;
                 end if;

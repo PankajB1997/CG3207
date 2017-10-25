@@ -36,7 +36,8 @@ entity ALU is
 port(
     Src_A : in std_logic_vector(31 downto 0);
     Src_B : in std_logic_vector(31 downto 0);
-    ALUControl : in std_logic_vector(1 downto 0);
+    ALUControl : in std_logic_vector(3 downto 0);
+    CarryFlag : in std_logic;
     ALUResult : out std_logic_vector(31 downto 0);
     ALUFlags : out std_logic_vector(3 downto 0)
 );
@@ -51,27 +52,49 @@ architecture ALU_arch of ALU is
     signal C_0 : std_logic_vector(32 downto 0);
     signal N, Z, C, V : std_logic;
 begin
-    S_wider <= std_logic_vector( unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0) );
+    S_wider <= std_logic_vector(unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0));
     process(Src_A, Src_B, ALUControl, S_wider)
     begin
         C_0 <= (others => '0'); -- default value, will help avoid latches
         Src_A_comp <= '0' & Src_A;
         Src_B_comp <= '0' & Src_B;
-        ALUResult_i <= Src_B;
         V <= '0';
         case ALUControl is
-            when "00" =>
-                ALUResult_i <= S_wider(31 downto 0);
-                V <= ( Src_A(31) xnor  Src_B(31) )  and ( Src_B(31) xor S_wider(31) );
-            when "01" =>
+            when "0000" =>  -- AND
+                ALUResult_i <= Src_A and Src_B;
+            when "0010" | "1010" =>  -- SUB | CMP
                 C_0(0) <= '1';
                 Src_B_comp <= '0' & not Src_B;
                 ALUResult_i <= S_wider(31 downto 0);
-                V <= ( Src_A(31) xor  Src_B(31) )  and ( Src_B(31) xnor S_wider(31) );
-            when "10" =>
-                ALUResult_i <= Src_A and Src_B;
-            when others =>
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_B(31) xnor S_wider(31));
+            when "0011" =>  -- RSB
+                C_0(0) <= '1';
+                Src_A_comp <= '0' & not Src_A;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
+            when "0100" | "1011" =>  -- ADD | CMN
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
+            when "0101" =>  -- ADC
+                ALUResult_i <= S_wider(31 downto 0);
+                C_0(0) <= CarryFlag;
+                V <= (Src_A(31) xnor  Src_B(31))  and (Src_B(31) xor S_wider(31));
+            when "0110" =>  -- SBC
+                -- Subtract NOT carry means if carry is 0, then CIn is 0, else it is 1.
+                C_0(0) <= CarryFlag;
+                Src_B_comp <= '0' & not Src_B;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_B(31) xnor S_wider(31));
+            when "0111" =>  -- RSC
+                -- Subtract NOT carry means if carry is 0, then CIn is 0, else it is 1.
+                C_0(0) <= CarryFlag;
+                Src_A_comp <= '0' & not Src_A;
+                ALUResult_i <= S_wider(31 downto 0);
+                V <= (Src_A(31) xor  Src_B(31))  and (Src_A(31) xnor S_wider(31));
+            when "1100" =>  -- ORR
                 ALUResult_i <= Src_A or Src_B;
+            when others =>
+                ALUResult_i <= Src_B;
         end case;
     end process;
     N <= ALUResult_i(31);
