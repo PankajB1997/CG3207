@@ -214,6 +214,7 @@ begin
 
         -- Test case 14: Check if Z flag was set after the previous TST operation : STREQ R4, [R3, #12]
         -- MemWrite = 1 only if Z flag was set
+        -- ALUResult = R3 + 12 = 0xA0 + 0xC = 0xAC
         t_Instr <= x"0" & "01" & "011000" & x"3" & x"4" & x"0" & x"0" & "1100";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '1' and t_ALUResult = x"000000AC") report "Failed ARM Test Case 14" severity error;
