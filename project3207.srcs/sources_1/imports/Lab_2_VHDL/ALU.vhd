@@ -101,11 +101,11 @@ begin
                 ALUResult_i <= Src_A and (not Src_B);
             when "1111" =>  -- MVN
                 ALUResult_i <= not Src_B;
-            when others =>  
+            when others =>
                 ALUResult_i <= Src_B;
         end case;
     end process;
-    
+
     N <= ALUResult_i(31);
     Z <= '1' when ALUResult_i = x"00000000" else '0';
     C <= S_wider(32);

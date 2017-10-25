@@ -150,7 +150,7 @@ begin
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (ALUOp, Funct, MCycleFunct) 
+    alu_decoder: process (ALUOp, Funct, MCycleFunct)
     begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
@@ -245,7 +245,7 @@ begin
                         --- MVN Instruction
                         when "1111" =>
                             FlagWInternal <= "10";
-                        when others =>  
+                        when others =>
                             NoWrite <= '-';
                             ALUControl  <= "----";
                             FlagWInternal <= "--";
