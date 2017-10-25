@@ -14,9 +14,9 @@ architecture test_condlogic_behavioral of test_condlogic is
         RegW : in std_logic;
         NoWrite : in std_logic;
         MemW : in std_logic;
-        FlagW : in std_logic_vector (1 downto 0);
+        FlagW : in std_logic_vector (2 downto 0);
         Cond : in std_logic_vector (3 downto 0);
-        ALUFlags : in std_logic_vector (3 downto 0);
+        FinalFlags : in std_logic_vector (3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic;
@@ -28,9 +28,9 @@ architecture test_condlogic_behavioral of test_condlogic is
     signal t_RegW : std_logic;
     signal t_NoWrite : std_logic;
     signal t_MemW : std_logic;
-    signal t_FlagW : std_logic_vector (1 downto 0);
+    signal t_FlagW : std_logic_vector (2 downto 0);
     signal t_Cond : std_logic_vector (3 downto 0);
-    signal t_ALUFlags : std_logic_vector (3 downto 0);
+    signal t_FinalFlags : std_logic_vector (3 downto 0);
     signal t_PCSrc : std_logic;
     signal t_RegWrite : std_logic;
     signal t_MemWrite : std_logic;
@@ -49,7 +49,7 @@ begin
         MemW => t_MemW,
         FlagW => t_FlagW,
         Cond => t_Cond,
-        ALUFlags => t_ALUFlags,
+        FinalFlags => t_FinalFlags,
         -- Outputs
         PCSrc => t_PCSrc,
         RegWrite => t_RegWrite,
@@ -67,7 +67,7 @@ begin
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_PCS <= '0'; t_RegW <= '0'; t_NoWrite <= '0'; t_MemW <= '0'; t_FlagW <= (others => '0'); t_Cond <= (others => '0'); t_ALUFlags <= (others => '0');
+        t_PCS <= '0'; t_RegW <= '0'; t_NoWrite <= '0'; t_MemW <= '0'; t_FlagW <= (others => '0'); t_Cond <= (others => '0'); t_FinalFlags <= (others => '0');
 
         -- Inputs will be changed and checked between clock edges to avoid indeterminate behaviour at the edge.
         -- Each test case will start at x.5 ns, where x is 0, 1, 2... This is to keep track of where the clock is
@@ -113,7 +113,7 @@ begin
         wait for ClkPeriod * 9 / 10;
 
         -- Change flag state.
-        t_ALUFlags <= "1111"; t_FlagW <= "11";
+        t_FinalFlags <= "1111"; t_FlagW <= "111";
         wait for ClkPeriod;
 
         -- Test case 6: Assert flags have changed state by checking signals have transferred correctly depending on condition.
@@ -131,7 +131,7 @@ begin
 
         -- Test case 7: Assert flags are only changed after clock edge.
         -- Change flag state.
-        t_ALUFlags <= "0000"; t_FlagW <= "11";
+        t_FinalFlags <= "0000"; t_FlagW <= "111";
         wait for ClkPeriod / 10;
         -- Flags should still be true, so EQ will be true (Z == 1).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0000";
@@ -144,7 +144,7 @@ begin
         wait for ClkPeriod * 4 / 10;
 
         -- Test case 8: Assert that N and Z flags are not written when t_FlagW(0) is false.
-        t_ALUFlags <= "1100"; t_FlagW <= "01";
+        t_FinalFlags <= "1100"; t_FlagW <= "011";
         wait for ClkPeriod;
         -- Flags should still be false, so NEQ will be true (Z == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0001";
@@ -154,7 +154,7 @@ begin
         wait for ClkPeriod * 9 / 10;
 
         -- Test case 9: Assert that C and V flags are not written when t_FlagW(1) is false.
-        t_ALUFlags <= "0011"; t_FlagW <= "10";
+        t_FinalFlags <= "0011"; t_FlagW <= "100";
         wait for ClkPeriod;
         -- Flags should still be false, so VC (no overflow) will be true (V == 0).
         t_PCS <= '1'; t_RegW <= '1'; t_MemW <= '1'; t_Cond <= "0111";

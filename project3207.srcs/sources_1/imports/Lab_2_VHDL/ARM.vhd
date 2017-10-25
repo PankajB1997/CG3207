@@ -90,7 +90,8 @@ architecture ARM_arch of ARM is
         ALUControl : out std_logic_vector(3 downto 0);
         MCycleStart : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
-        FlagW : out std_logic_vector(1 downto 0)
+        FlagW : out std_logic_vector(2 downto 0);
+        isArithmeticDP : out std_logic
     );
     end component Decoder;
 
@@ -101,9 +102,9 @@ architecture ARM_arch of ARM is
         RegW : in std_logic;
         NoWrite : in std_logic;
         MemW : in std_logic;
-        FlagW : in std_logic_vector(1 downto 0);
+        FlagW : in std_logic_vector(2 downto 0);
         Cond : in std_logic_vector(3 downto 0);
-        ALUFlags : in std_logic_vector(3 downto 0);
+        FinalFlags : in std_logic_vector(3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic;
@@ -116,7 +117,8 @@ architecture ARM_arch of ARM is
         Sh : in std_logic_vector(1 downto 0);
         Shamt5 : in std_logic_vector(4 downto 0);
         ShIn : in std_logic_vector(31 downto 0);
-        ShOut : out std_logic_vector(31 downto 0)
+        ShOut : out std_logic_vector(31 downto 0);
+        ShifterCarry : out std_logic
     );
     end component Shifter;
 
@@ -197,7 +199,8 @@ architecture ARM_arch of ARM is
     -- signal MCycleStart : std_logic;
     -- signal MCycleOp : std_logic_vector(1 downto 0);
     -- signal ALUControl:	std_logic_vector(1 downto 0);
-    -- signal FlagW : std_logic_vector(1 downto 0);
+    -- signal FlagW : std_logic_vector(2 downto 0);
+    signal isArithmeticDP : std_logic;
 
     -- CondLogic signals
     -- signal CLK : std_logic;
@@ -205,9 +208,9 @@ architecture ARM_arch of ARM is
     signal RegW : std_logic;
     signal NoWrite : std_logic;
     signal MemW : std_logic;
-    signal FlagW : std_logic_vector(1 downto 0);
+    signal FlagW : std_logic_vector(2 downto 0);
     signal Cond : std_logic_vector(3 downto 0);
-    -- signal ALUFlags : std_logic_vector(3 downto 0);
+    signal FinalFlags : std_logic_vector(3 downto 0);
     signal PCSrc : std_logic;
     signal RegWrite : std_logic;
     -- signal MemWrite : std_logic;
@@ -218,6 +221,7 @@ architecture ARM_arch of ARM is
     signal Shamt5 : std_logic_vector(4 downto 0);
     signal ShIn : std_logic_vector(31 downto 0);
     signal ShOut : std_logic_vector(31 downto 0);
+    signal ShifterCarry : std_logic;
 
     -- ALU signals
     signal Src_A : std_logic_vector(31 downto 0);
@@ -329,7 +333,9 @@ begin
 
     -- Conditional logic inputs
     Cond <= Instr(31 downto 28);
-    -- ALUFlags connected already
+    FinalFlags (3 downto 2) <= ALUFlags (3 downto 2);
+    FinalFlags(1) <= ShifterCarry when isArithmeticDP = '0' else ALUFlags(1);
+    FinalFlags(0) <= ALUFlags(0);
 
 
     -- Port maps
@@ -371,7 +377,8 @@ begin
         MCycleStart => MCycleStart,
         MCycleOp => MCycleOp,
         ALUControl => ALUControl,
-        FlagW => FlagW
+        FlagW => FlagW,
+        isArithmeticDP => isArithmeticDP
     );
 
     CondLogic1: CondLogic
@@ -383,7 +390,7 @@ begin
         MemW => MemW,
         FlagW => FlagW,
         Cond => Cond,
-        ALUFlags => ALUFlags,
+        FinalFlags => FinalFlags,
         PCSrc => PCSrc,
         RegWrite => RegWrite,
         MemWrite => MemWrite,
@@ -395,7 +402,8 @@ begin
         Sh => Sh,
         Shamt5 => Shamt5,
         ShIn => ShIn,
-        ShOut => ShOut
+        ShOut => ShOut,
+        ShifterCarry => ShifterCarry
     );
 
     ALU1: ALU

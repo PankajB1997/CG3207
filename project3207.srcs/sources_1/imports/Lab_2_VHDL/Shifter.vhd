@@ -37,26 +37,38 @@ port (
     Sh : in std_logic_vector(1 downto 0);
     Shamt5 : in std_logic_vector(4 downto 0);
     ShIn : in std_logic_vector(31 downto 0);
-    ShOut : out std_logic_vector(31 downto 0)        
+    ShOut : out std_logic_vector(31 downto 0);
+    ShifterCarry: out std_logic
 );
 end Shifter;
 
 architecture Shifter_arch of Shifter is
 begin
     process(Sh, Shamt5, ShIn)
-        variable ShTemp : std_logic_vector(31 downto 0)    ;
+        variable ShTemp : std_logic_vector(31 downto 0);
+        variable ShifterCarryTemp : std_logic;
     begin
+        ShifterCarryTemp := '0';
         ShTemp := ShIn;
         for i in 0 to 4 loop
             if Shamt5(i) = '1' then
                 case Sh is
-                    when "00" => ShTemp := ShTemp(31-2**i downto 0) & (2**i-1 downto 0 => '0');     -- LSL
-                    when "01" => ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i);         -- LSR
-                    when "10" => ShTemp := (2**i-1 downto 0 => ShIn(31)) & ShTemp(31 downto 2**i);     -- ASR
-                    when others => ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i);         -- ROR
+                    when "00" =>
+                        ShifterCarryTemp := ShTemp((31-2**i) + 1);
+                        ShTemp := ShTemp(31-2**i downto 0) & (2**i-1 downto 0 => '0');     -- LSL
+                    when "01" =>
+                        ShifterCarryTemp := ShTemp(2**i - 1);
+                        ShTemp := (2**i-1 downto 0 => '0') & ShTemp(31 downto 2**i);         -- LSR
+                    when "10" =>
+                        ShifterCarryTemp := ShTemp(2**i - 1);
+                        ShTemp := (2**i-1 downto 0 => ShIn(31)) & ShTemp(31 downto 2**i);     -- ASR
+                    when others =>
+                        ShifterCarryTemp := ShTemp(2**i - 1);
+                        ShTemp := ShTemp(2**i-1 downto 0) & ShTemp(31 downto 2**i);         -- ROR
                 end case;
             end if;
         end loop;
         ShOut <= ShTemp;
+        ShifterCarry <= ShifterCarryTemp;
     end process;
-end    Shifter_arch;
+end Shifter_arch;
