@@ -150,7 +150,8 @@ begin
     end process;
 
     -- Logic for ALU Decoder
-    alu_decoder: process (ALUOp, Funct, MCycleFunct) begin
+    alu_decoder: process (ALUOp, Funct, MCycleFunct)
+    begin
         IllegalALUDecoder <= '0';  -- Legal by default.
         case ALUOp is
             -- Not a DP Instruction
@@ -195,6 +196,9 @@ begin
                         -- AND Instruction
                         when "0000" =>
                             FlagWInternal <= "10";
+                        -- EOR Instruction
+                        when "0001" =>
+                            FlagWInternal <= "10";
                         -- SUB Instruction
                         when "0010" =>
                             FlagWInternal <= "11";
@@ -213,6 +217,14 @@ begin
                         -- RSC Instruction
                         when "0111" =>
                             FlagWInternal <= "11";
+                        -- TST Instruction
+                        when "1000" =>
+                            NoWrite <= '1';
+                            FlagWInternal <= "10";
+                        -- TEQ Instruction
+                        when "1001" =>
+                            NoWrite <= '1';
+                            FlagWInternal <= "10";
                         -- CMP Instruction
                         when "1010" =>
                             NoWrite <= '1';
@@ -223,6 +235,15 @@ begin
                             FlagWInternal <= "11";
                         -- ORR Instruction
                         when "1100" =>
+                            FlagWInternal <= "10";
+                        -- MOV Instruction
+                        when "1101" =>
+                            FlagWInternal <= "10";
+                        -- BIC Instruction
+                        when "1110" =>
+                            FlagWInternal <= "10";
+                        --- MVN Instruction
+                        when "1111" =>
                             FlagWInternal <= "10";
                         when others =>
                             NoWrite <= '-';
