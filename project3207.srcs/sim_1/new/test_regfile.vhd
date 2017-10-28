@@ -14,10 +14,12 @@ architecture test_regfile_behavioral of test_regfile is
         A1 : in std_logic_vector (3 downto 0);
         A2 : in std_logic_vector (3 downto 0);
         A3 : in std_logic_vector (3 downto 0);
+        A4 : in std_logic_vector(3 downto 0);
         WD3 : in std_logic_vector (31 downto 0);
         R15 : in std_logic_vector (31 downto 0);
         RD1 : out std_logic_vector (31 downto 0);
-        RD2 : out std_logic_vector (31 downto 0));
+        RD2 : out std_logic_vector (31 downto 0);
+        RD3 : out std_logic_vector (31 downto 0));
     end component;
 
     signal t_CLK : std_logic;
@@ -29,6 +31,7 @@ architecture test_regfile_behavioral of test_regfile is
     signal t_R15 : std_logic_vector (31 downto 0);
     signal t_RD1 : std_logic_vector (31 downto 0);
     signal t_RD2 : std_logic_vector (31 downto 0);
+    signal t_RD3 : std_logic_vector (31 downto 0);
 
     constant ClkPeriod : time := 1 ns;
 begin
@@ -44,7 +47,8 @@ begin
         R15 => t_R15,
         -- Outputs
         RD1 => t_RD1,
-        RD2 => t_RD2
+        RD2 => t_RD2,
+        RD3 => t_RD3
     );
 
     clk_process: process begin

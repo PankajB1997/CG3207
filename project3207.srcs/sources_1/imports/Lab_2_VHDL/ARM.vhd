@@ -57,6 +57,7 @@ architecture ARM_arch of ARM is
         A1 : in std_logic_vector(3 downto 0);
         A2 : in std_logic_vector(3 downto 0);
         A3 : in std_logic_vector(3 downto 0);
+        A4 : in std_logic_vector(3 downto 0);
         WD3 : in std_logic_vector(31 downto 0);
         R15 : in std_logic_vector(31 downto 0);
         RD1 : out std_logic_vector(31 downto 0);
@@ -78,6 +79,7 @@ architecture ARM_arch of ARM is
         Op : in std_logic_vector(1 downto 0);
         Funct : in std_logic_vector(5 downto 0);
         MCycleFunct : in std_logic_vector(3 downto 0);
+        IsShiftReg : in std_logic;
         PCS : out std_logic;
         RegW : out std_logic;
         MemW : out std_logic;
@@ -173,6 +175,7 @@ architecture ARM_arch of ARM is
     signal A1 : std_logic_vector(3 downto 0);
     signal A2 : std_logic_vector(3 downto 0);
     signal A3 : std_logic_vector(3 downto 0);
+    signal A4 : std_logic_vector(3 downto 0);
     signal WD3 : std_logic_vector(31 downto 0);
     signal R15 : std_logic_vector(31 downto 0);
     signal RD1 : std_logic_vector(31 downto 0);
@@ -188,6 +191,7 @@ architecture ARM_arch of ARM is
     signal Op : std_logic_vector(1 downto 0);
     signal Funct : std_logic_vector(5 downto 0);
     signal MCycleFunct : std_logic_vector(3 downto 0);
+    signal IsShiftReg : std_logic;
     -- signal PCS : std_logic;
     -- signal RegW : std_logic;
     -- signal MemW : std_logic;
@@ -286,6 +290,7 @@ begin
     A3 <= Instr(19 downto 16)  -- Rd for MUL/DIV is 19 downto 16.
           when RegSrc(2) = '1'
           else Instr(15 downto 12);
+    A4 <= Instr(11 downto 8);
     WD3 <= Result;
     R15 <= PCPlus8;
     WE3 <= RegWrite and not MCycleBusy;
@@ -314,6 +319,7 @@ begin
     Sh <= "11" when ALUSrc = '1' else Instr(6 downto 5);
     Shamt5 <= Instr(11 downto 7) when ShamtSrc = "01"
               else Instr(11 downto 8) & '0' when ShamtSrc = "10"
+              else RD3(4 downto 0) when ShamtSrc = "11"
               else "00000";
     ShIn <= ExtImm when ALUSrc = '1' else RD2;
 
@@ -331,6 +337,7 @@ begin
     Funct <= Instr(25 downto 20);
     MCycleFunct <= Instr(7 downto 4);
     Rd <= Instr(15 downto 12);
+    IsShiftReg <= Instr(4);
 
     -- Conditional logic inputs
     Cond <= Instr(31 downto 28);
@@ -347,6 +354,7 @@ begin
         A1 => A1,
         A2 => A2,
         A3 => A3,
+        A4 => A4,
         WD3 => WD3,
         R15 => R15,
         RD1 => RD1,
@@ -366,6 +374,7 @@ begin
         Op => Op,
         Funct => Funct,
         MCycleFunct => MCycleFunct,
+        IsShiftReg => IsShiftReg,
         PCS => PCS,
         RegW => RegW,
         MemW => MemW,
