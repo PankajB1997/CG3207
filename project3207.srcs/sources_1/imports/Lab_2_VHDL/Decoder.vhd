@@ -133,7 +133,10 @@ begin
                         ALUSrc <= '0';
                         ImmSrc <= "--";
                         RegSrc <= "000";
-                        ShamtSrc <= "11" when IsShiftReg = '1' else "01";
+                        if IsShiftReg = '1' then
+                            ShamtSrc <= "11";
+                        else ShamtSrc <= "01";
+                        end if;
                     -- DP Imm Instruction
                     else
                         ALUSrc <= '1';

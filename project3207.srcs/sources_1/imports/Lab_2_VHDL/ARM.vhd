@@ -61,7 +61,8 @@ architecture ARM_arch of ARM is
         WD3 : in std_logic_vector(31 downto 0);
         R15 : in std_logic_vector(31 downto 0);
         RD1 : out std_logic_vector(31 downto 0);
-        RD2 : out std_logic_vector(31 downto 0)
+        RD2 : out std_logic_vector(31 downto 0);
+        RD3 : out std_logic_vector(31 downto 0)
     );
     end component RegFile;
 
@@ -180,6 +181,7 @@ architecture ARM_arch of ARM is
     signal R15 : std_logic_vector(31 downto 0);
     signal RD1 : std_logic_vector(31 downto 0);
     signal RD2 : std_logic_vector(31 downto 0);
+    signal RD3 : std_logic_vector(31 downto 0);
 
     -- Extend signals
     signal ImmSrc : std_logic_vector(1 downto 0);
@@ -358,7 +360,8 @@ begin
         WD3 => WD3,
         R15 => R15,
         RD1 => RD1,
-        RD2 => RD2
+        RD2 => RD2,
+        RD3 => RD3
     );
 
     Extend1: Extend
