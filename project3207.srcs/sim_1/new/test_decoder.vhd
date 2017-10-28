@@ -14,6 +14,7 @@ architecture test_decoder_behavioral of test_decoder is
         Op : in std_logic_vector(1 downto 0);
         Funct : in std_logic_vector(5 downto 0);
         MCycleFunct : in std_logic_vector(3 downto 0);
+        IsShiftReg : in std_logic;
         PCS : out std_logic;
         RegW : out std_logic;
         MemW : out std_logic;
@@ -35,6 +36,7 @@ architecture test_decoder_behavioral of test_decoder is
     signal t_Op : std_logic_vector(1 downto 0);
     signal t_Funct : std_logic_vector(5 downto 0);
     signal t_MCycleFunct : std_logic_vector(3 downto 0);
+    signal t_IsShiftReg : std_logic;
     signal t_PCS : std_logic;
     signal t_RegW : std_logic;
     signal t_MemW : std_logic;
@@ -60,6 +62,7 @@ begin
         Op => t_Op,
         Funct => t_Funct,
         MCycleFunct => t_MCycleFunct,
+        IsShiftReg => t_IsShiftReg,
         -- Outputs
         PCS => t_PCS,
         RegW => t_RegW,

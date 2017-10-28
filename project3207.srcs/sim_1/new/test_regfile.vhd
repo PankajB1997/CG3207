@@ -27,6 +27,7 @@ architecture test_regfile_behavioral of test_regfile is
     signal t_A1 : std_logic_vector (3 downto 0);
     signal t_A2 : std_logic_vector (3 downto 0);
     signal t_A3 : std_logic_vector (3 downto 0);
+    signal t_A4 : std_logic_vector (3 downto 0);
     signal t_WD3 : std_logic_vector (31 downto 0);
     signal t_R15 : std_logic_vector (31 downto 0);
     signal t_RD1 : std_logic_vector (31 downto 0);
@@ -43,6 +44,7 @@ begin
         A1 => t_A1,
         A2 => t_A2,
         A3 => t_A3,
+        A4 => t_A4,
         WD3 => t_WD3,
         R15 => t_R15,
         -- Outputs
