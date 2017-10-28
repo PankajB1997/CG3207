@@ -44,6 +44,7 @@ port(
     MemtoReg : out std_logic;
     ALUSrc : out std_logic;
     ImmSrc : out std_logic_vector(1 downto 0);
+    ShamtSrc : out std_logic_vector(1 downto 0);
     RegSrc : out std_logic_vector(2 downto 0);
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
@@ -80,6 +81,7 @@ begin
                 MemWInternal <= '0';
                 ALUSrc <= '1';
                 ImmSrc <= "10";
+                ShamtSrc <= "00";
                 RegWInternal <= '0';
                 RegSrc <= "0-1";
                 ALUOp <= "11"; -- ADD always
@@ -89,6 +91,7 @@ begin
                 Branch <= '0';
                 ALUSrc <= '1';
                 ImmSrc <= "01";
+                ShamtSrc <= "00";
                 if Funct(3) = '0' then -- U bit '0'
                     ALUOp <= "10"; -- LDR/STR with Negative offset
                 else
@@ -122,17 +125,20 @@ begin
                     ALUSrc <= '0';
                     ImmSrc <= "--";
                     RegSrc <= "100";
+                    ShamtSrc <= "00";
                 else
                     -- DP Reg Instruction
                     if Funct(5) = '0' then
                         ALUSrc <= '0';
                         ImmSrc <= "--";
                         RegSrc <= "000";
+                        ShamtSrc <= "01";
                     -- DP Imm Instruction
                     else
                         ALUSrc <= '1';
                         ImmSrc <= "00";
                         RegSrc <= "0-0";
+                        ShamtSrc <= "10";
                     end if;
                 end if;
 
@@ -145,6 +151,7 @@ begin
                 ImmSrc <= "--";
                 RegWInternal <= '-';
                 RegSrc <= "0--";
+                ShamtSrc <= "--";
                 ALUOp <= "--";
                 IllegalMainDecoder <= '1';
         end case;

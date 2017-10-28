@@ -85,6 +85,7 @@ architecture ARM_arch of ARM is
         ALUSrc : out std_logic;
         ImmSrc : out std_logic_vector(1 downto 0);
         RegSrc : out std_logic_vector(2 downto 0);
+        ShamtSrc : out std_logic_vector(1 downto 0);
         ALUResultSrc : out std_logic;
         NoWrite : out std_logic;
         ALUControl : out std_logic_vector(3 downto 0);
@@ -195,6 +196,7 @@ architecture ARM_arch of ARM is
     -- signal ImmSrc : std_logic_vector(1 downto 0);
     signal RegSrc : std_logic_vector(2 downto 0);
     signal ALUResultSrc : std_logic;
+    signal ShamtSrc : std_logic_vector(1 downto 0);
     -- signal NoWrite : std_logic;
     -- signal MCycleStart : std_logic;
     -- signal MCycleOp : std_logic_vector(1 downto 0);
@@ -294,11 +296,8 @@ begin
 
     -- ALU inputs
     Src_A <= MCycleALUSrc1 when MCycleBusy = '1' else RD1;
-    Src_B <= MCycleALUSrc2
-             when MCycleBusy = '1'
-             else ExtImm
-                  when ALUSrc = '1'
-                  else ShOut; --to enable DP instructions with shift operation
+    Src_B <= MCycleALUSrc2 when MCycleBusy = '1'
+             else ShOut; --to enable DP instructions with shift operation
     ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControl;
     -- CarryFlag connected already
 
@@ -312,9 +311,11 @@ begin
     MCycleALUCarryFlag <= ALUFlags(1);
 
     -- Shifter inputs
-    Sh <= Instr(6 downto 5);
-    Shamt5 <= Instr(11 downto 7);
-    ShIn <= RD2;
+    Sh <= "11" when ALUSrc = '1' else Instr(6 downto 5);
+    Shamt5 <= Instr(11 downto 7) when ShamtSrc = "01"
+              else Instr(11 downto 8) & '0' when ShamtSrc = "10"
+              else "00000";
+    ShIn <= ExtImm when ALUSrc = '1' else RD2;
 
     -- Data Memory inputs
     OpResult <= MCycleResult when ALUResultSrc = '1' else ALUResult_sig;
@@ -371,6 +372,7 @@ begin
         MemtoReg => MemtoReg,
         ALUSrc => ALUSrc,
         ImmSrc => ImmSrc,
+        ShamtSrc => ShamtSrc,
         RegSrc => RegSrc,
         ALUResultSrc => ALUResultSrc,
         NoWrite => NoWrite,
