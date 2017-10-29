@@ -92,26 +92,33 @@ begin
         -- PC should have incremented at clock edge.
         assert (t_PC = x"00000004") report "Failed ARM Test Case 2.2" severity error;
 
-        -- Test Case 3.1: Add register with immediate - ADD R1, R0, #5
+        -- Test Case 3.1: Add register with small rotated immediate - ADD R1, R0, #5
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3.1" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
-        -- Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
-        -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
-        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
+        -- Test case 3.2: Add register with large rotated immediate - ADD R8, R1, #500
+        t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"1" & x"8" & x"F" & x"7D";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"000001FC") report "Failed ARM Test Case 3.2" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
-        -- Test case 3.3: Subtract register with register shifted register as Src2 -- SUB R2, R2, R2, LSR R0
+        -- Test Case 3.3: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
+        -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.3" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test case 3.4: Subtract register with register shifted register as Src2 -- SUB R2, R2, R2, LSR R0
         -- ALUResult is R2 - R2 >> R0 = 20 - 20 >> 3 = 18 = 0x12
         t_Instr <= x"E" & "00" & "0" & x"2" & "0" & x"2" & x"2" & x"0" & "0" & "01" & "1" & x"2";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 3.3" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 3.4" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
