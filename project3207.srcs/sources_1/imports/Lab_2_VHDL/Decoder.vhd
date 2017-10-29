@@ -135,7 +135,8 @@ begin
                         RegSrc <= "000";
                         if IsShiftReg = '1' then
                             ShamtSrc <= "11";
-                        else ShamtSrc <= "01";
+                        else
+                            ShamtSrc <= "01";
                         end if;
                     -- DP Imm Instruction
                     else

@@ -289,10 +289,10 @@ begin
                when RegSrc(2) = '1'
                else Instr(19 downto 16);  -- Rn otherwise.
     A2 <= Instr(15 downto 12) when RegSrc(1) = '1' else Instr(3 downto 0);
-    A3 <= Instr(19 downto 16)  -- Rd for MUL/DIV is 19 downto 16.
+    A3 <= Instr(11 downto 8);
+    A4 <= Instr(19 downto 16)  -- Rd for MUL/DIV is 19 downto 16.
           when RegSrc(2) = '1'
           else Instr(15 downto 12);
-    A4 <= Instr(11 downto 8);
     WD3 <= Result;
     R15 <= PCPlus8;
     WE3 <= RegWrite and not MCycleBusy;
