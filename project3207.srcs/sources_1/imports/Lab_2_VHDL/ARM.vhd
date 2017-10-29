@@ -200,11 +200,9 @@ architecture ARM_arch of ARM is
     signal PCPlus8D : std_logic_vector(31 downto 0);
 
     -- RegFile signals
-    signal WE3W : std_logic;  -- TODO: Move to Writeback
+    -- Note that some of these are in Writeback.
     signal RA1D : std_logic_vector(3 downto 0);
     signal RA2D : std_logic_vector(3 downto 0);
-    signal WA3W : std_logic_vector(3 downto 0);
-    signal WD3W : std_logic_vector(31 downto 0);
     signal R15D : std_logic_vector(31 downto 0);
     signal RD1D : std_logic_vector(31 downto 0);
     signal RD2D : std_logic_vector(31 downto 0);
@@ -370,26 +368,30 @@ architecture ARM_arch of ARM is
     -- signal WA3M : std_logic_vector(3 downto 0);  -- Carried straight through
 
 
---     -- Writeback signals
---
---     -- Writeback inputs
---     signal PCSrcW : std_logic;
---     signal RegWriteW : std_logic;
---     signal MemToRegW : std_logic;
---     signal ALUResultW : std_logic_vector(31 downto 0);
---     signal ReadDataW : std_logic_vector(31 downto 0);
---     signal WA3W : std_logic_vector(3 downto 0);
---
---     -- Writeback internal
---     signal ResultW : std_logic_vector(31 downto 0);
---     signal WE3W : std_logic;
---
---     -- Writeback outputs
---     signal PC_INW : std_logic_vector(31 downto 0);
+    -------------------------------------------
+    -- Writeback signals  ------------------------
+    -------------------------------------------
 
-    -- Other internal signals
+    -- Inputs
+    signal PCSrcW : std_logic;
+    signal RegWriteW : std_logic;
+    signal MemToRegW : std_logic;
+    signal OpResultW : std_logic_vector(31 downto 0);
+    signal ReadDataW : std_logic_vector(31 downto 0);
+    signal WA3W : std_logic_vector(3 downto 0);
 
-    signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
+    -- RegFile signals
+    signal WE3W : std_logic;
+    -- signal WA3W : std_logic_vector(3 downto 0);
+    signal WD3W : std_logic_vector(31 downto 0);
+
+    -- Internal
+    signal ResultW : std_logic_vector(31 downto 0);
+
+    -- Outputs
+    -- signal PCSrcW : std_logic;
+    -- signal ResultW : std_logic_vector(31 downto 0);
+
 begin
 
     -------------------------------------------
@@ -397,7 +399,7 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PC_INF <= Result when PCSrcE = '1' else PCPlus4F;  -- TODO: Move to writeback
+    PC_INF <= ResultW when PCSrcW = '1' else PCPlus4F;
     WE_PCF <= not MCycleBusyE;
 
     -- ProgramCounter inputs
@@ -422,15 +424,12 @@ begin
     PCPlus8D <= PCPlus8F;
 
     -- RegFile inputs
-    WE3W <= RegWriteE and not MCycleBusyE;  -- TODO: Move to Writeback stage
     RA1D <= x"F"
             when RegSrcD(0) = '1'
             else InstrD(11 downto 8)  -- Rs for MUL/DIV.
                 when RegSrcD(2) = '1'
                 else InstrD(19 downto 16);  -- Rn otherwise.
     RA2D <= InstrD(15 downto 12) when RegSrcD(1) = '1' else InstrD(3 downto 0);
-    WA3W <= WA3M;  -- TODO: This should change
-    WD3W <= Result;  -- TODO: Move to Writeback stage
     R15D <= PCPlus8D;
 
     -- Extend inputs
@@ -538,24 +537,28 @@ begin
     MemWrite <= MemWriteM;  -- Goes outside ARM
     ReadDataM <= ReadData;  -- Comes from outside ARM
 
---     -- Writeback connections
---
---     -- Writeback inputs
---     PCSrcW <= PCSrcM;
---     RegWriteW <= RegWriteM;
---     MemToRegW <= MemToRegM;
---     ALUResultW <= ALUResultM;
---     ReadDataW <= ReadDataM;
---     WA3W <= WA3W;
---
---     -- Writeback internal
---     ResultW <= ReadDataW when MemToRegW = '1' else ALUResultW;
---     WE3 <= RegWriteW and not MCycleBusy;
---
---     -- PC inputs
---     PC_INW <= ResultW when PCSrcW = '1' else PCPlus4F;
---
---
+
+    -------------------------------------------
+    -- Writeback connections  --------------------
+    -------------------------------------------
+
+    -- Inputs
+    PCSrcW <= PCSrcM;
+    RegWriteW <= RegWriteM;
+    MemToRegW <= MemToRegM;
+    OpResultW <= OpResultM;
+    ReadDataW <= ReadDataM;
+    WA3W <= WA3M;
+
+    -- RegFile inputs
+    WE3W <= RegWriteW and not MCycleBusyE;
+    -- WA3W
+    WD3W <= ResultW;
+
+    -- Internal
+    ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
+
+
     -- Port maps
 
     ProgramCounter1: ProgramCounter
@@ -664,8 +667,5 @@ begin
         Result2 => MCycleResultUnusedE,
         Busy => MCycleBusyE
     );
-
-    -- Data Memory outputs
-    Result <= ReadData when MemToRegE = '1' else OpResultE;  -- Comes from outside ARM
 
 end ARM_arch;
