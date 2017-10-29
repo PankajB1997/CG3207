@@ -296,44 +296,87 @@ architecture ARM_arch of ARM is
     -- signal Shamt5D : std_logic_vector(4 downto 0);
 
 
---     -- Execute signals
---
---     -- Execute inputs
---     signal PCSE : std_logic;
---     signal RegWE : std_logic;
---     signal MemWE : std_logic;
---     signal FlagWE : std_logic_vector(2 downto 0);
---     signal ALUControlE : std_logic_vector(3 downto 0);
---     signal MemToRegE : std_logic;
---     signal ALUSrcE : std_logic;
---     signal ALUResultSrcE : std_logic;
---     signal NoWriteE : std_logic;
---     signal MCycleStartE : std_logic;
---     signal MCycleOpE : std_logic_vector(1 downto 0);
---     signal isArithmeticDPE : std_logic;
---     signal CondE : std_logic_vector(3 downto 0);
---     signal RD1E : std_logic_vector(31 downto 0);
---     signal RD2E : std_logic_vector(31 downto 0);
---     signal WA3E : std_logic_vector(3 downto 0);
---     signal ExtImmE : std_logic_vector(31 downto 0);
---     signal ShTypeE : std_logic_vector(1 downto 0);
---     signal Shamt5E : std_logic_vector(4 downto 0);
---
---     -- Execute internal
---     -- signal SrcAE : std_logic_vector(31 downto 0);
---     -- signal SrcBE : std_logic_vector(31 downto 0);
---     -- signal ALUFlagsE : std_logic_vector(3 downto 0);
---
---     -- Execute outputs
---     signal PCSrcE : std_logic;
---     signal RegWriteE : std_logic;
---     signal MemWriteE : std_logic;
---     -- signal MemToRegE : std_logic;  -- Carried straight through
---     signal ALUResultE : std_logic_vector(31 downto 0);
---     signal WriteDataE : std_logic_vector(31 downto 0);
---     -- signal WA3E : std_logic_vector(3 downto 0);  -- Carried straight through
---
---
+    -------------------------------------------
+    -- Execute signals  -----------------------
+    -------------------------------------------
+
+    -- Inputs
+    signal PCSE : std_logic;
+    signal RegWE : std_logic;
+    signal MemWE : std_logic;
+    signal FlagWE : std_logic_vector(2 downto 0);
+    signal ALUControlE : std_logic_vector(3 downto 0);
+    signal MemToRegE : std_logic;
+    signal ALUSrcE : std_logic;
+    signal ALUResultSrcE : std_logic;
+    signal NoWriteE : std_logic;
+    signal MCycleStartE : std_logic;
+    signal MCycleOpE : std_logic_vector(1 downto 0);
+    signal isArithmeticDPE : std_logic;
+    signal RD1E : std_logic_vector(31 downto 0);
+    signal RD2E : std_logic_vector(31 downto 0);
+    signal CondE : std_logic_vector(3 downto 0);
+    signal WA3E : std_logic_vector(3 downto 0);
+    signal ExtImmE : std_logic_vector(31 downto 0);
+    signal ShTypeE : std_logic_vector(1 downto 0);
+    signal Shamt5E : std_logic_vector(4 downto 0);
+
+    -- CondLogic signals
+    -- signal PCSE : std_logic;
+    -- signal RegWE : std_logic;
+    -- signal NoWriteE : std_logic;
+    -- signal MemWE : std_logic;
+    -- signal FlagWE : std_logic_vector(2 downto 0);
+    -- signal CondE : std_logic_vector(3 downto 0);
+    signal FinalFlagsE : std_logic_vector(3 downto 0);
+    signal PCSrcE : std_logic;
+    signal RegWriteE : std_logic;
+    signal MemWriteE : std_logic;
+    signal CarryFlagE : std_logic;
+
+    -- Shifter signals
+    -- signal ShTypeE : std_logic_vector(1 downto 0);
+    -- signal Shamt5E : std_logic_vector(4 downto 0);
+    signal ShInE : std_logic_vector(31 downto 0);
+    signal ShOutE : std_logic_vector(31 downto 0);
+    signal ShifterCarryE : std_logic;
+
+    -- ALU signals
+    signal Src_AE : std_logic_vector(31 downto 0);
+    signal Src_BE : std_logic_vector(31 downto 0);
+    signal ALUFinalControlE : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
+    -- signal CarryFlagE : std_logic;
+    signal ALUResultE : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
+    signal ALUFlagsE : std_logic_vector(3 downto 0);
+
+    -- MCycle signals
+    -- signal MCycleStartE : std_logic;
+    -- signal MCycleOpE : std_logic_vector(1 downto 0);
+    signal Operand1E : std_logic_vector(31 downto 0);
+    signal Operand2E : std_logic_vector(31 downto 0);
+    signal MCycleALUResultE : std_logic_vector(31 downto 0);
+    signal MCycleALUCarryFlagE : std_logic;
+    signal MCycleALUSrc1E : std_logic_vector(31 downto 0);
+    signal MCycleALUSrc2E : std_logic_vector(31 downto 0);
+    signal MCycleALUControlE : std_logic_vector (3 downto 0);
+    signal MCycleResultE : std_logic_vector(31 downto 0);
+    signal MCycleResultUnusedE : std_logic_vector(31 downto 0);
+    signal MCycleBusyE : std_logic;
+
+    -- Internal
+    signal OpResultE : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
+    signal WriteDataE : std_logic_vector(31 downto 0);
+
+    -- Outputs
+    -- signal PCSrcE : std_logic;
+    -- signal RegWriteE : std_logic;
+    -- signal MemWriteE : std_logic;
+    -- signal MemToRegE : std_logic;
+    -- signal OpResultE : std_logic_vector(31 downto 0);
+    -- signal WriteDataE : std_logic_vector(31 downto 0);
+    -- signal WA3E : std_logic_vector(3 downto 0);
+
+
 --     -- Memory signals
 --
 --     -- Memory inputs
@@ -373,56 +416,9 @@ architecture ARM_arch of ARM is
 --     -- Writeback outputs
 --     signal PC_INW : std_logic_vector(31 downto 0);
 
-    -- CondLogic signals
-    -- signal CLK : std_logic;
-    signal PCS : std_logic;
-    signal RegW : std_logic;
-    signal NoWrite : std_logic;
-    signal MemW : std_logic;
-    signal FlagW : std_logic_vector(2 downto 0);
-    signal Cond : std_logic_vector(3 downto 0);
-    signal FinalFlags : std_logic_vector(3 downto 0);
-    signal PCSrc : std_logic;
-    signal RegWrite : std_logic;
-    -- signal MemWrite : std_logic;
-    signal CarryFlag : std_logic;
-
-    -- Shifter signals
-    signal Sh : std_logic_vector(1 downto 0);
-    signal Shamt5 : std_logic_vector(4 downto 0);
-    signal ShIn : std_logic_vector(31 downto 0);
-    signal ShOut : std_logic_vector(31 downto 0);
-    signal ShifterCarry : std_logic;
-
-    -- ALU signals
-    signal Src_A : std_logic_vector(31 downto 0);
-    signal Src_B : std_logic_vector(31 downto 0);
-    signal ALUControl : std_logic_vector(3 downto 0);
-    -- signal CarryFlag : std_logic;
-    signal ALUResult_sig : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
-    signal ALUFlags : std_logic_vector(3 downto 0);
-
-    -- MCycle signals
-    -- signal CLK : std_logic;
-    -- signal RESET : std_logic;
-    signal MCycleStart : std_logic;
-    signal MCycleOp : std_logic_vector(1 downto 0);
-    signal Operand1 : std_logic_vector(31 downto 0);
-    signal Operand2 : std_logic_vector(31 downto 0);
-    signal MCycleALUResult : std_logic_vector(31 downto 0);
-    signal MCycleALUCarryFlag : std_logic;
-    signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
-    signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
-    signal MCycleALUControl : std_logic_vector (3 downto 0);
-    signal MCycleResult : std_logic_vector(31 downto 0);
-    signal MCycleResultUnused : std_logic_vector(31 downto 0);
-    signal MCycleBusy : std_logic;
-
     -- Other internal signals
-    signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
-    signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
-    signal ALUFinalControl : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
 
+    signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
 begin
 
     -------------------------------------------
@@ -430,8 +426,8 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PC_INF <= Result when PCSrc = '1' else PCPlus4F;  -- TODO: Move to writeback
-    WE_PCF <= not MCycleBusy;
+    PC_INF <= Result when PCSrcE = '1' else PCPlus4F;  -- TODO: Move to writeback
+    WE_PCF <= not MCycleBusyE;
 
     -- ProgramCounter inputs
     -- PC_INF
@@ -455,14 +451,14 @@ begin
     PCPlus8D <= PCPlus8F;
 
     -- RegFile inputs
-    WE3W <= RegWrite and not MCycleBusy;  -- TODO: Move to Writeback stage
+    WE3W <= RegWriteE and not MCycleBusyE;  -- TODO: Move to Writeback stage
     RA1D <= x"F"
             when RegSrcD(0) = '1'
             else InstrD(11 downto 8)  -- Rs for MUL/DIV.
                 when RegSrcD(2) = '1'
                 else InstrD(19 downto 16);  -- Rn otherwise.
     RA2D <= InstrD(15 downto 12) when RegSrcD(1) = '1' else InstrD(3 downto 0);
-    WA3W <= WA3D;  -- TODO: This should change
+    WA3W <= WA3E;  -- TODO: This should change
     WD3W <= Result;  -- TODO: Move to Writeback stage
     R15D <= PCPlus8D;
 
@@ -485,46 +481,73 @@ begin
     Shamt5D <= InstrD(11 downto 7);
 
 
---     -- Execute connections
---
---     -- Execute inputs
---     PCSE <= PCSD;
---     RegWE <= RegWD;
---     MemWE <= MemWD;
---     FlagWE <= FlagWD;
---     ALUControlE <= ALUControlD;
---     ALUResultSrcE <= ALUResultSrcD;
---     MemToRegE <= MemToRegD;
---     ALUSrcE <= ALUSrcD;
---     CondD <= CondE;
---     RD1E <= RD1D;
---     RD2E <= RD2D;
---     WA3E <= WA3D;
---     ExtImmE <= ExtImmD;
---     ShTypeD <= ShTypeE;
---     Shamt5D <= Shamt5E;
---
---     -- Execute internal
---
---     -- ALU
---     Src_A <= MCycleALUSrc1 when MCycleBusy = '1' else RD1E;
---     Src_B <= MCycleALUSrc2
---              when MCycleBusy = '1'
---              else ExtImmE
---                   when ALUSrcE = '1'
---                   else ShOut; --to enable DP instructions with shift operation
---     ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControlE;
---
---     -- CondLogic
---     FinalFlags (3 downto 2) <= ALUFlags (3 downto 2);
---     FinalFlags(1) <= ShifterCarry when isArithmeticDPE = '0' else ALUFlags(1);
---     FinalFlags(0) <= ALUFlags(0);
---
---     -- Execute outputs
---     ALUResultE <= MCycleResult when ALUResultSrcE = '1' else ALUResult_sig;
---     WriteDataE <= RD2E;
---
---
+    -------------------------------------------
+    -- Execute connections  -------------------
+    -------------------------------------------
+
+    -- Inputs
+    PCSE <= PCSD;
+    RegWE <= RegWD;
+    MemWE <= MemWD;
+    FlagWE <= FlagWD;
+    ALUControlE <= ALUControlD;
+    MemToRegE <= MemToRegD;
+    ALUSrcE <= ALUSrcD;
+    ALUResultSrcE <= ALUResultSrcD;
+    NoWriteE <= NoWriteD;
+    MCycleStartE <= MCycleStartD;
+    MCycleOpE <= MCycleOpD;
+    isArithmeticDPE <= isArithmeticDPD;
+    RD1E <= RD1D;
+    RD2E <= RD2D;
+    CondE <= CondD;
+    WA3E <= WA3D;
+    ExtImmE <= ExtImmD;
+    ShTypeE <= ShTypeD;
+    Shamt5E <= Shamt5D;
+
+    -- CondLogic inputs
+    -- PCSE
+    -- RegWE
+    -- NoWriteE
+    -- MemWE
+    -- FlagWE
+    -- CondE
+    FinalFlagsE(3 downto 2) <= ALUFlagsE(3 downto 2);
+    FinalFlagsE(1) <= ShifterCarryE when isArithmeticDPE = '0' else ALUFlagsE(1);
+    FinalFlagsE(0) <= ALUFlagsE(0);
+
+    -- Shifter inputs
+    -- ShTypeE
+    -- Shamt5E
+    ShInE <= RD2E;
+
+    -- ALU inputs
+    Src_AE <= MCycleALUSrc1E when MCycleBusyE = '1' else RD1E;
+    Src_BE <= MCycleALUSrc2E
+             when MCycleBusyE = '1'
+             else ExtImmE
+                  when ALUSrcE = '1'
+                  else ShOutE; --to enable DP instructions with shift operation
+    ALUFinalControlE <= MCycleALUControlE when MCycleBusyE = '1' else ALUControlE;
+    -- CarryFlagE
+
+    -- MCycle inputs
+    -- MCycleStartE
+    -- MCycleOpE
+    -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
+    -- Operand1 for Division should be RD2. Switching it around makes no
+    -- difference to Multiplication.
+    Operand1E <= RD2E;
+    Operand2E <= RD1E;
+    MCycleALUResultE <= ALUResultE;
+    MCycleALUCarryFlagE <= ALUFlagsE(1);
+
+    -- Internal
+    OpResultE <= MCycleResultE when ALUResultSrcE = '1' else ALUResultE;
+    WriteDataE <= RD2E;
+
+
 --     -- Memory connections
 --
 --     -- Memory inputs
@@ -564,6 +587,16 @@ begin
 --
 --
     -- Port maps
+
+    ProgramCounter1: ProgramCounter
+    port map(
+        CLK => CLK,
+        RESET => RESET,
+        WE_PC => WE_PCF,
+        PC_IN => PC_INF,
+        PC => PCF
+    );
+
     RegFile1: RegFile
     port map(
         CLK => CLK,
@@ -605,148 +638,40 @@ begin
         FlagW => FlagWD,
         isArithmeticDP => isArithmeticDPD
     );
---
---     CondLogic1: CondLogic
---     port map (
---         CLK => CLK,
---         PCS => PCSrcE,
---         RegW => RegWE,
---         NoWrite => NoWriteE,
---         MemW => MemWE,
---         FlagW => FlagWE,
---         Cond => CondE,
---         FinalFlags => FinalFlags,
---         PCSrc => PCSrcE,
---         RegWrite => RegWriteE,
---         MemWrite => MemWriteE,
---         CarryFlag => CarryFlag
---     );
---
---     Shifter1: Shifter
---     port map (
---         Sh => ShTypeE,
---         Shamt5 => Shamt5E,
---         ShIn => RD2E,
---         ShOut => ShOut,
---         ShifterCarry => ShifterCarry
---     );
---
---     ALU1: ALU
---     port map(
---         Src_A => Src_A,
---         Src_B => Src_B,
---         ALUControl => ALUFinalControl,
---         CarryFlag => CarryFlag,
---         ALUResult => ALUResult_sig,
---         ALUFlags => ALUFlags
---     );
---
---     MCycle1: MCycle
---     generic map (
---         width => 32
---     )
---     port map (
---         CLK => CLK,
---         RESET => RESET,
---         Start => MCycleStart,
---         MCycleOp => MCycleOp,
---         Operand1 => RD2E,  -- Switch around operators to facilitate divsion.
---         Operand2 => RD1E,
---         ALUResult => ALUResult_sig,
---         ALUCarryFlag => ALUFlags(1),
---         ALUSrc1 => MCycleALUSrc1,
---         ALUSrc2 => MCycleALUSrc2,
---         ALUControl => MCycleALUControl,
---         Result1 => MCycleResult,
---         Result2 => MCycleResultUnused,
---         Busy => MCycleBusy
---     );
 
-    ProgramCounter1: ProgramCounter
-    port map(
-        CLK => CLK,
-        RESET => RESET,
-        WE_PC => WE_PCF,
-        PC_IN => PC_INF,
-        PC => PCF
-    );
-
-    -- Datapath connections
-
-    -- ALU inputs
-    Src_A <= MCycleALUSrc1 when MCycleBusy = '1' else RD1D;
-    Src_B <= MCycleALUSrc2
-             when MCycleBusy = '1'
-             else ExtImmD
-                  when ALUSrcD = '1'
-                  else ShOut; --to enable DP instructions with shift operation
-    ALUFinalControl <= MCycleALUControl when MCycleBusy = '1' else ALUControlD;
-    -- CarryFlag connected already
-
-    -- MCycle inputs
-    -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
-    -- Operand1 for Division should be RD2. Switching it around makes no
-    -- difference to Multiplication.
-    Operand1 <= RD2D;
-    Operand2 <= RD1D;
-    MCycleALUResult <= ALUResult_sig;
-    MCycleALUCarryFlag <= ALUFlags(1);
-
-    -- Shifter inputs
-    Sh <= ShTypeD;
-    Shamt5 <= Shamt5D;
-    ShIn <= RD2D;
-
-    -- Data Memory inputs
-    OpResult <= MCycleResult when ALUResultSrcD = '1' else ALUResult_sig;
-    ALUResult <= OpResult;
-    WriteData <= RD2D;
-    -- MemW connected already
-
-    -- Data Memory outputs
-    Result <= ReadData when MemToRegD = '1' else OpResult;
-
-    -- Conditional logic inputs
-    -- Cond <= CondD;
-    FinalFlags(3 downto 2) <= ALUFlags(3 downto 2);
-    FinalFlags(1) <= ShifterCarry when isArithmeticDPD = '0' else ALUFlags(1);
-    FinalFlags(0) <= ALUFlags(0);
-
-
-    -- Port maps
     CondLogic1: CondLogic
     port map (
         CLK => CLK,
-        PCS => PCSD,
-        RegW => RegWD,
-        NoWrite => NoWriteD,
-        MemW => MemWD,
-        FlagW => FlagWD,
-        Cond => CondD,
-        FinalFlags => FinalFlags,
-        PCSrc => PCSrc,
-        RegWrite => RegWrite,
-        MemWrite => MemWrite,
-        CarryFlag => CarryFlag
+        PCS => PCSE,
+        RegW => RegWE,
+        NoWrite => NoWriteE,
+        MemW => MemWE,
+        FlagW => FlagWE,
+        Cond => CondE,
+        FinalFlags => FinalFlagsE,
+        PCSrc => PCSrcE,
+        RegWrite => RegWriteE,
+        MemWrite => MemWriteE,
+        CarryFlag => CarryFlagE
     );
 
     Shifter1: Shifter
     port map (
-        Sh => ShTypeD,
-        Shamt5 => Shamt5D,
-        ShIn => ShIn,
-        ShOut => ShOut,
-        ShifterCarry => ShifterCarry
+        Sh => ShTypeE,
+        Shamt5 => Shamt5E,
+        ShIn => ShInE,
+        ShOut => ShOutE,
+        ShifterCarry => ShifterCarryE
     );
 
     ALU1: ALU
     port map(
-        Src_A => Src_A,
-        Src_B => Src_B,
-        ALUControl => ALUFinalControl,
-        CarryFlag => CarryFlag,
-        ALUResult => ALUResult_sig,
-        ALUFlags => ALUFlags
+        Src_A => Src_AE,
+        Src_B => Src_BE,
+        ALUControl => ALUFinalControlE,
+        CarryFlag => CarryFlagE,
+        ALUResult => ALUResultE,
+        ALUFlags => ALUFlagsE
     );
 
     MCycle1: MCycle
@@ -756,18 +681,29 @@ begin
     port map (
         CLK => CLK,
         RESET => RESET,
-        Start => MCycleStartD,
-        MCycleOp => MCycleOpD,
-        Operand1 => Operand1,
-        Operand2 => Operand2,
-        ALUResult => MCycleALUResult,
-        ALUCarryFlag => MCycleALUCarryFlag,
-        ALUSrc1 => MCycleALUSrc1,
-        ALUSrc2 => MCycleALUSrc2,
-        ALUControl => MCycleALUControl,
-        Result1 => MCycleResult,
-        Result2 => MCycleResultUnused,
-        Busy => MCycleBusy
+        Start => MCycleStartE,
+        MCycleOp => MCycleOpE,
+        Operand1 => Operand1E,
+        Operand2 => Operand2E,
+        ALUResult => MCycleALUResultE,
+        ALUCarryFlag => MCycleALUCarryFlagE,
+        ALUSrc1 => MCycleALUSrc1E,
+        ALUSrc2 => MCycleALUSrc2E,
+        ALUControl => MCycleALUControlE,
+        Result1 => MCycleResultE,
+        Result2 => MCycleResultUnusedE,
+        Busy => MCycleBusyE
     );
+
+    -- Data Memory inputs
+    -- OpResult <= MCycleResult when ALUResultSrcD = '1' else ALUResult_sig;
+    ALUResult <= OpResultE;  -- Goes outside ARM
+    WriteData <= WriteDataE;  -- Goes outside ARM
+    -- WriteData <= RD2E;
+    -- MemW connected already
+
+    -- Data Memory outputs
+    Result <= ReadData when MemToRegE = '1' else OpResultE;  -- Comes from outside ARM
+    MemWrite <= MemWriteE;
 
 end ARM_arch;
