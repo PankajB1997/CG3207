@@ -93,38 +93,50 @@ begin
         t_A4 <= x"0"; t_WD3 <= x"00FF00FF"; t_WE3 <= '1';
         t_A2 <= x"0";
         wait for ClkPeriod;
-        -- Check if R5 value is successfully copied into RD2
+        -- Check if R0 value is successfully copied into RD2
         assert (t_RD2 = x"00FF00FF") report "Failed RegFile Test Case 3" severity error;
 
         wait for ClkPeriod;
 
-        -- Test case 4: Checking if values written to both source registers are simultaneously copied to RD1 and RD2
-        -- Store values in registers R6 and R8 and add them as first and second source registers respectively
+        -- Test case 4: Checking if the value stored in source register denoted by A3 is successfully copied into RD3
+        -- Testing A3 -> RD3 connection combinationally and not as a clocked process
+        t_A4 <= x"1"; t_WD3 <= x"0FF0F0FF"; t_WE3 <= '1';
+        t_A3 <= x"1";
+        wait for ClkPeriod;
+        -- Check if R1 value is successfully copied into RD3
+        assert (t_RD3 = x"0FF0F0FF") report "Failed RegFile Test Case 4" severity error;
+
+        wait for ClkPeriod;
+
+        -- Test case 5: Checking if values written to all source registers are simultaneously copied to RD1, RD2 and RD3
+        -- Store values in registers R6, R7 and R8 and add them as first, second and third source registers respectively
         t_A4 <= x"6"; t_WD3 <= x"0000FFFF"; t_WE3 <= '1';
+        wait for ClkPeriod;
+        t_A4 <= x"7"; t_WD3 <= x"F0FF0FF0"; t_WE3 <= '1';
         wait for ClkPeriod;
         t_A4 <= x"8"; t_WD3 <= x"FF00FF00"; t_WE3 <= '1';
         wait for ClkPeriod;
-        t_A1 <= x"6"; t_A2 <= x"8";
+        t_A1 <= x"6"; t_A2 <= x"7"; t_A3 <= x"8";
         wait for ClkPeriod / 10;
-        assert (t_RD1 = x"0000FFFF" and t_RD2 = x"FF00FF00") report "Failed RegFile Test Case 4" severity error;
+        assert (t_RD1 = x"0000FFFF" and t_RD2 = x"F0FF0FF0" and t_RD3 = x"FF00FF00") report "Failed RegFile Test Case 5" severity error;
 
         wait for ((ClkPeriod * 9) / 10);
 
-        -- Test case 5: Testing if R15 value shows up at RD1 when A1 points to R15
+        -- Test case 6: Testing if R15 value shows up at RD1 when A1 points to R15
         t_R15 <= x"F0FF0FF0"; t_A1 <= x"F";
         wait for ClkPeriod / 2;
-        assert (t_RD1 = x"F0FF0FF0") report "Failed RegFile Test Case 5" severity error;
+        assert (t_RD1 = x"F0FF0FF0") report "Failed RegFile Test Case 6" severity error;
 
         wait for ClkPeriod / 2;
 
-        -- Test case 6: Testing if R15 gets directly written by RegFile - shouldn't be allowed
+        -- Test case 7: Testing if R15 gets directly written by RegFile - shouldn't be allowed
         -- Write a value to R15
         t_A4 <= x"F"; t_WD3 <= x"0FF00FF0"; t_WE3 <= '1';
         -- point first source register to R15 to check its value at RD1
         t_A1 <= x"F";
         wait for ClkPeriod / 2;
         -- asserting R15 to still have the same value that was set to it in the previous case
-        assert (t_RD1 = x"F0FF0FF0") report "Failed RegFile Test Case 6" severity error;
+        assert (t_RD1 = x"F0FF0FF0") report "Failed RegFile Test Case 7" severity error;
 
         wait for ClkPeriod / 2;
 
