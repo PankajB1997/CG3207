@@ -63,7 +63,7 @@ begin
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_WE3 <= '0'; t_A1 <= x"0"; t_A2 <= x"0"; t_A4 <= x"0"; t_WD3 <= (others => '0'); t_R15 <= (others => '0');
+        t_WE3 <= '0'; t_A1 <= x"0"; t_A2 <= x"0"; t_A3 <= x"0"; t_A4 <= x"0"; t_WD3 <= (others => '0'); t_R15 <= (others => '0');
 
         wait for ClkPeriod / 2;
 
