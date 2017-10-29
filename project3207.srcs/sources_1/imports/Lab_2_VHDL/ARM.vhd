@@ -165,40 +165,6 @@ architecture ARM_arch of ARM is
     );
     end component ProgramCounter;
 
---     -- CondLogic signals
---     signal FinalFlags : std_logic_vector(3 downto 0);
---     signal CarryFlag : std_logic;
---
---     -- Shifter signals
---     signal ShOut : std_logic_vector(31 downto 0);
---     signal ShifterCarry : std_logic;
---
---     -- ALU signals
---     signal Src_A : std_logic_vector(31 downto 0);
---     signal Src_B : std_logic_vector(31 downto 0);
---     signal ALUResult_sig : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
---     signal ALUFlags : std_logic_vector(3 downto 0);
---
---     -- MCycle signals
---     -- signal CLK : std_logic;
---     -- signal RESET : std_logic;
---     signal MCycleStart : std_logic;
---     signal MCycleOp : std_logic_vector(1 downto 0);
---     signal Operand1 : std_logic_vector(31 downto 0);
---     signal Operand2 : std_logic_vector(31 downto 0);
---     signal MCycleALUResult : std_logic_vector(31 downto 0);
---     signal MCycleALUCarryFlag : std_logic;
---     signal MCycleALUSrc1 : std_logic_vector(31 downto 0);
---     signal MCycleALUSrc2 : std_logic_vector(31 downto 0);
---     signal MCycleALUControl : std_logic_vector (3 downto 0);
---     signal MCycleResult : std_logic_vector(31 downto 0);
---     signal MCycleResultUnused : std_logic_vector(31 downto 0);
---     signal MCycleBusy : std_logic;
---
---     signal OpResult : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
---     signal Result : std_logic_vector(31 downto 0);  -- Either OpResult or Memory value.
---     signal ALUFinalControl : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
-
     -------------------------------------------
     -- Fetch signals  -------------------------
     -------------------------------------------
@@ -376,29 +342,34 @@ architecture ARM_arch of ARM is
     -- signal WriteDataE : std_logic_vector(31 downto 0);
     -- signal WA3E : std_logic_vector(3 downto 0);
 
+    -------------------------------------------
+    -- Memory signals  ------------------------
+    -------------------------------------------
 
---     -- Memory signals
---
---     -- Memory inputs
---     signal PCSrcM : std_logic;
---     signal RegWriteM : std_logic;
---     signal MemWriteM : std_logic;
---     signal MemToRegM : std_logic;
---     signal ALUResultM : std_logic_vector(31 downto 0);
---     signal WriteDataM : std_logic_vector(31 downto 0);
---     signal WA3M : std_logic_vector(3 downto 0);
---
---     -- Memory internal
---
---     -- Memory outputs
---     -- signal PCSrcM : std_logic;  -- Carried straight through
---     -- signal RegWriteM : std_logic;  -- Carried straight through
---     -- signal MemToRegM : std_logic;  -- Carried straight through
---     -- signal ALUResultM : std_logic_vector(31 downto 0);  -- Carried straight through
---     signal ReadDataM : std_logic_vector(31 downto 0);
---     -- signal WA3M : std_logic_vector(3 downto 0);  -- Carried straight through
---
---
+    -- Inputs
+    signal PCSrcM : std_logic;
+    signal RegWriteM : std_logic;
+    signal MemWriteM : std_logic;
+    signal MemToRegM : std_logic;
+    signal OpResultM : std_logic_vector(31 downto 0);
+    signal WriteDataM : std_logic_vector(31 downto 0);
+    signal WA3M : std_logic_vector(3 downto 0);
+
+    -- Data memory signals
+    -- ALUResult
+    -- WriteData
+    -- MemWrite
+    signal ReadDataM : std_logic_vector(31 downto 0);
+
+    -- Outputs
+    -- signal PCSrcM : std_logic;  -- Carried straight through
+    -- signal RegWriteM : std_logic;  -- Carried straight through
+    -- signal MemToRegM : std_logic;  -- Carried straight through
+    -- signal OpResultM : std_logic_vector(31 downto 0);  -- Carried straight through
+    -- signal ReadDataM : std_logic_vector(31 downto 0);
+    -- signal WA3M : std_logic_vector(3 downto 0);  -- Carried straight through
+
+
 --     -- Writeback signals
 --
 --     -- Writeback inputs
@@ -458,7 +429,7 @@ begin
                 when RegSrcD(2) = '1'
                 else InstrD(19 downto 16);  -- Rn otherwise.
     RA2D <= InstrD(15 downto 12) when RegSrcD(1) = '1' else InstrD(3 downto 0);
-    WA3W <= WA3E;  -- TODO: This should change
+    WA3W <= WA3M;  -- TODO: This should change
     WD3W <= Result;  -- TODO: Move to Writeback stage
     R15D <= PCPlus8D;
 
@@ -548,26 +519,25 @@ begin
     WriteDataE <= RD2E;
 
 
---     -- Memory connections
---
---     -- Memory inputs
---     PCSrcM <= PCSrcE;
---     RegWriteM <= RegWriteE;
---     MemWriteM <= MemWriteE;
---     MemToRegM <= MemToRegE;
---     ALUResultM <= ALUResultE;
---     WriteDataM <= WriteDataE;
---     WA3M <= WA3E;
---
---     -- Memory internal
---     ALUResult <= ALUResultM;  -- Goes outside ARM
---     WriteData <= WriteDataM;  -- Goes outside ARM
---     MemWrite <= MemWriteM;  -- Goes outside ARM
---
---     -- Memory outputs
---     ReadDataM <= ReadData;
---
---
+    -------------------------------------------
+    -- Memory connections  --------------------
+    -------------------------------------------
+
+    -- Inputs
+    PCSrcM <= PCSrcE;
+    RegWriteM <= RegWriteE;
+    MemWriteM <= MemWriteE;
+    MemToRegM <= MemToRegE;
+    OpResultM <= OpResultE;
+    WriteDataM <= WriteDataE;
+    WA3M <= WA3E;
+
+    -- Data Memory inputs (and outputs)
+    ALUResult <= OpResultM;  -- Goes outside ARM
+    WriteData <= WriteDataM;  -- Goes outside ARM
+    MemWrite <= MemWriteM;  -- Goes outside ARM
+    ReadDataM <= ReadData;  -- Comes from outside ARM
+
 --     -- Writeback connections
 --
 --     -- Writeback inputs
@@ -695,15 +665,7 @@ begin
         Busy => MCycleBusyE
     );
 
-    -- Data Memory inputs
-    -- OpResult <= MCycleResult when ALUResultSrcD = '1' else ALUResult_sig;
-    ALUResult <= OpResultE;  -- Goes outside ARM
-    WriteData <= WriteDataE;  -- Goes outside ARM
-    -- WriteData <= RD2E;
-    -- MemW connected already
-
     -- Data Memory outputs
     Result <= ReadData when MemToRegE = '1' else OpResultE;  -- Comes from outside ARM
-    MemWrite <= MemWriteE;
 
 end ARM_arch;
