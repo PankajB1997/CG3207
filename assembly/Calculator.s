@@ -101,11 +101,11 @@ input2done
 		BEQ muloperator
 		CMP R5, #3
 		BEQ divoperator
-		CMP R5, #4
+		TEQ R5, #4
 		BEQ bicoperator
-		CMP R5, #5
+		TEQ R5, #5
 		BEQ eoroperator
-		CMP R5, #6
+		TEQ R5, #6
 		BEQ rsboperator
 		BNE sbcoperator
 
