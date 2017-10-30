@@ -92,18 +92,33 @@ begin
         -- PC should have incremented at clock edge.
         assert (t_PC = x"00000004") report "Failed ARM Test Case 2.2" severity error;
 
-        -- Test Case 3.1: Add register with immediate - ADD R1, R0, #5
+        -- Test Case 3.1: Add register with small rotated immediate - ADD R1, R0, #5
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
         wait for ClkPeriod / 10;
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3.1" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
-        --Test Case 3.2: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
+        -- Test case 3.2: Add register with large rotated immediate - ADD R8, R1, #500
+        t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"1" & x"8" & x"F" & x"7D";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"000001FC") report "Failed ARM Test Case 3.2" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test Case 3.3: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
         -- ALUResult is R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
         t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.2" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 3.3" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+
+        -- Test case 3.4: Subtract register with register shifted register as Src2 -- SUB R2, R2, R2, LSR R0
+        -- ALUResult is R2 - R2 >> R0 = 20 - 20 >> 3 = 18 = 0x12
+        t_Instr <= x"E" & "00" & "0" & x"2" & "0" & x"2" & x"2" & x"0" & "0" & "01" & "1" & x"2";
+        wait for ClkPeriod / 10;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 3.4" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
@@ -141,7 +156,7 @@ begin
         -- ALUResult should be R1 - 4 = 4 = 0x4
         t_Instr <= x"E" & "01" & "010000" & x"1" & x"2" & x"004";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000014") report "Failed ARM Test Case 6.2" severity error;
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000012") report "Failed ARM Test Case 6.2" severity error;
 
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000008") report "Failed ARM Test Case 6.3" severity error;
@@ -168,11 +183,11 @@ begin
         assert (t_PC = x"00000014") report "Failed ARM Test Case 8.2" severity error;
 
         -- Test case 9: Multiply two registers - MUL R3, R2, R1
-        -- R3 = R2 * R1 = 0x14 * 0x8 = 0x70
+        -- R3 = R2 * R1 = 0x12 * 0x8 = 0x90
         t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"3" & x"0" & x"1" & x"9" & x"2";
         -- Wait until PC increments.
         wait until t_PC = x"00000018";
-        assert (t_MemWrite = '0' and t_ALUResult = x"000000a0") report "Failed ARM Test Case 9" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000090") report "Failed ARM Test Case 9" severity error;
 
         wait for ClkPeriod / 2;
 
@@ -203,7 +218,7 @@ begin
         wait for ClkPeriod * 9 / 10;
         assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
 
-        -- Test case 13: TST a register and immideate operand. Also update flags: TST R0, #12
+        -- Test case 13: TST a register and immediate operand. Also update flags - TST R0, #12
         -- R0 AND 12 = 3 AND 12 = 0
         -- Z flag is set
         t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
@@ -212,24 +227,24 @@ begin
 
         wait for ClkPeriod * 9 / 10;
 
-        -- Test case 14: Check if Z flag was set after the previous TST operation : STREQ R4, [R3, #12]
+        -- Test case 14: Check if Z flag was set after the previous TST operation - STREQ R4, [R3, #12]
         -- MemWrite = 1 only if Z flag was set
-        -- ALUResult = R3 + 12 = 0xA0 + 0xC = 0xAC
+        -- ALUResult = R3 + 12 = 0x90 + 0xC = 0x9C
         t_Instr <= x"0" & "01" & "011000" & x"3" & x"4" & x"0" & x"0" & "1100";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '1' and t_ALUResult = x"000000AC") report "Failed ARM Test Case 14" severity error;
+        assert (t_MemWrite = '1' and t_ALUResult = x"0000009C") report "Failed ARM Test Case 14" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
-        -- Test Case 15: MOV the contents of one register into another register: MOV R7, R2
+        -- Test Case 15: MOV the contents of one register into another register - MOV R7, R2
         -- ALUResult = 0x14
         t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"7" & "00000" & "00" & "0" & x"2";
         wait for ClkPeriod / 10;
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 15" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 15" severity error;
 
         wait for ClkPeriod * 9 / 10;
 
-        -- Test Case 16: BICS two registers and update flags: BICS R8, R4, R0
+        -- Test Case 16: BICS two registers and update flags - BICS R8, R4, R0
         -- R4 = 7, R0 = 3
         -- ALUResult = R4 AND (not R0) = 0111 AND (not 0011) = 0111 AND 1100 = 0100 = 4
         t_Instr <= x"E" & "00" & "0" & x"E" & "1" & x"4" & x"8" & "00000" & "00" & "0" & x"0";

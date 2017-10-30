@@ -38,10 +38,12 @@ entity RegFile is port (
     A1 : in std_logic_vector(3 downto 0);
     A2 : in std_logic_vector(3 downto 0);
     A3 : in std_logic_vector(3 downto 0);
+    A4 : in std_logic_vector(3 downto 0);
     WD3 : in std_logic_vector(31 downto 0);
     R15 : in std_logic_vector(31 downto 0);
     RD1 : out std_logic_vector(31 downto 0);
-    RD2 : out std_logic_vector(31 downto 0)
+    RD2 : out std_logic_vector(31 downto 0);
+    RD3 : out std_logic_vector(31 downto 0)
 );
 end RegFile;
 
@@ -53,12 +55,13 @@ begin
     -- read
     RD1 <= R15 when A1 = "1111" else RegBank(to_integer(unsigned(A1)));
     RD2 <= R15 when A2 = "1111" else RegBank(to_integer(unsigned(A2)));
+    RD3 <= R15 when A3 = "1111" else RegBank(to_integer(unsigned(A3)));
     -- write
     process(CLK)
     begin
         if CLK'event and CLK = '1' then
-            if A3 /= "1111" and WE3 = '1' then
-                RegBank( to_integer(unsigned(A3)) ) <=  WD3;
+            if A4 /= "1111" and WE3 = '1' then
+                RegBank( to_integer(unsigned(A4)) ) <=  WD3;
             end if;
         end if;
     end process;

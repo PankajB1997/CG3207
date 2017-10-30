@@ -37,6 +37,7 @@ port(
     Rd : in std_logic_vector(3 downto 0);
     Op : in std_logic_vector(1 downto 0);
     Funct : in std_logic_vector(5 downto 0);
+    IsShiftReg : in std_logic;
     MCycleFunct : in std_logic_vector(3 downto 0);
     PCS : out std_logic;
     RegW : out std_logic;
@@ -69,7 +70,7 @@ architecture Decoder_arch of Decoder is
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct, MCycleFunct)
+    main_decoder: process (Op, Funct, MCycleFunct, IsShiftReg)
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
 
@@ -132,7 +133,11 @@ begin
                         ALUSrc <= '0';
                         ImmSrc <= "--";
                         RegSrc <= "000";
-                        ShamtSrc <= "01";
+                        if IsShiftReg = '1' then
+                            ShamtSrc <= "11";
+                        else
+                            ShamtSrc <= "01";
+                        end if;
                     -- DP Imm Instruction
                     else
                         ALUSrc <= '1';
