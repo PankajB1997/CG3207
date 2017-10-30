@@ -37,6 +37,7 @@ port(
     Rd : in std_logic_vector(3 downto 0);
     Op : in std_logic_vector(1 downto 0);
     Funct : in std_logic_vector(5 downto 0);
+    IsShiftReg : in std_logic;
     MCycleFunct : in std_logic_vector(3 downto 0);
     PCS : out std_logic;
     RegW : out std_logic;
@@ -44,6 +45,7 @@ port(
     MemtoReg : out std_logic;
     ALUSrc : out std_logic;
     ImmSrc : out std_logic_vector(1 downto 0);
+    ShamtSrc : out std_logic_vector(1 downto 0);
     RegSrc : out std_logic_vector(2 downto 0);
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
@@ -68,7 +70,7 @@ architecture Decoder_arch of Decoder is
 begin
 
     -- Logic for Main Decoder
-    main_decoder: process (Op, Funct, MCycleFunct)
+    main_decoder: process (Op, Funct, MCycleFunct, IsShiftReg)
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
 
@@ -80,6 +82,7 @@ begin
                 MemWInternal <= '0';
                 ALUSrc <= '1';
                 ImmSrc <= "10";
+                ShamtSrc <= "00";
                 RegWInternal <= '0';
                 RegSrc <= "0-1";
                 ALUOp <= "11"; -- ADD always
@@ -89,6 +92,7 @@ begin
                 Branch <= '0';
                 ALUSrc <= '1';
                 ImmSrc <= "01";
+                ShamtSrc <= "00";
                 if Funct(3) = '0' then -- U bit '0'
                     ALUOp <= "10"; -- LDR/STR with Negative offset
                 else
@@ -122,17 +126,24 @@ begin
                     ALUSrc <= '0';
                     ImmSrc <= "--";
                     RegSrc <= "100";
+                    ShamtSrc <= "00";
                 else
                     -- DP Reg Instruction
                     if Funct(5) = '0' then
                         ALUSrc <= '0';
                         ImmSrc <= "--";
                         RegSrc <= "000";
+                        if IsShiftReg = '1' then
+                            ShamtSrc <= "11";
+                        else
+                            ShamtSrc <= "01";
+                        end if;
                     -- DP Imm Instruction
                     else
                         ALUSrc <= '1';
                         ImmSrc <= "00";
                         RegSrc <= "0-0";
+                        ShamtSrc <= "10";
                     end if;
                 end if;
 
@@ -145,6 +156,7 @@ begin
                 ImmSrc <= "--";
                 RegWInternal <= '-';
                 RegSrc <= "0--";
+                ShamtSrc <= "--";
                 ALUOp <= "--";
                 IllegalMainDecoder <= '1';
         end case;
