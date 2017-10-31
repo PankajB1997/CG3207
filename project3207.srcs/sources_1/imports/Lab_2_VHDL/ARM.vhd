@@ -461,7 +461,7 @@ begin
     WA4D <= InstrD(19 downto 16)  -- Rd for MUL/DIV is 19 downto 16.
             when RegSrcD(2) = '1'
             else InstrD(15 downto 12);
-    ShTypeD <= "11" when ALUSrcE = '1' else InstrD(6 downto 5);
+    ShTypeD <= "11" when ALUSrcD = '1' else InstrD(6 downto 5);
     Shamt5D <= InstrD(11 downto 7) when ShamtSrcD = "01"
                else InstrD(11 downto 8) & '0' when ShamtSrcD = "10"
                else RD3D(4 downto 0) when ShamtSrcD = "11"
