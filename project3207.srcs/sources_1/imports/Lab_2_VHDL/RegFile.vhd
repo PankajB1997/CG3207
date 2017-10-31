@@ -59,7 +59,7 @@ begin
     -- write
     process(CLK)
     begin
-        if CLK'event and CLK = '1' then
+        if CLK'event and CLK = '0' then
             if A4 /= "1111" and WE4 = '1' then
                 RegBank( to_integer(unsigned(A4)) ) <=  WD4;
             end if;

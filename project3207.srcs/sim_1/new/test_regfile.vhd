@@ -65,8 +65,6 @@ begin
         -- Set initial values for inputs
         t_WE4 <= '0'; t_A1 <= x"0"; t_A2 <= x"0"; t_A3 <= x"0"; t_A4 <= x"0"; t_WD4 <= (others => '0'); t_R15 <= (others => '0');
 
-        wait for ClkPeriod / 2;
-
         -- Test case 1: Checking if a value is not written to destination register when write is disabled
         t_A4 <= x"0"; t_WD4 <= x"00FF00FF"; t_WE4 <= '1'; t_A1 <= x"0";
         wait for ClkPeriod / 6;

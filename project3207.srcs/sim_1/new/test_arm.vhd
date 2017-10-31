@@ -98,8 +98,6 @@ begin
 
         t_ReadData <= x"00000003";
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 2.2" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 3: Add register with small rotated immediate - ADD R1, R0, #5
         -- R1 = R0 + 5 = 3 + 5 = 8
@@ -110,8 +108,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 4: Add register with large immediate - ADD R8, R1, #500
         -- R8 = 8 + 500 = 508 = 0x1FC
@@ -123,8 +119,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"000001FC") report "Failed ARM Test Case 4" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 5: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
         -- R2 = R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
@@ -135,8 +129,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 5" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 6: Subtract register with register shifted register as Src2 -- SUB R2, R2, R2, LSR R0
         -- R2 = R2 - R2 >> R0 = 20 - 20 >> 3 = 18 = 0x12
@@ -147,8 +139,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 6" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 7: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
@@ -161,8 +151,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 7" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 8: AND two registers and update flags: ANDS R15, R1, R0
         -- R15 = 3 & 8 = 0
@@ -190,8 +178,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 9" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 10: STR with negative offset: STR R2, [R1, #-4]
         -- ALUResult should be R1 - 4 = 4 = 0x4
@@ -202,42 +188,40 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000012") report "Failed ARM Test Case 10.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 11: Branch instruction - B LABEL
-        -- Assert that PC was 32 after previous instruction.
-        assert (t_PC = x"00000020") report "Failed ARM Test Case 11.1" severity error;
+        -- Assert that PC was 24 (0x18) after previous instruction.
+        assert (t_PC = x"00000018") report "Failed ARM Test Case 11.1" severity error;
 
         -- LABEL is specified relative to PC, here PC is forced to move forward 5 instructions.
         -- To do so, offset must be 3, since it is taken relative to PC + 8
-        -- PC was 32 after previous instruction. So new value will be 32 + 20 = 0x34
+        -- PC was 32 after previous instruction. So new value will be 24 + 20 = 0x2C
         t_Instr <= x"E" & "10" & "10" & x"000003";
         wait for ClkPeriod;
 
         t_Instr <= x"00000000";
         wait for ClkPeriod * 2;
 
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000034") report "Failed ARM Test Case 11.2" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000002C") report "Failed ARM Test Case 11.2" severity error;
         t_Instr <= x"00000000";
         wait for ClkPeriod * 2;
 
-        assert (t_PC = x"00000034") report "Failed ARM Test Case 11.3" severity error;
+        assert (t_PC = x"0000002C") report "Failed ARM Test Case 11.3" severity error;
 
         -- Test Case 12: Branch instruction with negative offset - B LABEL
         -- This time offset will be -4, to send the PC back 2 instructions.
-        -- New value of PC will be 52 - 8 = 0x2C
+        -- New value of PC will be 44 - 8 = 0x24
         t_Instr <= x"E" & "10" & "10" & x"FFFFFC";
         wait for ClkPeriod;
 
         t_Instr <= x"00000000";
         wait for ClkPeriod * 2;
 
-        assert (t_MemWrite = '0' and t_ALUResult = x"0000002C") report "Failed ARM Test Case 12.1" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000024") report "Failed ARM Test Case 12.1" severity error;
         t_Instr <= x"00000000";
         wait for ClkPeriod * 2;
 
-        assert (t_PC = x"0000002C") report "Failed ARM Test Case 12.2" severity error;
+        assert (t_PC = x"00000024") report "Failed ARM Test Case 12.2" severity error;
 
         -- -- Test Case 13: Multiply two registers - MUL R3, R2, R1
         -- -- R3 = R2 * R1 = 0x12 * 0x8 = 0x90
@@ -275,8 +259,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000007") report "Failed ARM Test Case 16.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 17: TST a register and immediate operand. Also update flags - TST R0, #12
         -- R0 AND 12 = 3 AND 12 = 0
@@ -288,8 +270,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 17" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 18: Check if Z flag was set after the previous TST operation - STREQ R4, [R2, #12]
         -- MemWrite = 1 only if Z flag was set
@@ -301,8 +281,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"0000001E" and t_WriteData = x"00000007") report "Failed ARM Test Case 18" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 19: MOV the contents of one register into another register - MOV R7, R2
         -- R7 = R2 = 0x12
@@ -313,8 +291,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 19" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 20: BICS two registers and update flags - BICS R8, R4, R0 LSR #1
         -- R8 = R4 AND (not (R0 >> 1)) = 0b0111 AND (not (0b0011 >> 1)) = 0b0111 AND 0b1110 = 0b0110 = 6
@@ -326,8 +302,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 20" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 21: ADC two registers to check that Carry Flag was set - ADC R5, R4, R0
         -- R5 = R4 + R0 + Carry = 7 + 3 + 1 = 11.
@@ -338,8 +312,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 21" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- Test Case 22: MOVS two registers with such values that the Carry Flag is set to 0, then test this with ADC
         -- MOVS R4, R0
@@ -352,8 +324,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 22.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         -- ADC R5, R4, R0
         -- R5 = R4 + R0 + Carry = 3 + 3 + 0 = 6.
@@ -364,8 +334,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 22.2" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
 
         wait;
 
