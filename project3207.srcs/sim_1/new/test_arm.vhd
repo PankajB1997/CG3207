@@ -105,42 +105,32 @@ begin
 
         -- Test Case 3: Add register with small rotated immediate - ADD R1, R0, #5
         -- R1 = R0 + 5 = 3 + 5 = 8
-        -- Data hazard with previous instruction.
+        -- Load and use hazard with previous instruction.
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
         wait for ClkPeriod;
-
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
-
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
 
         -- Test Case 4: Add register with large immediate - ADD R8, R1, #500
         -- R8 = 8 + 500 = 508 = 0x1FC
         -- Since immediate is large, it will have to be represented as a rotated immediate.
-        -- Data hazard with previous instruction.
+        -- Potential data hazard with previous instruction.
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"1" & x"8" & x"F" & x"7D";
         wait for ClkPeriod;
 
         -- Test Case 5: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
         -- R2 = R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
-        -- No hazard with previous instruction.
+        -- Potential data hazard with instruction before previous.
         t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"2" & "00010" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
-
-        assert (t_MemWrite = '0' and t_ALUResult = x"000001FC") report "Failed ARM Test Case 4" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
-
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 5" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 3" severity error;
 
         -- Test Case 6: Subtract register with register shifted register as Src2 -- SUB R2, R2, R2, LSR R0
         -- R2 = R2 - R2 >> R0 = 20 - 20 >> 3 = 18 = 0x12
-        -- Data hazard with previous instruction.
+        -- Potential data hazard with previous instruction.
         t_Instr <= x"E" & "00" & "0" & x"2" & "0" & x"2" & x"2" & x"0" & "0" & "01" & "1" & x"2";
         wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"000001FC") report "Failed ARM Test Case 4" severity error;
 
         -- Test Case 7: Store register value into memory, does not happen due to condition - STREQ R0, [R1, #12]
         -- Also tests immediate offset in STR.
@@ -149,6 +139,8 @@ begin
         -- No hazard with previous instruction.
         t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00c";
         wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 5" severity error;
 
         -- Test Case 8: AND two registers and update flags: ANDS R15, R1, R0
         -- R15 = 3 & 8 = 0
@@ -266,25 +258,22 @@ begin
         t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
         wait for ClkPeriod;
 
-        t_Instr <= x"00000000";
-        wait for ClkPeriod;
-
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000007") report "Failed ARM Test Case 16.1" severity error;
-
         -- Test Case 18: Check if Z flag was set after the previous TST operation - STREQ R4, [R2, #12]
         -- MemWrite = 1 only if Z flag was set
         -- ALUResult = R2 + 12 = 0x12 + 0xC = 0x1E
-        -- Data hazard with instruction before previous.
+        -- Potential data hazard with instruction before previous.
         t_Instr <= x"0" & "01" & "011000" & x"2" & x"4" & x"0" & x"0" & "1100";
         wait for ClkPeriod;
 
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 17" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000007") report "Failed ARM Test Case 16.1" severity error;
 
         -- Test Case 19: MOV the contents of one register into another register - MOV R7, R2
         -- R7 = R2 = 0x12
         -- No hazard with previous instruction.
         t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"7" & "00000" & "00" & "0" & x"2";
         wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 17" severity error;
 
         -- Test Case 20: BICS two registers and update flags - BICS R8, R4, R0 LSR #1
         -- R8 = R4 AND (not (R0 >> 1)) = 0b0111 AND (not (0b0011 >> 1)) = 0b0111 AND 0b1110 = 0b0110 = 6
@@ -312,7 +301,11 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 20" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADC R5, R4, R0
+        -- R5 = R4 + R0 + Carry = 3 + 3 + 0 = 6.
+        -- Potential data hazard with previous instruction.
+        t_Instr <= x"E" & "00" & "0" & x"5" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 21" severity error;
@@ -320,15 +313,8 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 22.1" severity error;
-
-        -- ADC R5, R4, R0
-        -- R5 = R4 + R0 + Carry = 3 + 3 + 0 = 6.
-        -- Data hazard with previous instruction.
-        t_Instr <= x"E" & "00" & "0" & x"5" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
-        wait for ClkPeriod;
-
         t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
+        wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 22.2" severity error;
 
