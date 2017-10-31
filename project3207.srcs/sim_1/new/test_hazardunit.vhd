@@ -92,6 +92,11 @@ begin
         wait for 5 ns;
         assert (t_ToForwardD1E = '1' and t_ToForwardD2E = '1' and t_ForwardD1E = x"00000002" and t_ForwardD2E = x"00000001") report "Failed HazardUnit Test Case 5" severity error;
 
+        -- Test Case 6: Register matches with both Memory and Writeback, ALUResultM forwarded.
+        t_RA1E <= x"1"; t_RA2E <= x"2"; t_WA3M <= x"1"; t_WA3W <= x"1"; t_RegWriteM <= '1'; t_RegWriteW <= '1'; t_ALUResultM <= x"00000001"; t_ResultW <= x"00000002";
+        wait for 5 ns;
+        assert (t_ToForwardD1E = '1' and t_ToForwardD2E = '0' and t_ForwardD1E = x"00000001" and t_ForwardD2E = x"00000002") report "Failed HazardUnit Test Case 5" severity error;
+
         wait;
 
     end process;
