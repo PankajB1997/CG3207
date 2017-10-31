@@ -6,8 +6,8 @@ port(
     RA1E : in std_logic_vector(3 downto 0);
     RA2E : in std_logic_vector(3 downto 0);
     RA3E : in std_logic_vector(3 downto 0);
-    WA3M : in std_logic_vector(3 downto 0);
-    WA3W : in std_logic_vector(3 downto 0);
+    WA4M : in std_logic_vector(3 downto 0);
+    WA4W : in std_logic_vector(3 downto 0);
     RegWriteM : in std_logic;
     RegWriteW : in std_logic;
     ALUResultM : in std_logic_vector(31 downto 0);
@@ -31,14 +31,14 @@ architecture Hazard_arch of HazardUnit is
     signal Match3EM : std_logic;
     signal Match3EW : std_logic;
 begin
-    Match1EM <= '1' when (RA1E = WA3M and RegWriteM = '1') else '0';
-    Match1EW <= '1' when (RA1E = WA3W and RegWriteW = '1') else '0';
+    Match1EM <= '1' when (RA1E = WA4M and RegWriteM = '1') else '0';
+    Match1EW <= '1' when (RA1E = WA4W and RegWriteW = '1') else '0';
 
-    Match2EM <= '1' when (RA2E = WA3M and RegWriteM = '1') else '0';
-    Match2EW <= '1' when (RA2E = WA3W and RegWriteW = '1') else '0';
+    Match2EM <= '1' when (RA2E = WA4M and RegWriteM = '1') else '0';
+    Match2EW <= '1' when (RA2E = WA4W and RegWriteW = '1') else '0';
 
-    Match3EM <= '1' when (RA3E = WA3M and RegWriteM = '1') else '0';
-    Match3EW <= '1' when (RA3E = WA3W and RegWriteW = '1') else '0';
+    Match3EM <= '1' when (RA3E = WA4M and RegWriteM = '1') else '0';
+    Match3EW <= '1' when (RA3E = WA4W and RegWriteW = '1') else '0';
 
     ToForwardD1E <= Match1EM or Match1EW;
     ForwardD1E <= ALUResultM when Match1EM = '1' else ResultW;

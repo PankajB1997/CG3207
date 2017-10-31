@@ -50,6 +50,26 @@ end ARM;
 
 architecture ARM_arch of ARM is
 
+    component HazardUnit is
+    port (
+        RA1E : in std_logic_vector(3 downto 0);
+        RA2E : in std_logic_vector(3 downto 0);
+        RA3E : in std_logic_vector(3 downto 0);
+        WA4M : in std_logic_vector(3 downto 0);
+        WA4W : in std_logic_vector(3 downto 0);
+        RegWriteM : in std_logic;
+        RegWriteW : in std_logic;
+        ALUResultM : in std_logic_vector(31 downto 0);
+        ResultW : in std_logic_vector(31 downto 0);
+        ToForwardD1E : out std_logic;
+        ToForwardD2E : out std_logic;
+        ToForwardD3E : out std_logic;
+        ForwardD1E : out std_logic_vector(31 downto 0);
+        ForwardD2E : out std_logic_vector(31 downto 0);
+        ForwardD3E : out std_logic_vector(31 downto 0)
+    );
+    end component HazardUnit;
+
     component RegFile is
     port (
         CLK : in std_logic;
@@ -169,6 +189,7 @@ architecture ARM_arch of ARM is
     );
     end component ProgramCounter;
 
+
     -------------------------------------------
     -- Fetch signals  -------------------------
     -------------------------------------------
@@ -249,17 +270,22 @@ architecture ARM_arch of ARM is
     -- signal MemToRegD : std_logic;
     -- signal ALUSrcD : std_logic;
     -- signal ALUResultSrcD : std_logic;
+    -- signal ShamtSrcD : std_logic_vector(1 downto 0);
     -- signal NoWriteD : std_logic;
     -- signal MCycleStartD : std_logic;
     -- signal MCycleOpD : std_logic_vector(1 downto 0);
     -- signal isArithmeticDPD : std_logic;
+    -- signal RA1D : std_logic_vector(3 downto 0) := x"0";
+    -- signal RA2D : std_logic_vector(3 downto 0) := x"0";
+    -- signal RA3D : std_logic_vector(3 downto 0) := x"0";
     -- signal RD1D : std_logic_vector(31 downto 0);
     -- signal RD2D : std_logic_vector(31 downto 0);
+    -- signal RD3D : std_logic_vector(31 downto 0);
+    -- signal ExtImmD : std_logic_vector(31 downto 0);
     -- signal CondD : std_logic_vector(3 downto 0);
     -- signal WA4D : std_logic_vector(3 downto 0);
     -- signal ShTypeD : std_logic_vector(1 downto 0);
     -- signal Shamt5D : std_logic_vector(4 downto 0);
-    -- signal ShInD : std_logic_vector(31 downto 0);
 
 
     -------------------------------------------
@@ -275,17 +301,22 @@ architecture ARM_arch of ARM is
     signal MemToRegE : std_logic := '0';
     signal ALUSrcE : std_logic := '0';
     signal ALUResultSrcE : std_logic := '0';
+    signal ShamtSrcE : std_logic_vector(1 downto 0);
     signal NoWriteE : std_logic := '0';
     signal MCycleStartE : std_logic := '0';
     signal MCycleOpE : std_logic_vector(1 downto 0) := "00";
     signal isArithmeticDPE : std_logic := '0';
+    signal RA1E : std_logic_vector(3 downto 0) := x"0";
+    signal RA2E : std_logic_vector(3 downto 0) := x"0";
+    signal RA3E : std_logic_vector(3 downto 0) := x"0";
     signal RD1E : std_logic_vector(31 downto 0) := x"00000000";
     signal RD2E : std_logic_vector(31 downto 0) := x"00000000";
+    signal RD3E : std_logic_vector(31 downto 0) := x"00000000";
+    signal ExtImmE : std_logic_vector(31 downto 0) := x"00000000";
     signal CondE : std_logic_vector(3 downto 0) := "0000";
     signal WA4E : std_logic_vector(3 downto 0) := "0000";
     signal ShTypeE : std_logic_vector(1 downto 0) := "00";
     signal Shamt5E : std_logic_vector(4 downto 0) := "00000";
-    signal ShInE : std_logic_vector(31 downto 0) := x"00000000";
 
     -- CondLogic signals
     -- signal PCSE : std_logic;
@@ -302,8 +333,8 @@ architecture ARM_arch of ARM is
 
     -- Shifter signals
     -- signal ShTypeE : std_logic_vector(1 downto 0);
-    -- signal Shamt5E : std_logic_vector(4 downto 0);
-    -- signal ShInE : std_logic_vector(31 downto 0);
+    signal FinalShamt5E : std_logic_vector(4 downto 0);
+    signal ShInE : std_logic_vector(31 downto 0);
     signal ShOutE : std_logic_vector(31 downto 0);
     signal ShifterCarryE : std_logic;
 
@@ -330,6 +361,15 @@ architecture ARM_arch of ARM is
     signal MCycleBusyE : std_logic;
 
     -- Internal
+    signal ToForwardD1E : std_logic;
+    signal ToForwardD2E : std_logic;
+    signal ToForwardD3E : std_logic;
+    signal ForwardD1E : std_logic_vector(31 downto 0);
+    signal ForwardD2E : std_logic_vector(31 downto 0);
+    signal ForwardD3E : std_logic_vector(31 downto 0);
+    signal FinalRD1E : std_logic_vector(31 downto 0);
+    signal FinalRD2E : std_logic_vector(31 downto 0);
+    signal FinalRD3E : std_logic_vector(31 downto 0);
     signal OpResultE : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal WriteDataE : std_logic_vector(31 downto 0);
 
@@ -341,6 +381,7 @@ architecture ARM_arch of ARM is
     -- signal OpResultE : std_logic_vector(31 downto 0);
     -- signal WriteDataE : std_logic_vector(31 downto 0);
     -- signal WA4E : std_logic_vector(3 downto 0);
+
 
     -------------------------------------------
     -- Memory signals  ------------------------
@@ -371,7 +412,7 @@ architecture ARM_arch of ARM is
 
 
     -------------------------------------------
-    -- Writeback signals  ------------------------
+    -- Writeback signals  ---------------------
     -------------------------------------------
 
     -- Inputs
@@ -397,6 +438,30 @@ architecture ARM_arch of ARM is
 
     -- Outputs
     -- signal PCW : std_logic_vector(31 downto 0);
+
+
+    -------------------------------------------
+    -- HazardUnit signals  --------------------
+    -------------------------------------------
+
+    -- Inputs
+    -- signal RA1E : std_logic_vector(3 downto 0);
+    -- signal RA2E : std_logic_vector(3 downto 0);
+    -- signal RA3E : std_logic_vector(3 downto 0);
+    -- signal WA4M : std_logic_vector(3 downto 0);
+    -- signal WA4W : std_logic_vector(3 downto 0);
+    -- signal RegWriteM : std_logic;
+    -- signal RegWriteW : std_logic;
+    -- signal OpResultM : std_logic_vector(31 downto 0);
+    -- signal ResultW : std_logic_vector(31 downto 0);
+
+    -- Outputs
+    -- signal ToForwardD1E : std_logic;
+    -- signal ToForwardD2E : std_logic;
+    -- signal ToForwardD3E : std_logic;
+    -- signal ForwardD1E : std_logic_vector(31 downto 0);
+    -- signal ForwardD2E : std_logic_vector(31 downto 0);
+    -- signal ForwardD3E : std_logic_vector(31 downto 0);
 
 begin
 
@@ -459,7 +524,6 @@ begin
                else InstrD(11 downto 8) & '0' when ShamtSrcD = "10"
                else RD3D(4 downto 0) when ShamtSrcD = "11"
                else "00000";
-    ShInD <= ExtImmD when ALUSrcD = '1' else RD2D;
 
 
     -------------------------------------------
@@ -478,17 +542,22 @@ begin
             MemToRegE <= MemToRegD;
             ALUSrcE <= ALUSrcD;
             ALUResultSrcE <= ALUResultSrcD;
+            ShamtSrcE <= ShamtSrcD;
             NoWriteE <= NoWriteD;
             MCycleStartE <= MCycleStartD;
             MCycleOpE <= MCycleOpD;
             isArithmeticDPE <= isArithmeticDPD;
+            RA1E <= RA1D;
+            RA2E <= RA2D;
+            RA3E <= RA3D;
             RD1E <= RD1D;
             RD2E <= RD2D;
+            RD3E <= RD3D;
+            ExtImmE <= ExtImmD;
             CondE <= CondD;
             WA4E <= WA4D;
             ShTypeE <= ShTypeD;
             Shamt5E <= Shamt5D;
-            ShInE <= ShInD;
         end if;
     end process;
 
@@ -505,11 +574,11 @@ begin
 
     -- Shifter inputs
     -- ShTypeE
-    -- Shamt5E
-    -- ShInE
+    FinalShamt5E <= FinalRD3E(4 downto 0) when ShamtSrcE = "11" else Shamt5E;
+    ShInE <= ExtImmE when ALUSrcE = '1' else FinalRD2E;
 
     -- ALU inputs
-    Src_AE <= MCycleALUSrc1E when MCycleBusyE = '1' else RD1E;
+    Src_AE <= MCycleALUSrc1E when MCycleBusyE = '1' else FinalRD1E;
     Src_BE <= MCycleALUSrc2E when MCycleBusyE = '1'
               else ShOutE; -- to enable DP instructions with shift operation
     ALUFinalControlE <= MCycleALUControlE when MCycleBusyE = '1' else ALUControlE;
@@ -521,14 +590,17 @@ begin
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
     -- Operand1 for Division should be RD2. Switching it around makes no
     -- difference to Multiplication.
-    Operand1E <= RD2E;
-    Operand2E <= RD1E;
+    Operand1E <= FinalRD2E;
+    Operand2E <= FinalRD1E;
     MCycleALUResultE <= ALUResultE;
     MCycleALUCarryFlagE <= ALUFlagsE(1);
 
     -- Internal
+    FinalRD1E <= RD1E when ToForwardD1E = '0' else ForwardD1E;
+    FinalRD2E <= RD2E when ToForwardD2E = '0' else ForwardD2E;
+    FinalRD3E <= RD3E when ToForwardD3E = '0' else ForwardD3E;
     OpResultE <= MCycleResultE when ALUResultSrcE = '1' else ALUResultE;
-    WriteDataE <= RD2E;
+    WriteDataE <= FinalRD2E;
 
 
     -------------------------------------------
@@ -557,7 +629,7 @@ begin
 
 
     -------------------------------------------
-    -- Writeback connections  --------------------
+    -- Writeback connections  -----------------
     -------------------------------------------
 
     -- Inputs
@@ -587,6 +659,25 @@ begin
 
 
     -- Port maps
+
+    HazardUnit1: HazardUnit
+    port map(
+        RA1E => RA1E,
+        RA2E => RA2E,
+        RA3E => RA3E,
+        WA4M => WA4M,
+        WA4W => WA4W,
+        RegWriteM => RegWriteM,
+        RegWriteW => RegWriteW,
+        ALUResultM => OpResultM,
+        ResultW => ResultW,
+        ToForwardD1E => ToForwardD1E,
+        ToForwardD2E => ToForwardD2E,
+        ToForwardD3E => ToForwardD3E,
+        ForwardD1E => ForwardD1E,
+        ForwardD2E => ForwardD2E,
+        ForwardD3E => ForwardD3E
+    );
 
     ProgramCounter1: ProgramCounter
     port map(
@@ -662,7 +753,7 @@ begin
     Shifter1: Shifter
     port map (
         Sh => ShTypeE,
-        Shamt5 => Shamt5E,
+        Shamt5 => FinalShamt5E,
         ShIn => ShInE,
         ShOut => ShOutE,
         ShifterCarry => ShifterCarryE
