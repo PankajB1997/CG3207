@@ -188,11 +188,10 @@ architecture ARM_arch of ARM is
 
     -- Internal
     signal PCPlus4F : std_logic_vector(31 downto 0);
-    signal PCPlus8F : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal InstrF : std_logic_vector(31 downto 0);
-    -- signal PCPlus8F : std_logic_vector(31 downto 0);
+    -- signal PCPlus4F : std_logic_vector(31 downto 0);
 
 
     -------------------------------------------
@@ -200,8 +199,8 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    signal InstrD : std_logic_vector(31 downto 0);
-    signal PCPlus8D : std_logic_vector(31 downto 0);
+    signal InstrD : std_logic_vector(31 downto 0) := x"00000000";
+    signal PCPlus8D : std_logic_vector(31 downto 0) := x"00000000"; -- Same as PCPlus4F due to delaying
 
     -- RegFile signals
     -- Note that some of these are in Writeback.
@@ -274,25 +273,25 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    signal PCSE : std_logic;
-    signal RegWE : std_logic;
-    signal MemWE : std_logic;
-    signal FlagWE : std_logic_vector(2 downto 0);
-    signal ALUControlE : std_logic_vector(3 downto 0);
-    signal MemToRegE : std_logic;
-    signal ALUSrcE : std_logic;
-    signal ALUResultSrcE : std_logic;
-    signal NoWriteE : std_logic;
-    signal MCycleStartE : std_logic;
-    signal MCycleOpE : std_logic_vector(1 downto 0);
-    signal isArithmeticDPE : std_logic;
-    signal RD1E : std_logic_vector(31 downto 0);
-    signal RD2E : std_logic_vector(31 downto 0);
-    signal CondE : std_logic_vector(3 downto 0);
-    signal WA4E : std_logic_vector(3 downto 0);
-    signal ShTypeE : std_logic_vector(1 downto 0);
-    signal Shamt5E : std_logic_vector(4 downto 0);
-    signal ShInE : std_logic_vector(31 downto 0);
+    signal PCSE : std_logic := '0';
+    signal RegWE : std_logic := '0';
+    signal MemWE : std_logic := '0';
+    signal FlagWE : std_logic_vector(2 downto 0) := "000";
+    signal ALUControlE : std_logic_vector(3 downto 0) := "0000";
+    signal MemToRegE : std_logic := '0';
+    signal ALUSrcE : std_logic := '0';
+    signal ALUResultSrcE : std_logic := '0';
+    signal NoWriteE : std_logic := '0';
+    signal MCycleStartE : std_logic := '0';
+    signal MCycleOpE : std_logic_vector(1 downto 0) := "00";
+    signal isArithmeticDPE : std_logic := '0';
+    signal RD1E : std_logic_vector(31 downto 0) := x"00000000";
+    signal RD2E : std_logic_vector(31 downto 0) := x"00000000";
+    signal CondE : std_logic_vector(3 downto 0) := "0000";
+    signal WA4E : std_logic_vector(3 downto 0) := "0000";
+    signal ShTypeE : std_logic_vector(1 downto 0) := "00";
+    signal Shamt5E : std_logic_vector(4 downto 0) := "00000";
+    signal ShInE : std_logic_vector(31 downto 0) := x"00000000";
 
     -- CondLogic signals
     -- signal PCSE : std_logic;
@@ -354,13 +353,13 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    signal PCSrcM : std_logic;
-    signal RegWriteM : std_logic;
-    signal MemWriteM : std_logic;
-    signal MemToRegM : std_logic;
-    signal OpResultM : std_logic_vector(31 downto 0);
-    signal WriteDataM : std_logic_vector(31 downto 0);
-    signal WA4M : std_logic_vector(3 downto 0);
+    signal PCSrcM : std_logic := '0';
+    signal RegWriteM : std_logic := '0';
+    signal MemWriteM : std_logic := '0';
+    signal MemToRegM : std_logic := '0';
+    signal OpResultM : std_logic_vector(31 downto 0) := x"00000000";
+    signal WriteDataM : std_logic_vector(31 downto 0) := x"00000000";
+    signal WA4M : std_logic_vector(3 downto 0) := "0000";
 
     -- Data memory signals
     -- ALUResult
@@ -382,12 +381,12 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    signal PCSrcW : std_logic;
-    signal RegWriteW : std_logic;
-    signal MemToRegW : std_logic;
-    signal OpResultW : std_logic_vector(31 downto 0);
-    signal ReadDataW : std_logic_vector(31 downto 0);
-    signal WA4W : std_logic_vector(3 downto 0);
+    signal PCSrcW : std_logic := '0';
+    signal RegWriteW : std_logic := '0';
+    signal MemToRegW : std_logic := '0';
+    signal OpResultW : std_logic_vector(31 downto 0) := x"00000000";
+    signal ReadDataW : std_logic_vector(31 downto 0) := x"00000000";
+    signal WA4W : std_logic_vector(3 downto 0) := "0000";
 
     -- RegFile signals
     signal WE4W : std_logic;
@@ -421,7 +420,6 @@ begin
 
     -- Internal
     PCPlus4F <= PCF + 4;
-    PCPlus8F <= PCPlus4F + 4;
 
 
     -------------------------------------------
@@ -429,8 +427,13 @@ begin
     -------------------------------------------
 
     -- Inputs
-    InstrD <= InstrF;
-    PCPlus8D <= PCPlus8F;
+    process(CLK)
+    begin
+        if CLK'event and CLK = '1' then
+            InstrD <= InstrF;
+        end if;
+    end process;
+    PCPlus8D <= PCPlus4F;
 
     -- RegFile inputs
     RA1D <= x"F"
@@ -471,25 +474,30 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PCSE <= PCSD;
-    RegWE <= RegWD;
-    MemWE <= MemWD;
-    FlagWE <= FlagWD;
-    ALUControlE <= ALUControlD;
-    MemToRegE <= MemToRegD;
-    ALUSrcE <= ALUSrcD;
-    ALUResultSrcE <= ALUResultSrcD;
-    NoWriteE <= NoWriteD;
-    MCycleStartE <= MCycleStartD;
-    MCycleOpE <= MCycleOpD;
-    isArithmeticDPE <= isArithmeticDPD;
-    RD1E <= RD1D;
-    RD2E <= RD2D;
-    CondE <= CondD;
-    WA4E <= WA4D;
-    ShTypeE <= ShTypeD;
-    Shamt5E <= Shamt5D;
-    ShInE <= ShInD;
+    process(CLK)
+    begin
+        if CLK'event and CLK = '1' then
+            PCSE <= PCSD;
+            RegWE <= RegWD;
+            MemWE <= MemWD;
+            FlagWE <= FlagWD;
+            ALUControlE <= ALUControlD;
+            MemToRegE <= MemToRegD;
+            ALUSrcE <= ALUSrcD;
+            ALUResultSrcE <= ALUResultSrcD;
+            NoWriteE <= NoWriteD;
+            MCycleStartE <= MCycleStartD;
+            MCycleOpE <= MCycleOpD;
+            isArithmeticDPE <= isArithmeticDPD;
+            RD1E <= RD1D;
+            RD2E <= RD2D;
+            CondE <= CondD;
+            WA4E <= WA4D;
+            ShTypeE <= ShTypeD;
+            Shamt5E <= Shamt5D;
+            ShInE <= ShInD;
+        end if;
+    end process;
 
     -- CondLogic inputs
     -- PCSE
@@ -535,13 +543,18 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PCSrcM <= PCSrcE;
-    RegWriteM <= RegWriteE;
-    MemWriteM <= MemWriteE;
-    MemToRegM <= MemToRegE;
-    OpResultM <= OpResultE;
-    WriteDataM <= WriteDataE;
-    WA4M <= WA4E;
+    process(CLK)
+    begin
+        if CLK'event and CLK = '1' then
+            PCSrcM <= PCSrcE;
+            RegWriteM <= RegWriteE;
+            MemWriteM <= MemWriteE;
+            MemToRegM <= MemToRegE;
+            OpResultM <= OpResultE;
+            WriteDataM <= WriteDataE;
+            WA4M <= WA4E;
+        end if;
+    end process;
 
     -- Data Memory inputs (and outputs)
     ALUResult <= OpResultM;  -- Goes outside ARM
@@ -555,12 +568,17 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PCSrcW <= PCSrcM;
-    RegWriteW <= RegWriteM;
-    MemToRegW <= MemToRegM;
-    OpResultW <= OpResultM;
-    ReadDataW <= ReadDataM;
-    WA4W <= WA4M;
+    process(CLK)
+    begin
+        if CLK'event and CLK = '1' then
+            PCSrcW <= PCSrcM;
+            RegWriteW <= RegWriteM;
+            MemToRegW <= MemToRegM;
+            OpResultW <= OpResultM;
+            ReadDataW <= ReadDataM;
+            WA4W <= WA4M;
+        end if;
+    end process;
 
     -- RegFile inputs
     WE4W <= RegWriteW and not MCycleBusyE;
