@@ -174,12 +174,6 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    signal PC_INF : std_logic_vector(31 downto 0);
-    signal WE_PCF : std_logic;
-
-    -- ProgramCounter signals
-    -- signal PC_INF : std_logic_vector(31 downto 0);
-    -- signal WE_PCF : std_logic;
     signal PCF : std_logic_vector(31 downto 0);
 
     -- Instruction Memory signals
@@ -393,12 +387,16 @@ architecture ARM_arch of ARM is
     -- signal WA4W : std_logic_vector(3 downto 0);
     signal WD4W : std_logic_vector(31 downto 0);
 
+    -- ProgramCounter signals
+    signal PC_INW : std_logic_vector(31 downto 0);
+    signal WE_PCW : std_logic;
+    signal PCW : std_logic_vector(31 downto 0);
+
     -- Internal
     signal ResultW : std_logic_vector(31 downto 0);
 
     -- Outputs
-    -- signal PCSrcW : std_logic;
-    -- signal ResultW : std_logic_vector(31 downto 0);
+    -- signal PCW : std_logic_vector(31 downto 0);
 
 begin
 
@@ -407,12 +405,7 @@ begin
     -------------------------------------------
 
     -- Inputs
-    PC_INF <= ResultW when PCSrcW = '1' else PCPlus4F;
-    WE_PCF <= not MCycleBusyE;
-
-    -- ProgramCounter inputs
-    -- PC_INF
-    -- WE_PCF
+    PCF <= PCW;
 
     -- Instruction Memory inputs (and outputs)
     PC <= PCF;  -- Goes outside ARM
@@ -585,6 +578,10 @@ begin
     -- WA4W
     WD4W <= ResultW;
 
+    -- ProgramCounter inputs
+    PC_INW <= ResultW when PCSrcW = '1' else PCPlus4F;
+    WE_PCW <= not MCycleBusyE;
+
     -- Internal
     ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
 
@@ -595,9 +592,9 @@ begin
     port map(
         CLK => CLK,
         RESET => RESET,
-        WE_PC => WE_PCF,
-        PC_IN => PC_INF,
-        PC => PCF
+        WE_PC => WE_PCW,
+        PC_IN => PC_INW,
+        PC => PCW
     );
 
     RegFile1: RegFile

@@ -81,6 +81,10 @@ begin
         -- Add 2 NOPs between instructions with data hazards.
         -- Add 4 NOPs between instructions with control hazards.
         -- MUL/DIV tests commented out since they require stalling.
+        -- Assertions for outputs of an instruction to data memory are made in Memory stage,
+        -- 3 clock periods after feeding the instruction into the processor.
+        -- Assertions for outputs of an instruction to instruction memory are made in the
+        -- next Fetch stage, 5 clock periods after feeding the instruction into the processor.
 
         -- Test Case 2: Load 3 into register - LDR R0, [R15]
         -- R15 is used as the base register since it's the only register with a determined value.
