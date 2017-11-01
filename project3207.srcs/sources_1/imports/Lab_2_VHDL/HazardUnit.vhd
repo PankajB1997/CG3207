@@ -5,19 +5,24 @@ entity HazardUnit is
 port(
     RA1E : in std_logic_vector(3 downto 0);
     RA2E : in std_logic_vector(3 downto 0);
+    RA2M : in std_logic_vector(3 downto 0);
     RA3E : in std_logic_vector(3 downto 0);
     WA4M : in std_logic_vector(3 downto 0);
     WA4W : in std_logic_vector(3 downto 0);
     RegWriteM : in std_logic;
     RegWriteW : in std_logic;
+    MemWriteM : in std_logic;
+    MemToRegW : in std_logic;
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
     ToForwardD1E : out std_logic;
     ToForwardD2E : out std_logic;
     ToForwardD3E : out std_logic;
+    ToForwardWriteDataM : out std_logic;
     ForwardD1E : out std_logic_vector(31 downto 0);
     ForwardD2E : out std_logic_vector(31 downto 0);
-    ForwardD3E : out std_logic_vector(31 downto 0)
+    ForwardD3E : out std_logic_vector(31 downto 0);
+    ForwardWriteDataM : out std_logic_vector(31 downto 0)
 );
 end HazardUnit;
 
@@ -48,4 +53,7 @@ begin
 
     ToForwardD3E <= Match3EM or Match3EW;
     ForwardD3E <= ALUResultM when Match3EM = '1' else ResultW;
+
+    ToForwardWriteDataM <= '1' when ((RA2M = WA4W) and (MemWriteM = '1') and (MemtoRegW = '1') and (RegWriteW = '1')) else '0';
+    ForwardWriteDataM <= ResultW;
 end Hazard_arch;

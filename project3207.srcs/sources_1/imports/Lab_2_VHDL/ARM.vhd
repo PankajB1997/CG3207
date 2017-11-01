@@ -54,19 +54,24 @@ architecture ARM_arch of ARM is
     port (
         RA1E : in std_logic_vector(3 downto 0);
         RA2E : in std_logic_vector(3 downto 0);
+        RA2M : in std_logic_vector(3 downto 0);
         RA3E : in std_logic_vector(3 downto 0);
         WA4M : in std_logic_vector(3 downto 0);
         WA4W : in std_logic_vector(3 downto 0);
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
+        MemWriteM : in std_logic;
+        MemToRegW : in std_logic;
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
+        ToForwardWriteDataM : out std_logic;
         ForwardD1E : out std_logic_vector(31 downto 0);
         ForwardD2E : out std_logic_vector(31 downto 0);
-        ForwardD3E : out std_logic_vector(31 downto 0)
+        ForwardD3E : out std_logic_vector(31 downto 0);
+        ForwardWriteDataM : out std_logic_vector(31 downto 0)
     );
     end component HazardUnit;
 
@@ -364,9 +369,11 @@ architecture ARM_arch of ARM is
     signal ToForwardD1E : std_logic;
     signal ToForwardD2E : std_logic;
     signal ToForwardD3E : std_logic;
+    signal ToForwardWriteDataM : std_logic;
     signal ForwardD1E : std_logic_vector(31 downto 0);
     signal ForwardD2E : std_logic_vector(31 downto 0);
     signal ForwardD3E : std_logic_vector(31 downto 0);
+    signal ForwardWriteDataM : std_logic_vector(31 downto 0);
     signal FinalRD1E : std_logic_vector(31 downto 0);
     signal FinalRD2E : std_logic_vector(31 downto 0);
     signal FinalRD3E : std_logic_vector(31 downto 0);
@@ -374,6 +381,7 @@ architecture ARM_arch of ARM is
     signal WriteDataE : std_logic_vector(31 downto 0);
 
     -- Outputs
+    -- signal RA2E : std_logic_vector(3 downto 0);
     -- signal PCSrcE : std_logic;
     -- signal RegWriteE : std_logic;
     -- signal MemWriteE : std_logic;
@@ -388,6 +396,7 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
+    signal RA2M : std_logic_vector(3 downto 0) := x"0";
     signal PCSrcM : std_logic := '0';
     signal RegWriteM : std_logic := '0';
     signal MemWriteM : std_logic := '0';
@@ -401,6 +410,7 @@ architecture ARM_arch of ARM is
     -- WriteData
     -- MemWrite
     signal ReadDataM : std_logic_vector(31 downto 0);
+    signal FinalWriteDataM : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal PCSrcM : std_logic;  -- Carried straight through
@@ -459,9 +469,11 @@ architecture ARM_arch of ARM is
     -- signal ToForwardD1E : std_logic;
     -- signal ToForwardD2E : std_logic;
     -- signal ToForwardD3E : std_logic;
+    -- signal ToForwardWriteDataM : std_logic;
     -- signal ForwardD1E : std_logic_vector(31 downto 0);
     -- signal ForwardD2E : std_logic_vector(31 downto 0);
     -- signal ForwardD3E : std_logic_vector(31 downto 0);
+    -- signal ForwardWriteDataM : std_logic_vector(31 downto 0);
 
 begin
 
@@ -611,6 +623,7 @@ begin
     process(CLK)
     begin
         if CLK'event and CLK = '1' then
+            RA2M <= RA2E;
             PCSrcM <= PCSrcE;
             RegWriteM <= RegWriteE;
             MemWriteM <= MemWriteE;
@@ -623,10 +636,12 @@ begin
 
     -- Data Memory inputs (and outputs)
     ALUResult <= OpResultM;  -- Goes outside ARM
-    WriteData <= WriteDataM;  -- Goes outside ARM
+    WriteData <= FinalWriteDataM;  -- Goes outside ARM
     MemWrite <= MemWriteM;  -- Goes outside ARM
     ReadDataM <= ReadData;  -- Comes from outside ARM
 
+    -- Internal
+    FinalWriteDataM <= WriteDataM when ToForwardWriteDataM = '0' else ForwardWriteDataM;
 
     -------------------------------------------
     -- Writeback connections  -----------------
@@ -664,19 +679,24 @@ begin
     port map(
         RA1E => RA1E,
         RA2E => RA2E,
+        RA2M => RA2M,
         RA3E => RA3E,
         WA4M => WA4M,
         WA4W => WA4W,
         RegWriteM => RegWriteM,
         RegWriteW => RegWriteW,
+        MemWriteM => MemWriteM,
+        MemToRegW => MemToRegW,
         ALUResultM => OpResultM,
         ResultW => ResultW,
         ToForwardD1E => ToForwardD1E,
         ToForwardD2E => ToForwardD2E,
         ToForwardD3E => ToForwardD3E,
+        ToForwardWriteDataM => ToForwardWriteDataM,
         ForwardD1E => ForwardD1E,
         ForwardD2E => ForwardD2E,
-        ForwardD3E => ForwardD3E
+        ForwardD3E => ForwardD3E,
+        ForwardWriteDataM => ForwardWriteDataM
     );
 
     ProgramCounter1: ProgramCounter
