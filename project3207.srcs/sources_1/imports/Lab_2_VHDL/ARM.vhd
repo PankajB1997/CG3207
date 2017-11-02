@@ -463,14 +463,21 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
+    -- signal RA1D : std_logic_vector(3 downto 0);
     -- signal RA1E : std_logic_vector(3 downto 0);
+    -- signal RA2D : std_logic_vector(3 downto 0);
     -- signal RA2E : std_logic_vector(3 downto 0);
+    -- signal RA3D : std_logic_vector(3 downto 0);
     -- signal RA3E : std_logic_vector(3 downto 0);
+    -- signal WA4E : std_logic_vector(3 downto 0);
     -- signal WA4M : std_logic_vector(3 downto 0);
     -- signal WA4W : std_logic_vector(3 downto 0);
     -- signal RegWriteM : std_logic;
     -- signal RegWriteW : std_logic;
-    -- signal OpResultM : std_logic_vector(31 downto 0);
+    -- signal MemWriteM : std_logic;
+    -- signal MemToRegE : std_logic;
+    -- signal MemToRegW : std_logic;
+    -- signal ALUResultM : std_logic_vector(31 downto 0);
     -- signal ResultW : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -482,6 +489,9 @@ architecture ARM_arch of ARM is
     -- signal ForwardD2E : std_logic_vector(31 downto 0);
     -- signal ForwardD3E : std_logic_vector(31 downto 0);
     -- signal ForwardWriteDataM : std_logic_vector(31 downto 0);
+    -- signal StallF : std_logic;
+    -- signal StallD : std_logic;
+    -- signal FlushE : std_logic;
 
 begin
 
