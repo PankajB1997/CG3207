@@ -12,9 +12,9 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         RA1D : in std_logic_vector(3 downto 0);
         RA1E : in std_logic_vector(3 downto 0);
         RA2D : in std_logic_vector(3 downto 0);
-        RA3D : in std_logic_vector(3 downto 0);
         RA2E : in std_logic_vector(3 downto 0);
         RA2M : in std_logic_vector(3 downto 0);
+        RA3D : in std_logic_vector(3 downto 0);
         RA3E : in std_logic_vector(3 downto 0);
         WA4E : in std_logic_vector(3 downto 0);
         WA4M : in std_logic_vector(3 downto 0);
