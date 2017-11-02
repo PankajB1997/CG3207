@@ -3,15 +3,20 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity HazardUnit is
 port(
+    RA1D : in std_logic_vector(3 downto 0);
     RA1E : in std_logic_vector(3 downto 0);
+    RA2D : in std_logic_vector(3 downto 0);
     RA2E : in std_logic_vector(3 downto 0);
     RA2M : in std_logic_vector(3 downto 0);
+    RA3D : in std_logic_vector(3 downto 0);
     RA3E : in std_logic_vector(3 downto 0);
+    WA4E : in std_logic_vector(3 downto 0);
     WA4M : in std_logic_vector(3 downto 0);
     WA4W : in std_logic_vector(3 downto 0);
     RegWriteM : in std_logic;
     RegWriteW : in std_logic;
     MemWriteM : in std_logic;
+    MemToRegE : in std_logic;
     MemToRegW : in std_logic;
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
@@ -22,7 +27,10 @@ port(
     ForwardD1E : out std_logic_vector(31 downto 0);
     ForwardD2E : out std_logic_vector(31 downto 0);
     ForwardD3E : out std_logic_vector(31 downto 0);
-    ForwardWriteDataM : out std_logic_vector(31 downto 0)
+    ForwardWriteDataM : out std_logic_vector(31 downto 0);
+    StallF : out std_logic;
+    StallD : out std_logic;
+    FlushE : out std_logic
 );
 end HazardUnit;
 
@@ -35,7 +43,11 @@ architecture Hazard_arch of HazardUnit is
 
     signal Match3EM : std_logic;
     signal Match3EW : std_logic;
+
+    signal LDRStall : std_logic;
 begin
+    -- Resolve Read After Write (RAW) Data Hazard
+
     Match1EM <= '1' when (RA1E = WA4M and RegWriteM = '1') else '0';
     Match1EW <= '1' when (RA1E = WA4W and RegWriteW = '1') else '0';
 
@@ -54,6 +66,15 @@ begin
     ToForwardD3E <= Match3EM or Match3EW;
     ForwardD3E <= ALUResultM when Match3EM = '1' else ResultW;
 
+    -- Resolve Mem-Mem Copy Data Hazard
+
     ToForwardWriteDataM <= '1' when ((RA2M = WA4W) and (MemWriteM = '1') and (MemtoRegW = '1') and (RegWriteW = '1')) else '0';
     ForwardWriteDataM <= ResultW;
+
+    -- Resolve Load and Use Data Hazard
+
+    LDRStall <= '1' when (((RA1D = WA4E) or (RA2D = WA4E) or (RA3D = WA4E)) and (MemToRegE = '1')) else '0';
+    StallF <= LDRStall;
+    StallD <= LDRStall;
+    FlushE <= LDRStall;
 end Hazard_arch;

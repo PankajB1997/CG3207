@@ -52,15 +52,20 @@ architecture ARM_arch of ARM is
 
     component HazardUnit is
     port (
+        RA1D : in std_logic_vector(3 downto 0);
         RA1E : in std_logic_vector(3 downto 0);
+        RA2D : in std_logic_vector(3 downto 0);
         RA2E : in std_logic_vector(3 downto 0);
         RA2M : in std_logic_vector(3 downto 0);
+        RA3D : in std_logic_vector(3 downto 0);
         RA3E : in std_logic_vector(3 downto 0);
+        WA4E : in std_logic_vector(3 downto 0);
         WA4M : in std_logic_vector(3 downto 0);
         WA4W : in std_logic_vector(3 downto 0);
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
         MemWriteM : in std_logic;
+        MemToRegE : in std_logic;
         MemToRegW : in std_logic;
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
@@ -71,7 +76,10 @@ architecture ARM_arch of ARM is
         ForwardD1E : out std_logic_vector(31 downto 0);
         ForwardD2E : out std_logic_vector(31 downto 0);
         ForwardD3E : out std_logic_vector(31 downto 0);
-        ForwardWriteDataM : out std_logic_vector(31 downto 0)
+        ForwardWriteDataM : out std_logic_vector(31 downto 0);
+        StallF : out std_logic;
+        StallD : out std_logic;
+        FlushE : out std_logic
     );
     end component HazardUnit;
 
@@ -677,15 +685,20 @@ begin
 
     HazardUnit1: HazardUnit
     port map(
+        RA1D => RA1D,
         RA1E => RA1E,
+        RA2D => RA2D,
         RA2E => RA2E,
         RA2M => RA2M,
+        RA3D => RA3D,
         RA3E => RA3E,
+        WA4E => WA4E,
         WA4M => WA4M,
         WA4W => WA4W,
         RegWriteM => RegWriteM,
         RegWriteW => RegWriteW,
         MemWriteM => MemWriteM,
+        MemToRegE => MemToRegE,
         MemToRegW => MemToRegW,
         ALUResultM => OpResultM,
         ResultW => ResultW,
