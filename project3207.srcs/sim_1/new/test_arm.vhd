@@ -309,14 +309,49 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 21" severity error;
-        t_Instr <= x"00000000";
+
+        -- Test Case 23: DP instruction which does not happen, followed by DP instruction which depends on the previous.
+        -- SUBCS R5, R4, R0
+        -- Does not execute, since Carry Flag is 0, so R5 remains 6.
+        t_Instr <= x"2" & "00" & "0" & x"2" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 22.1" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R6, R5, R5
+        -- R6 = R5 + R5 = 6 + 6 = 0xC
+        -- There should be no data hazard with previous instruction, as it doesn't execute.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"5" & x"6" & "00000" & "00" & "0" & x"5";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 22.2" severity error;
+
+        -- Test Case 24: Data hazard for RA3 with previous two instructions.
+        -- ADD R6, R5, #2
+        -- R6 = R5 + 2 = 6 + 2 = 8
+        -- No data hazard with previous instruction.
+        t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"5" & x"6" & x"002";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 23.1" severity error;
+
+        -- ADD R7, R5, R5 LSL R6
+        -- R7 = R5 + R5 << R6 = 6 + 6 << 8 = 0x606
+        -- Data hazard with previous two instructions. Should get value from previous.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"5" & x"7" & x"6" & "0" & "00" & "1" & x"5";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000000C") report "Failed ARM Test Case 23.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 24.1" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000606") report "Failed ARM Test Case 24.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
 
         wait;
 
