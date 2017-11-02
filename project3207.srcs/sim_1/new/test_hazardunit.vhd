@@ -22,6 +22,7 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         RegWriteE : in std_logic;
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
+        MemWriteD : in std_logic;
         MemWriteM : in std_logic;
         MemToRegE : in std_logic;
         MemToRegW : in std_logic;
@@ -53,6 +54,7 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_RegWriteE : std_logic;
     signal t_RegWriteM : std_logic;
     signal t_RegWriteW : std_logic;
+    signal t_MemWriteD : std_logic;
     signal t_MemWriteM : std_logic;
     signal t_MemToRegE : std_logic;
     signal t_MemToRegW : std_logic;
@@ -88,6 +90,7 @@ begin
         RegWriteE => t_RegWriteE,
         RegWriteM => t_RegWriteM,
         RegWriteW => t_RegWriteW,
+        MemWriteD => t_MemWriteD,
         MemWriteM => t_MemWriteM,
         MemToRegE => t_MemToRegE,
         MemToRegW => t_MemToRegW,

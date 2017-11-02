@@ -65,6 +65,7 @@ architecture ARM_arch of ARM is
         RegWriteE : in std_logic;
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
+        MemWriteD : in std_logic;
         MemWriteM : in std_logic;
         MemToRegE : in std_logic;
         MemToRegW : in std_logic;
@@ -479,6 +480,7 @@ architecture ARM_arch of ARM is
     -- signal RegWriteE : std_logic;
     -- signal RegWriteM : std_logic;
     -- signal RegWriteW : std_logic;
+    -- signal MemWriteD : std_logic;
     -- signal MemWriteM : std_logic;
     -- signal MemToRegE : std_logic;
     -- signal MemToRegW : std_logic;
@@ -724,6 +726,7 @@ begin
         RegWriteE => RegWriteE,
         RegWriteM => RegWriteM,
         RegWriteW => RegWriteW,
+        MemWriteD => MemWD,
         MemWriteM => MemWriteM,
         MemToRegE => MemToRegE,
         MemToRegW => MemToRegW,
