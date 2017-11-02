@@ -13,6 +13,7 @@ port(
     WA4E : in std_logic_vector(3 downto 0);
     WA4M : in std_logic_vector(3 downto 0);
     WA4W : in std_logic_vector(3 downto 0);
+    RegWriteE : in std_logic;
     RegWriteM : in std_logic;
     RegWriteW : in std_logic;
     MemWriteM : in std_logic;
@@ -70,7 +71,7 @@ begin
     ForwardWriteDataM <= ResultW;
 
     -- Resolve Load and Use Data Hazard
-    LDRStall <= '1' when (((RA1D = WA4E) or (RA2D = WA4E) or (RA3D = WA4E)) and (MemToRegE = '1')) else '0';
+    LDRStall <= '1' when (((RA1D = WA4E) or (RA2D = WA4E) or (RA3D = WA4E)) and (MemToRegE = '1') and (RegWriteE = '1')) else '0';
     StallF <= LDRStall;
     StallD <= LDRStall;
     FlushE <= LDRStall;

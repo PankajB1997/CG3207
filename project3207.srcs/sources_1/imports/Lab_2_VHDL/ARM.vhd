@@ -62,6 +62,7 @@ architecture ARM_arch of ARM is
         WA4E : in std_logic_vector(3 downto 0);
         WA4M : in std_logic_vector(3 downto 0);
         WA4W : in std_logic_vector(3 downto 0);
+        RegWriteE : in std_logic;
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
         MemWriteM : in std_logic;
@@ -472,6 +473,7 @@ architecture ARM_arch of ARM is
     -- signal WA4E : std_logic_vector(3 downto 0);
     -- signal WA4M : std_logic_vector(3 downto 0);
     -- signal WA4W : std_logic_vector(3 downto 0);
+    -- signal RegWriteE : std_logic;
     -- signal RegWriteM : std_logic;
     -- signal RegWriteW : std_logic;
     -- signal MemWriteM : std_logic;
@@ -705,6 +707,7 @@ begin
         WA4E => WA4E,
         WA4M => WA4M,
         WA4W => WA4W,
+        RegWriteE => RegWriteE,
         RegWriteM => RegWriteM,
         RegWriteW => RegWriteW,
         MemWriteM => MemWriteM,

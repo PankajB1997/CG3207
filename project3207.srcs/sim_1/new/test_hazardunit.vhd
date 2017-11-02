@@ -19,6 +19,7 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         WA4E : in std_logic_vector(3 downto 0);
         WA4M : in std_logic_vector(3 downto 0);
         WA4W : in std_logic_vector(3 downto 0);
+        RegWriteE : in std_logic;
         RegWriteM : in std_logic;
         RegWriteW : in std_logic;
         MemWriteM : in std_logic;
@@ -49,6 +50,7 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_WA4E : std_logic_vector(3 downto 0);
     signal t_WA4M : std_logic_vector(3 downto 0);
     signal t_WA4W : std_logic_vector(3 downto 0);
+    signal t_RegWriteE : std_logic;
     signal t_RegWriteM : std_logic;
     signal t_RegWriteW : std_logic;
     signal t_MemWriteM : std_logic;
@@ -83,6 +85,7 @@ begin
         WA4E => t_WA4E,
         WA4M => t_WA4M,
         WA4W => t_WA4W,
+        RegWriteE => t_RegWriteE,
         RegWriteM => t_RegWriteM,
         RegWriteW => t_RegWriteW,
         MemWriteM => t_MemWriteM,
@@ -107,7 +110,7 @@ begin
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0');
+        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0');
         wait for 5 ns;
 
         -------------------------------------------------------------------
@@ -182,27 +185,32 @@ begin
         -------------------------------------------------------------------
 
         -- Test Case 12: None of the Source Registers in Decode Stage same as the Register written in the Execute Stage
-        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"7"; t_MemToRegE <= '1';
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"7"; t_MemToRegE <= '1'; t_RegWriteE <= '1';
         wait for 5 ns;
         assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 12" severity error;
 
         -- Test Case 13: Source Register 1 in Decode Stage is same as the Register written in the Execute Stage
-        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"1"; t_MemToRegE <= '1';
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"1"; t_MemToRegE <= '1'; t_RegWriteE <= '1';
         wait for 5 ns;
         assert (t_StallF = '1' and t_StallD = '1' and t_FlushE = '1') report "Failed HazardUnit Test Case 13" severity error;
 
         -- Test Case 14: Source Register 2 in Decode Stage is same as the Register written in the Execute Stage
-        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"2"; t_MemToRegE <= '1';
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"2"; t_MemToRegE <= '1'; t_RegWriteE <= '1';
         wait for 5 ns;
         assert (t_StallF = '1' and t_StallD = '1' and t_FlushE = '1') report "Failed HazardUnit Test Case 14" severity error;
 
         -- Test Case 15: Source Register 3 in Decode Stage is same as the Register written in the Execute Stage
-        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '1';
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '1'; t_RegWriteE <= '1';
         wait for 5 ns;
         assert (t_StallF = '1' and t_StallD = '1' and t_FlushE = '1') report "Failed HazardUnit Test Case 15" severity error;
 
         -- Test Case 16: A Source Register in Decode Stage is same as the Register written in the Execute Stage, but no LDR in the Execute Stage
-        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '0';
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '0'; t_RegWriteE <= '1';
+        wait for 5 ns;
+        assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 16" severity error;
+
+        -- Test Case 17: A Source Register in Decode Stage is same as the Register written in the Execute Stage, but Register is not written in the Execute Stage
+        t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '1'; t_RegWriteE <= '0';
         wait for 5 ns;
         assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 16" severity error;
 
