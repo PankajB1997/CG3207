@@ -137,7 +137,7 @@ begin
         -- Flags should all start off as 0, so EQ will fail
         -- ALUResult should be R1 + 12 = 20 = 0x14
         -- No hazard with previous instruction.
-        t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00c";
+        t_Instr <= x"0" & "01" & "011000" & x"1" & x"0" & x"00C";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 5" severity error;
@@ -309,14 +309,89 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000000B") report "Failed ARM Test Case 21" severity error;
-        t_Instr <= x"00000000";
+
+        -- Test Case 23: DP instruction which does not happen, followed by DP instruction which depends on the previous.
+        -- SUBCS R5, R4, R0
+        -- Does not execute, since Carry Flag is 0, so R5 remains 6.
+        t_Instr <= x"2" & "00" & "0" & x"2" & "0" & x"4" & x"5" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 22.1" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R6, R5, R5
+        -- R6 = R5 + R5 = 6 + 6 = 0xC
+        -- There should be no data hazard with previous instruction, as it doesn't execute.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"5" & x"6" & "00000" & "00" & "0" & x"5";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 22.2" severity error;
+
+        -- Test Case 24: Data hazard for RA3 with previous two instructions.
+        -- ADD R6, R5, #2
+        -- R6 = R5 + 2 = 6 + 2 = 8
+        -- No data hazard with previous instruction.
+        t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"5" & x"6" & x"002";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 23.1" severity error;
+
+        -- ADD R7, R5, R5 LSL R6
+        -- R7 = R5 + R5 << R6 = 6 + 6 << 8 = 0x606
+        -- Data hazard with previous two instructions. Should get value from previous.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"5" & x"7" & x"6" & "0" & "00" & "1" & x"5";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000000C") report "Failed ARM Test Case 23.2" severity error;
+
+        -- Test Case 25: Test Mem-Mem copy in situation where load is not executed.
+        -- LDRCS R6, [R5]
+        -- ALUResult = R5 = 6
+        -- ReadData is 2, but R6 should not update, remaining 8.
+        -- No data hazard with previous instruction.
+        t_Instr <= x"2" & "01" & "011001" & x"5" & x"6" & x"000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 24.1" severity error;
+
+        -- STR R6, [R5]
+        -- ALUResult = R5 = 6
+        -- WriteData = R6 = 8
+        -- No data hazard with previous instruction since it is not executed.
+        t_Instr <= x"E" & "01" & "011000" & x"5" & x"6" & x"000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000606") report "Failed ARM Test Case 24.2" severity error;
+
+        -- Test Case 26: Test that Mem-Mem copy works.
+        -- LDR R6, [R5]
+        -- ALUResult = R5 = 6
+        -- ReadData is 2, so R6 should become 6.
+        -- No data hazard with previous instruction.
+        t_Instr <= x"E" & "01" & "011001" & x"5" & x"6" & x"000";
+        wait for ClkPeriod;
+
+        t_ReadData <= x"00000002";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 25.1" severity error;
+
+        -- STR R6, [R5]
+        -- ALUResult = R5 = 6
+        -- WriteData = R6 = 2
+        -- Data hazard (Mem-Mem copy) with previous instruction.
+        t_Instr <= x"E" & "01" & "011000" & x"5" & x"6" & x"000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000006" and t_WriteData = x"00000008") report "Failed ARM Test Case 25.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        t_ReadData <= x"00000002";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 26.1" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '1' and t_ALUResult = x"00000006" and t_WriteData = x"00000002") report "Failed ARM Test Case 26.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
 
         wait;
 

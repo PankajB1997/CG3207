@@ -47,7 +47,6 @@ architecture Hazard_arch of HazardUnit is
     signal LDRStall : std_logic;
 begin
     -- Resolve Read After Write (RAW) Data Hazard
-
     Match1EM <= '1' when (RA1E = WA4M and RegWriteM = '1') else '0';
     Match1EW <= '1' when (RA1E = WA4W and RegWriteW = '1') else '0';
 
@@ -67,14 +66,13 @@ begin
     ForwardD3E <= ALUResultM when Match3EM = '1' else ResultW;
 
     -- Resolve Mem-Mem Copy Data Hazard
-
     ToForwardWriteDataM <= '1' when ((RA2M = WA4W) and (MemWriteM = '1') and (MemtoRegW = '1') and (RegWriteW = '1')) else '0';
     ForwardWriteDataM <= ResultW;
 
     -- Resolve Load and Use Data Hazard
-
     LDRStall <= '1' when (((RA1D = WA4E) or (RA2D = WA4E) or (RA3D = WA4E)) and (MemToRegE = '1')) else '0';
     StallF <= LDRStall;
     StallD <= LDRStall;
     FlushE <= LDRStall;
+
 end Hazard_arch;
