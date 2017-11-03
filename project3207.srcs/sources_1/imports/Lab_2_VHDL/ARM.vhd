@@ -70,6 +70,7 @@ architecture ARM_arch of ARM is
         MemToRegE : in std_logic;
         MemToRegW : in std_logic;
         PCSrcE : in std_logic;
+        PCSrcW : in std_logic;
         ALUResultE : in std_logic_vector(31 downto 0);
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
@@ -489,6 +490,7 @@ architecture ARM_arch of ARM is
     -- signal MemToRegE : std_logic;
     -- signal MemToRegW : std_logic;
     -- signal PCSrcE : std_logic;
+    -- signal PCSrcW : std_logic;
     -- signal ALUResultE : std_logic_vector(31 downto 0);
     -- signal ALUResultM : std_logic_vector(31 downto 0);
     -- signal ResultW : std_logic_vector(31 downto 0);
@@ -741,6 +743,7 @@ begin
         MemToRegE => MemToRegE,
         MemToRegW => MemToRegW,
         PCSrcE => PCSrcE,
+        PCSrcW => PCSrcW,
         ALUResultE => ALUResultE,
         ALUResultM => OpResultM,
         ResultW => ResultW,

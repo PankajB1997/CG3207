@@ -21,6 +21,7 @@ port(
     MemToRegE : in std_logic;
     MemToRegW : in std_logic;
     PCSrcE : in std_logic;
+    PCSrcW : in std_logic;
     ALUResultE : in std_logic_vector(31 downto 0);
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
@@ -90,8 +91,8 @@ begin
 
     -- Resolve Control Hazard
     FlushD <= PCSrcE;
-    ToForwardPC_INW <= PCSrcE;
-    ForwardPC_INW <= ALUResultE;
+    ToForwardPC_INW <= '1' when ((PCSrcE = '1') or (PCSrcW = '1' and MemToRegW = '1')) else '0';
+    ForwardPC_INW <= ResultW when (PCSrcW = '1' and MemToRegW = '1') else ALUResultE;
 
     -- Used in Load and Use and Control Hazards
     FlushE <= '1' when (LDRStall = '1' or PCSrcE = '1') else '0';
