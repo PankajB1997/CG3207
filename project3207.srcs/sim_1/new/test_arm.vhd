@@ -79,7 +79,8 @@ begin
         t_RESET <= '0';
 
         -- Add 1 ClkPeriod between instructions with Load and Use hazard.
-        -- Add 2 NOPs between instructions with control hazards.
+        -- Wait 2 cycles after instruction causing a control hazard since it
+        -- .
         -- MUL/DIV tests commented out since they require stalling.
         -- Assertions for outputs of an instruction to data memory are made in Memory stage,
         -- 3 clock periods after feeding the instruction into the processor.
@@ -151,11 +152,19 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000012") report "Failed ARM Test Case 6" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R0, R0, R0
+        -- Should get flushed due to control hazard, and not execute.
+        -- Thus R0 is still 3 for Test Case 9.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"0" & x"0" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 7" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R1, R1, R1
+        -- Should get flushed due to control hazard, and not execute.
+        -- Thus R1 is still 8 for Test Case 9.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"1" & x"1" & "00000" & "00" & "0" & x"1";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 8.1" severity error;
@@ -187,11 +196,9 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000014" and t_WriteData = x"00000003") report "Failed ARM Test Case 9" severity error;
-        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000004" and t_WriteData = x"00000012") report "Failed ARM Test Case 10.1" severity error;
-        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000001C") report "Failed ARM Test Case 11.2" severity error;
@@ -204,7 +211,6 @@ begin
         t_Instr <= x"E" & "10" & "10" & x"FFFFFC";
         wait for ClkPeriod;
 
-        t_Instr <= x"00000000";
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 12.1" severity error;
@@ -410,13 +416,11 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 27.2" severity error;
-        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
         wait for ClkPeriod;  -- No assertion to be made for branch instruction.
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 28" severity error;
-        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
         wait;
