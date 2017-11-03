@@ -357,7 +357,7 @@ begin
         -- Test Case 26: Test that Mem-Mem copy works.
         -- LDR R6, [R5]
         -- ALUResult = R5 = 6
-        -- ReadData is 2, so R6 should become 6.
+        -- ReadData is 2, so R6 should become 2.
         -- No data hazard with previous instruction.
         t_Instr <= x"E" & "01" & "011001" & x"5" & x"6" & x"000";
         wait for ClkPeriod;
@@ -373,15 +373,34 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000006" and t_WriteData = x"00000008") report "Failed ARM Test Case 25.2" severity error;
-        t_Instr <= x"00000000";
+
+        -- Test Case 27: Test Load and Use where LDR does not execute. There should be no need to wait.
+        -- LDRCS R6, [R5]
+        -- ALUResult = R5 = 6
+        -- ReadData is 9, but R6 should remain 2.
+        -- No data hazard with previous instruction.
+        t_Instr <= x"2" & "01" & "011001" & x"5" & x"6" & x"000";
         wait for ClkPeriod;
 
         t_ReadData <= x"00000002";
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 26.1" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R5, R6, R6
+        -- ALUResult = R6 + R6 = 2 + 2 = 4
+        -- No data hazard with previous instruction since it does not execute.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"6" & x"5" & "00000" & "00" & "0" & x"6";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000006" and t_WriteData = x"00000002") report "Failed ARM Test Case 26.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        t_ReadData <= x"00000009";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 27.1" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 27.2" severity error;
         t_Instr <= x"00000000";
         wait for ClkPeriod;
 
