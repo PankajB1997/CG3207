@@ -53,6 +53,8 @@ architecture Hazard_arch of HazardUnit is
     signal Match3EW : std_logic;
 
     signal LDRStall : std_logic;
+
+    signal IsControlHazard : std_logic;
 begin
     -- Resolve Read After Write (RAW) Data Hazard
     Match1EM <= '1' when (RA1E = WA4M and RegWriteM = '1') else '0';
@@ -90,11 +92,12 @@ begin
     StallD <= LDRStall;
 
     -- Resolve Control Hazard
-    FlushD <= PCSrcE;
-    ToForwardPC_INW <= '1' when ((PCSrcE = '1') or (PCSrcW = '1' and MemToRegW = '1')) else '0';
+    IsControlHazard <= '1' when (PCSrcE = '1' or (PCSrcW = '1' and MemToRegW = '1')) else '0';
+    FlushD <= IsControlHazard;
+    ToForwardPC_INW <= IsControlHazard;
     ForwardPC_INW <= ResultW when (PCSrcW = '1' and MemToRegW = '1') else ALUResultE;
 
     -- Used in Load and Use and Control Hazards
-    FlushE <= '1' when (LDRStall = '1' or PCSrcE = '1') else '0';
+    FlushE <= '1' when (LDRStall = '1' or IsControlHazard = '1') else '0';
 
 end Hazard_arch;

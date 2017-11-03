@@ -416,12 +416,40 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 27.2" severity error;
+
+        -- Test Case 29: Test Branching from Memory.
+        -- LDR R15, [R0]
+        -- ReadData is 8, so PC should become 8
+        -- ALUResult = R0 = 3
+        -- No hazard with previous instruction.
+        t_Instr <= x"E" & "01" & "011001" & x"0" & x"F" & x"000";
         wait for ClkPeriod;
 
         wait for ClkPeriod;  -- No assertion to be made for branch instruction.
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 28" severity error;
         wait for ClkPeriod;
+
+        t_ReadData <= x"00000008";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 29.1" severity error;
+
+        -- ADD R0, R0, R0
+        -- Should get flushed due to control hazard, and not execute.
+        -- Thus R0 should remain 3.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"0" & x"0" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod * 2;
+
+        assert (t_PC = x"00000008") report "Failed ARM Test Case 29.2" severity error;
+
+        -- MOV R0, R0
+        -- R0 = 3
+        -- Testing that previous ADD instruction did indeed get flushed.
+        t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"0" & "00000" & "00" & "0" & x"0";
+        wait for ClkPeriod;
+
+        t_Instr <= x"00000000";
+        wait for ClkPeriod * 2;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 29.3" severity error;
 
         wait;
 
