@@ -230,12 +230,28 @@ begin
         -- Test Case 17: A Source Register in Decode Stage is same as the Register written in the Execute Stage, but Register is not written in the Execute Stage
         t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '1'; t_RegWriteE <= '0'; t_MemWriteD <= '0';
         wait for 5 ns;
-        assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 16" severity error;
+        assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 17" severity error;
 
         -- Test Case 18: A Source Register in Decode Stage is same as the Register written in the Execute Stage, but Decode Instruction is STR
         t_RA1D <= x"1"; t_RA2D <= x"2"; t_RA3D <= x"3"; t_WA4E <= x"3"; t_MemToRegE <= '1'; t_RegWriteE <= '0'; t_MemWriteD <= '1';
         wait for 5 ns;
-        assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 16" severity error;
+        assert (t_StallF = '0' and t_StallD = '0' and t_FlushE = '0') report "Failed HazardUnit Test Case 18" severity error;
+
+        ---------------------------------------------------------
+        -- Tests for Control hazard -----------------------------
+        ---------------------------------------------------------
+
+        -- LDRStall is set to 0 at the end of the previous test; hence only the inputs below would affect the value of t_FlushE
+
+        -- Test Case 19: PC Source is from ALU Result
+        t_PCSrcE <= '1'; t_ALUResultE <= x"00001111";
+        wait for 5 ns;
+        assert (t_FlushD = '1' and t_FlushE = '1' and t_ToForwardPC_INW = '1' and t_ForwardPC_INW = x"00001111") report "Failed HazardUnit Test Case 19" severity error;
+
+        -- Test Case 20: PC Source is not from ALU Result
+        t_PCSrcE <= '0'; t_ALUResultE <= x"00000001";
+        wait for 5 ns;
+        assert (t_FlushD = '0' and t_FlushE = '0' and t_ToForwardPC_INW = '0' and t_ForwardPC_INW = x"00000001") report "Failed HazardUnit Test Case 20" severity error;
 
         wait;
 
