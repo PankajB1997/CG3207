@@ -392,15 +392,30 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '1' and t_ALUResult = x"00000006" and t_WriteData = x"00000002") report "Failed ARM Test Case 26.2" severity error;
-        t_Instr <= x"00000000";
+
+        -- Test Case 28: Test Control Hazard when Branch is not taken.
+        -- BCS LABEL
+        t_Instr <= x"2" & "10" & "10" & x"000003";
         wait for ClkPeriod;
 
         t_ReadData <= x"00000009";
         assert (t_MemWrite = '0' and t_ALUResult = x"00000006") report "Failed ARM Test Case 27.1" severity error;
-        t_Instr <= x"00000000";
+
+        -- ADD R5, R6, R6
+        -- No control hazard with previous instruction since it does not execute.
+        -- Thus, ALUResult = R6 + R6 = 2 + 2 = 4.
+        -- If the control hazard had occured, then this instruction would be flushed
+        -- and the instruction would be AND R0, R0, R0 = 3.
+        t_Instr <= x"E" & "00" & "0" & x"4" & "0" & x"6" & x"5" & "00000" & "00" & "0" & x"6";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 27.2" severity error;
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+
+        wait for ClkPeriod;  -- No assertion to be made for branch instruction.
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 28" severity error;
         t_Instr <= x"00000000";
         wait for ClkPeriod;
 
