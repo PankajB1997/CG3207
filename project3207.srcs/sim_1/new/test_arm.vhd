@@ -78,13 +78,14 @@ begin
         assert (t_PC = x"00000000") report "Failed ARM Test Case 1" severity error;
         t_RESET <= '0';
 
-        -- Add 2 NOPs between instructions with data hazards.
-        -- Add 4 NOPs between instructions with control hazards.
+        -- Add 1 ClkPeriod between instructions with Load and Use hazard.
+        -- Add 2 NOPs between instructions with control hazards.
         -- MUL/DIV tests commented out since they require stalling.
         -- Assertions for outputs of an instruction to data memory are made in Memory stage,
         -- 3 clock periods after feeding the instruction into the processor.
         -- Assertions for outputs of an instruction to instruction memory are made in the
-        -- next Fetch stage, 5 clock periods after feeding the instruction into the processor.
+        -- Memory stage, 3 clock periods after feeding the instruction into the processor,
+        -- as this is when the forwarded BTA is latched into the PC.
 
         -- Test Case 2: Load 3 into register - LDR R0, [R15]
         -- R15 is used as the base register since it's the only register with a determined value.
@@ -158,9 +159,6 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000000") report "Failed ARM Test Case 8.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
-
         assert (t_PC = x"00000000") report "Failed ARM Test Case 8.2" severity error;
 
         -- Test Case 9: Same store operation as above but happens this time - STREQ R0, [R1, #12]
@@ -197,9 +195,6 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"0000001C") report "Failed ARM Test Case 11.2" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
-
         assert (t_PC = x"0000001C") report "Failed ARM Test Case 11.3" severity error;
 
         -- Test Case 12: Branch instruction with negative offset - B LABEL
@@ -213,9 +208,6 @@ begin
         wait for ClkPeriod * 2;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 12.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
-
         assert (t_PC = x"00000014") report "Failed ARM Test Case 12.2" severity error;
 
         -- -- Test Case 13: Multiply two registers - MUL R3, R2, R1

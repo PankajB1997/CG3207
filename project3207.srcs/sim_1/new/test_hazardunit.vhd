@@ -26,18 +26,23 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         MemWriteM : in std_logic;
         MemToRegE : in std_logic;
         MemToRegW : in std_logic;
+        PCSrcE : in std_logic;
+        ALUResultE : in std_logic_vector(31 downto 0);
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
         ToForwardWriteDataM : out std_logic;
+        ToForwardPC_INW : out std_logic;
         ForwardD1E : out std_logic_vector(31 downto 0);
         ForwardD2E : out std_logic_vector(31 downto 0);
         ForwardD3E : out std_logic_vector(31 downto 0);
         ForwardWriteDataM : out std_logic_vector(31 downto 0);
+        ForwardPC_INW : out std_logic_vector(31 downto 0);
         StallF : out std_logic;
         StallD : out std_logic;
+        FlushD : out std_logic;
         FlushE : out std_logic);
     end component;
 
@@ -58,18 +63,23 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_MemWriteM : std_logic;
     signal t_MemToRegE : std_logic;
     signal t_MemToRegW : std_logic;
+    signal t_PCSrcE : std_logic;
+    signal t_ALUResultE : std_logic_vector(31 downto 0);
     signal t_ALUResultM : std_logic_vector(31 downto 0);
     signal t_ResultW : std_logic_vector(31 downto 0);
     signal t_ToForwardD1E : std_logic;
     signal t_ToForwardD2E : std_logic;
     signal t_ToForwardD3E : std_logic;
     signal t_ToForwardWriteDataM : std_logic;
+    signal t_ToForwardPC_INW : std_logic;
     signal t_ForwardD1E : std_logic_vector(31 downto 0);
     signal t_ForwardD2E : std_logic_vector(31 downto 0);
     signal t_ForwardD3E : std_logic_vector(31 downto 0);
     signal t_ForwardWriteDataM : std_logic_vector(31 downto 0);
+    signal t_ForwardPC_INW : std_logic_vector(31 downto 0);
     signal t_StallF : std_logic;
     signal t_StallD : std_logic;
+    signal t_FlushD : std_logic;
     signal t_FlushE : std_logic;
 
 begin
@@ -94,6 +104,8 @@ begin
         MemWriteM => t_MemWriteM,
         MemToRegE => t_MemToRegE,
         MemToRegW => t_MemToRegW,
+        PCSrcE => t_PCSrcE,
+        ALUResultE => t_ALUResultE,
         ALUResultM => t_ALUResultM,
         ResultW => t_ResultW,
         -- Outputs
@@ -101,12 +113,15 @@ begin
         ToForwardD2E => t_ToForwardD2E,
         ToForwardD3E => t_ToForwardD3E,
         ToForwardWriteDataM => t_ToForwardWriteDataM,
+        ToForwardPC_INW => t_ToForwardPC_INW,
         ForwardD1E => t_ForwardD1E,
         ForwardD2E => t_ForwardD2E,
         ForwardD3E => t_ForwardD3E,
         ForwardWriteDataM => t_ForwardWriteDataM,
+        ForwardPC_INW => t_ForwardPC_INW,
         StallF => t_StallF,
         StallD => t_StallD,
+        FlushD => t_FlushD,
         FlushE => t_FlushE
     );
 

@@ -69,18 +69,23 @@ architecture ARM_arch of ARM is
         MemWriteM : in std_logic;
         MemToRegE : in std_logic;
         MemToRegW : in std_logic;
+        PCSrcE : in std_logic;
+        ALUResultE : in std_logic_vector(31 downto 0);
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
         ToForwardWriteDataM : out std_logic;
+        ToForwardPC_INW : out std_logic;
         ForwardD1E : out std_logic_vector(31 downto 0);
         ForwardD2E : out std_logic_vector(31 downto 0);
         ForwardD3E : out std_logic_vector(31 downto 0);
         ForwardWriteDataM : out std_logic_vector(31 downto 0);
+        ForwardPC_INW : out std_logic_vector(31 downto 0);
         StallF : out std_logic;
         StallD : out std_logic;
+        FlushD : out std_logic;
         FlushE : out std_logic
     );
     end component HazardUnit;
@@ -454,6 +459,8 @@ architecture ARM_arch of ARM is
     signal PCW : std_logic_vector(31 downto 0);
 
     -- Internal
+    signal ToForwardPC_INW : std_logic;
+    signal ForwardPC_INW : std_logic_vector(31 downto 0);
     signal ResultW : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -481,6 +488,8 @@ architecture ARM_arch of ARM is
     -- signal MemWriteM : std_logic;
     -- signal MemToRegE : std_logic;
     -- signal MemToRegW : std_logic;
+    -- signal PCSrcE : std_logic;
+    -- signal ALUResultE : std_logic_vector(31 downto 0);
     -- signal ALUResultM : std_logic_vector(31 downto 0);
     -- signal ResultW : std_logic_vector(31 downto 0);
 
@@ -489,12 +498,15 @@ architecture ARM_arch of ARM is
     -- signal ToForwardD2E : std_logic;
     -- signal ToForwardD3E : std_logic;
     -- signal ToForwardWriteDataM : std_logic;
+    -- signal ToForwardPC_INW : std_logic;
     -- signal ForwardD1E : std_logic_vector(31 downto 0);
     -- signal ForwardD2E : std_logic_vector(31 downto 0);
     -- signal ForwardD3E : std_logic_vector(31 downto 0);
     -- signal ForwardWriteDataM : std_logic_vector(31 downto 0);
+    -- signal ForwardPC_INW : std_logic_vector(31 downto 0);
     signal StallF : std_logic;
     signal StallD : std_logic;
+    signal FlushD : std_logic;
     signal FlushE : std_logic;
 
 begin
@@ -522,7 +534,9 @@ begin
     process(CLK)
     begin
         if CLK'event and CLK = '1' then
-            if StallD = '0' then
+            if FlushD = '1' then
+                InstrD <= x"00000000";
+            elsif StallD = '0' then
                 InstrD <= InstrF;
             end if;
         end if;
@@ -698,7 +712,7 @@ begin
     WD4W <= ResultW;
 
     -- ProgramCounter inputs
-    PC_INW <= ResultW when PCSrcW = '1' else PCPlus4F;
+    PC_INW <= ForwardPC_INW when ToForwardPC_INW = '1' else PCPlus4F;
     WE_PCW <= not MCycleBusyE and not StallF;
 
     -- Internal
@@ -726,18 +740,23 @@ begin
         MemWriteM => MemWriteM,
         MemToRegE => MemToRegE,
         MemToRegW => MemToRegW,
+        PCSrcE => PCSrcE,
+        ALUResultE => ALUResultE,
         ALUResultM => OpResultM,
         ResultW => ResultW,
         ToForwardD1E => ToForwardD1E,
         ToForwardD2E => ToForwardD2E,
         ToForwardD3E => ToForwardD3E,
         ToForwardWriteDataM => ToForwardWriteDataM,
+        ToForwardPC_INW => ToForwardPC_INW,
+        ForwardPC_INW => ForwardPC_INW,
         ForwardD1E => ForwardD1E,
         ForwardD2E => ForwardD2E,
         ForwardD3E => ForwardD3E,
         ForwardWriteDataM => ForwardWriteDataM,
         StallF => StallF,
         StallD => StallD,
+        FlushD => FlushD,
         FlushE => FlushE
     );
 

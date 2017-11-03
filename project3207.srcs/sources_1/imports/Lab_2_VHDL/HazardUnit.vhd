@@ -20,18 +20,23 @@ port(
     MemWriteM : in std_logic;
     MemToRegE : in std_logic;
     MemToRegW : in std_logic;
+    PCSrcE : in std_logic;
+    ALUResultE : in std_logic_vector(31 downto 0);
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
     ToForwardD1E : out std_logic;
     ToForwardD2E : out std_logic;
     ToForwardD3E : out std_logic;
     ToForwardWriteDataM : out std_logic;
+    ToForwardPC_INW : out std_logic;
     ForwardD1E : out std_logic_vector(31 downto 0);
     ForwardD2E : out std_logic_vector(31 downto 0);
     ForwardD3E : out std_logic_vector(31 downto 0);
     ForwardWriteDataM : out std_logic_vector(31 downto 0);
+    ForwardPC_INW : out std_logic_vector(31 downto 0);
     StallF : out std_logic;
     StallD : out std_logic;
+    FlushD : out std_logic;
     FlushE : out std_logic
 );
 end HazardUnit;
@@ -74,14 +79,21 @@ begin
     -- Resolve Load and Use Data Hazard
     LDRStall <= '1' when ((
                              RA1D = WA4E or
-                             (RA2D = WA4E and MemWriteD = '0') or 
+                             (RA2D = WA4E and MemWriteD = '0') or
                              RA3D = WA4E
-                          ) and 
+                          ) and
                           MemToRegE = '1' and
                           RegWriteE = '1')
                     else '0';
     StallF <= LDRStall;
     StallD <= LDRStall;
-    FlushE <= LDRStall;
+
+    -- Resolve Control Hazard
+    FlushD <= PCSrcE;
+    ToForwardPC_INW <= PCSrcE;
+    ForwardPC_INW <= ALUResultE;
+
+    -- Used in Load and Use and Control Hazards
+    FlushE <= '1' when (LDRStall = '1' or PCSrcE = '1') else '0';
 
 end Hazard_arch;
