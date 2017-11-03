@@ -216,9 +216,6 @@ architecture ARM_arch of ARM is
     -- signal PCF : std_logic_vector(31 downto 0);
     signal InstrF : std_logic_vector(31 downto 0);
 
-    -- ProgramCounter signals
-    signal FinalReset : std_logic;
-
     -- Internal
     signal PCPlus4F : std_logic_vector(31 downto 0);
 
@@ -513,9 +510,6 @@ begin
     PC <= PCF;  -- Goes outside ARM
     InstrF <= Instr;  -- Comes from outside ARM
 
-    -- ProgramCounter inputs
-    FinalReset <= '1' when (RESET = '1' or StallF = '1') else '0';
-
     -- Internal
     PCPlus4F <= PCF + 4;
 
@@ -602,9 +596,11 @@ begin
                 ShTypeE <= ShTypeD;
                 Shamt5E <= Shamt5D;
             else
+                PCSE <= '0';
                 RegWE <= '0';
                 MemWE <= '0';
                 FlagWE <= "000";
+                MCycleStartE <= '0';
             end if;
         end if;
     end process;
@@ -703,7 +699,7 @@ begin
 
     -- ProgramCounter inputs
     PC_INW <= ResultW when PCSrcW = '1' else PCPlus4F;
-    WE_PCW <= not MCycleBusyE;
+    WE_PCW <= not MCycleBusyE and not StallF;
 
     -- Internal
     ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
@@ -748,7 +744,7 @@ begin
     ProgramCounter1: ProgramCounter
     port map(
         CLK => CLK,
-        RESET => FinalReset,
+        RESET => RESET,
         WE_PC => WE_PCW,
         PC_IN => PC_INW,
         PC => PCW

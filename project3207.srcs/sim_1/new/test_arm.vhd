@@ -97,15 +97,10 @@ begin
 
         -- PC should have incremented at clock edge.
         assert (t_PC = x"00000004") report "Failed ARM Test Case 2.1" severity error;
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
-
-        t_ReadData <= x"00000003";
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 2.2" severity error;
 
         -- Test Case 3: Add register with small rotated immediate - ADD R1, R0, #5
         -- R1 = R0 + 5 = 3 + 5 = 8
-        -- Load and use hazard with previous instruction.
+        -- Potential load and use hazard with previous instruction.
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"0" & x"1" & x"0" & x"05";
         wait for ClkPeriod;
 
@@ -115,6 +110,11 @@ begin
         -- Potential data hazard with previous instruction.
         t_Instr <= x"E" & "00" & "1" & x"4" & "0" & x"1" & x"8" & x"F" & x"7D";
         wait for ClkPeriod;
+
+        t_ReadData <= x"00000003";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 2.2" severity error;
+
+        wait for ClkPeriod;  -- Wait to account for stalling due to Load and Use in TC3.
 
         -- Test Case 5: Add register with immediate shifts -- ADD R2, R1, R0, LSL #2
         -- R2 = R1 + R0 << 2 = 8 + 3 << 2 = 20 = 0x14
