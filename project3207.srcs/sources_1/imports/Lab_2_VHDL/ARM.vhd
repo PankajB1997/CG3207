@@ -74,6 +74,8 @@ architecture ARM_arch of ARM is
         ALUResultE : in std_logic_vector(31 downto 0);
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
+        MCycleBusyE : in std_logic;
+        MCycleStartE : in std_logic;
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
@@ -86,8 +88,10 @@ architecture ARM_arch of ARM is
         ForwardPC_INW : out std_logic_vector(31 downto 0);
         StallF : out std_logic;
         StallD : out std_logic;
+        StallE : out std_logic;
         FlushD : out std_logic;
-        FlushE : out std_logic
+        FlushE : out std_logic;
+        FlushM : out std_logic
     );
     end component HazardUnit;
 
@@ -508,8 +512,10 @@ architecture ARM_arch of ARM is
     -- signal ForwardPC_INW : std_logic_vector(31 downto 0);
     signal StallF : std_logic;
     signal StallD : std_logic;
+    signal StallE : std_logic;
     signal FlushD : std_logic;
     signal FlushE : std_logic;
+    signal FlushM : std_logic;
 
 begin
 
@@ -586,7 +592,13 @@ begin
     process(CLK)
     begin
         if CLK'event and CLK = '1' then
-            if FlushE = '0' then
+            if FlushE = '1' then
+                PCSE <= '0';
+                RegWE <= '0';
+                MemWE <= '0';
+                FlagWE <= "000";
+                MCycleStartE <= '0';
+            elsif StallE = '0' then
                 PCSE <= PCSD;
                 RegWE <= RegWD;
                 MemWE <= MemWD;
@@ -611,12 +623,6 @@ begin
                 WA4E <= WA4D;
                 ShTypeE <= ShTypeD;
                 Shamt5E <= Shamt5D;
-            else
-                PCSE <= '0';
-                RegWE <= '0';
-                MemWE <= '0';
-                FlagWE <= "000";
-                MCycleStartE <= '0';
             end if;
         end if;
     end process;
@@ -671,14 +677,20 @@ begin
     process(CLK)
     begin
         if CLK'event and CLK = '1' then
-            RA2M <= RA2E;
-            PCSrcM <= PCSrcE;
-            RegWriteM <= RegWriteE;
-            MemWriteM <= MemWriteE;
-            MemToRegM <= MemToRegE;
-            OpResultM <= OpResultE;
-            WriteDataM <= WriteDataE;
-            WA4M <= WA4E;
+            if FlushM = '0' then
+                RA2M <= RA2E;
+                PCSrcM <= PCSrcE;
+                RegWriteM <= RegWriteE;
+                MemWriteM <= MemWriteE;
+                MemToRegM <= MemToRegE;
+                OpResultM <= OpResultE;
+                WriteDataM <= WriteDataE;
+                WA4M <= WA4E;
+            else
+                PCSrcM <= '0';
+                RegWriteM <= '0';
+                MemWriteM <= '0';
+            end if;
         end if;
     end process;
 
@@ -709,13 +721,13 @@ begin
     end process;
 
     -- RegFile inputs
-    WE4W <= RegWriteW and not MCycleBusyE;
+    WE4W <= RegWriteW;
     -- WA4W
     WD4W <= ResultW;
 
     -- ProgramCounter inputs
     PC_INW <= ForwardPC_INW when ToForwardPC_INW = '1' else PCPlus4F;
-    WE_PCW <= not MCycleBusyE and not StallF;
+    WE_PCW <= not StallF;
 
     -- Internal
     ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
@@ -747,6 +759,8 @@ begin
         ALUResultE => ALUResultE,
         ALUResultM => OpResultM,
         ResultW => ResultW,
+        MCycleBusyE => MCycleBusyE,
+        MCycleStartE => MCycleStartE,
         ToForwardD1E => ToForwardD1E,
         ToForwardD2E => ToForwardD2E,
         ToForwardD3E => ToForwardD3E,
@@ -759,8 +773,10 @@ begin
         ForwardWriteDataM => ForwardWriteDataM,
         StallF => StallF,
         StallD => StallD,
+        StallE => StallE,
         FlushD => FlushD,
-        FlushE => FlushE
+        FlushE => FlushE,
+        FlushM => FlushM
     );
 
     ProgramCounter1: ProgramCounter

@@ -25,6 +25,8 @@ port(
     ALUResultE : in std_logic_vector(31 downto 0);
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
+    MCycleBusyE : in std_logic;
+    MCycleStartE : in std_logic;
     ToForwardD1E : out std_logic;
     ToForwardD2E : out std_logic;
     ToForwardD3E : out std_logic;
@@ -37,8 +39,10 @@ port(
     ForwardPC_INW : out std_logic_vector(31 downto 0);
     StallF : out std_logic;
     StallD : out std_logic;
+    StallE : out std_logic;
     FlushD : out std_logic;
-    FlushE : out std_logic
+    FlushE : out std_logic;
+    FlushM : out std_logic
 );
 end HazardUnit;
 
@@ -88,8 +92,8 @@ begin
                           MemToRegE = '1' and
                           RegWriteE = '1')
                     else '0';
-    StallF <= LDRStall;
-    StallD <= LDRStall;
+    StallF <= LDRStall or MCycleBusyE; -- also resolving for MCycle
+    StallD <= LDRStall or MCycleBusyE; -- also resolving for MCycle
 
     -- Resolve Control Hazard
     IsControlHazard <= '1' when (PCSrcE = '1' or (PCSrcW = '1' and MemToRegW = '1')) else '0';
@@ -99,5 +103,9 @@ begin
 
     -- Used in Load and Use and Control Hazards
     FlushE <= '1' when (LDRStall = '1' or IsControlHazard = '1') else '0';
+
+    -- Resolve hazard for MCycle
+    StallE <= MCycleBusyE;
+    FlushM <= MCycleBusyE;
 
 end Hazard_arch;

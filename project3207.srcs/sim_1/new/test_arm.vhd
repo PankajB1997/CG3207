@@ -216,45 +216,48 @@ begin
         assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 12.1" severity error;
         assert (t_PC = x"00000014") report "Failed ARM Test Case 12.2" severity error;
 
-        -- -- Test Case 13: Multiply two registers - MUL R3, R2, R1
-        -- -- R3 = R2 * R1 = 0x12 * 0x8 = 0x90
-        -- t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"3" & x"0" & x"1" & x"9" & x"2";
-        -- -- Wait until PC increments.
-        -- wait until t_PC = x"00000018";
-        -- assert (t_MemWrite = '0' and t_ALUResult = x"00000090") report "Failed ARM Test Case 13" severity error;
-        --
-        -- wait for ClkPeriod / 2;
-        --
-        -- -- Test Case 14: Divide two registers - DIV R4, R3, R2 (MLA R4, R3, R2, R-)
-        -- -- R4 = R3 * R2 = 0xa0 / 0x14 = 0x8
-        -- t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"4" & x"0" & x"2" & x"9" & x"3";
-        -- -- Wait until PC increments.
-        -- wait until t_PC = x"0000001C";
-        -- assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 14" severity error;
-        --
-        -- wait for ClkPeriod / 2;
-        --
-        -- -- Test Case 15: Multiply a register by itself - MUL R1, R1, R1
-        -- -- R1 = R1 * R1 = 0x8 / 0x8 = 0x40
-        -- t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"1" & x"0" & x"1" & x"9" & x"1";
-        -- -- Wait until PC increments.
-        -- wait until t_PC = x"00000020";
-        -- assert (t_MemWrite = '0' and t_ALUResult = x"00000040") report "Failed ARM Test Case 15" severity error;
-        --
-        -- wait for ClkPeriod / 2;
+        -- Test Case 13: Multiply two registers - MUL R11, R2, R1
+        -- R11 = R2 * R1 = 0x12 * 0x8 = 0x90
+        t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"B" & x"0" & x"1" & x"9" & x"2";
+        wait for ClkPeriod;
+
+        -- Test Case 14: Divide two registers - DIV R11, R11, R2 (MLA R11, R11, R2, R-)
+        -- R11 = R11 / R2 = 0x90 / 0x12 = 0x8
+        t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"B" & x"0" & x"2" & x"9" & x"B";
+        wait for ClkPeriod;
+
+        -- Test Case 15: Multiply a register by itself - MUL R11, R11, R11
+        -- R11 = R11 * R11 = 0x8 * 0x8 = 0x40
+        t_Instr <= x"E" & "00" & '0' & x"0" & '0' & x"B" & x"0" & x"B" & x"9" & x"B";
+
+        -- Wait until PC increments for Test Case 13
+        wait until t_PC = x"00000020";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000090") report "Failed ARM Test Case 13" severity error;
+
+        wait for ClkPeriod / 2;
 
         -- Test Case 16: Reverse subtract values with carry - RSC R4, R1, #16
         -- R4 = 16 - R1 - NOT Carry = 0x10 - 0x8 - 1 = 0x7
         -- Control hazard with previous instruction.
         t_Instr <= x"E" & "00" & '1' & x"7" & '0' & x"1" & x"4" & x"0" & x"10";
-        wait for ClkPeriod;
+
+        -- Wait until PC increments for Test Case 14
+        wait until t_PC = x"00000024";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000008") report "Failed ARM Test Case 14" severity error;
+
+        wait for ClkPeriod / 2;
 
         -- Test Case 17: TST a register and immediate operand. Also update flags - TST R0, #12
         -- R0 AND 12 = 3 AND 12 = 0
         -- Z flag is set
         -- No hazard with previous instruction.
         t_Instr <= x"E" & "00" & '1' & x"8" & '1' & x"0" & x"0" & x"0" & x"0" & x"C";
-        wait for ClkPeriod;
+
+        -- Wait until PC increments for Test Case 15
+        wait until t_PC = x"00000028";
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000040") report "Failed ARM Test Case 15" severity error;
+
+        wait for ClkPeriod / 2;
 
         -- Test Case 18: Check if Z flag was set after the previous TST operation - STREQ R4, [R2, #12]
         -- MemWrite = 1 only if Z flag was set

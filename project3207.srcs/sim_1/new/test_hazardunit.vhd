@@ -31,6 +31,8 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         ALUResultE : in std_logic_vector(31 downto 0);
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
+        MCycleBusyE : in std_logic;
+        MCycleStartE : in std_logic;
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
@@ -43,8 +45,10 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         ForwardPC_INW : out std_logic_vector(31 downto 0);
         StallF : out std_logic;
         StallD : out std_logic;
+        StallE : out std_logic;
         FlushD : out std_logic;
-        FlushE : out std_logic);
+        FlushE : out std_logic;
+        FlushM : out std_logic);
     end component;
 
     signal t_RA1D : std_logic_vector(3 downto 0);
@@ -69,6 +73,8 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_ALUResultE : std_logic_vector(31 downto 0);
     signal t_ALUResultM : std_logic_vector(31 downto 0);
     signal t_ResultW : std_logic_vector(31 downto 0);
+    signal t_MCycleBusyE : std_logic;
+    signal t_MCycleStartE : std_logic;
     signal t_ToForwardD1E : std_logic;
     signal t_ToForwardD2E : std_logic;
     signal t_ToForwardD3E : std_logic;
@@ -81,8 +87,10 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_ForwardPC_INW : std_logic_vector(31 downto 0);
     signal t_StallF : std_logic;
     signal t_StallD : std_logic;
+    signal t_StallE : std_logic;
     signal t_FlushD : std_logic;
     signal t_FlushE : std_logic;
+    signal t_FlushM : std_logic;
 
 begin
 
@@ -111,6 +119,8 @@ begin
         ALUResultE => t_ALUResultE,
         ALUResultM => t_ALUResultM,
         ResultW => t_ResultW,
+        MCycleBusyE => t_MCycleBusyE,
+        MCycleStartE => t_MCycleStartE,
         -- Outputs
         ToForwardD1E => t_ToForwardD1E,
         ToForwardD2E => t_ToForwardD2E,
@@ -124,14 +134,16 @@ begin
         ForwardPC_INW => t_ForwardPC_INW,
         StallF => t_StallF,
         StallD => t_StallD,
+        StallE => t_StallE,
         FlushD => t_FlushD,
-        FlushE => t_FlushE
+        FlushE => t_FlushE,
+        FlushM => t_FlushM
     );
 
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0');
+        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0'); t_MCycleBusyE <= '0'; t_MCycleStartE <= '0';
         wait for 5 ns;
 
         -------------------------------------------------------------------
