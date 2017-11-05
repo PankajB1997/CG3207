@@ -228,6 +228,8 @@ architecture ARM_arch of ARM is
 
     -- Internal
     signal PCPlus4F : std_logic_vector(31 downto 0);
+    signal PCPlus4E : std_logic_vector(31 downto 0);
+    signal PCPlus4D : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal InstrF : std_logic_vector(31 downto 0);
@@ -399,6 +401,9 @@ architecture ARM_arch of ARM is
     signal FinalRD3E : std_logic_vector(31 downto 0);
     signal OpResultE : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal WriteDataE : std_logic_vector(31 downto 0);
+    signal finalWA4E : std_logic_vector(3 downto 0);
+    signal finalD4E : std_logic_vector(3 downto 0);
+    
 
     -- Outputs
     -- signal RA2E : std_logic_vector(3 downto 0);
@@ -462,6 +467,7 @@ architecture ARM_arch of ARM is
     signal PC_INW : std_logic_vector(31 downto 0);
     signal WE_PCW : std_logic;
     signal PCW : std_logic_vector(31 downto 0);
+    signal FinalD3E : std_logic_vector(31 downto 0);
 
     -- Internal
     signal ToForwardPC_INW : std_logic;
@@ -531,7 +537,9 @@ begin
     InstrF <= Instr;  -- Comes from outside ARM
 
     -- Internal
+    --PCPlus4E 
     PCPlus4F <= PCF + 4;
+  --  PCPlus4E <= PCPlus4F;
 
 
     -------------------------------------------
@@ -623,6 +631,7 @@ begin
                 WA4E <= WA4D;
                 ShTypeE <= ShTypeD;
                 Shamt5E <= Shamt5D;
+                PCPlus4D <= PCPlus4E;
             end if;
         end if;
     end process;
@@ -667,6 +676,9 @@ begin
     FinalRD3E <= RD3E when ToForwardD3E = '0' else ForwardD3E;
     OpResultE <= MCycleResultE when ALUResultSrcE = '1' else ALUResultE;
     WriteDataE <= FinalRD2E;
+    FinalD3E <= PCPlus4D when WE_PCW = '1' else WA4D;
+  --  FinalD4E <= WA4E or PC
+   -- FinalWA4E <= WA4E or R14 depending on the signal
 
 
     -------------------------------------------
@@ -729,6 +741,7 @@ begin
     PC_INW <= ForwardPC_INW when ToForwardPC_INW = '1' else PCPlus4F;
     WE_PCW <= not StallF;
 
+    
     -- Internal
     ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
 
