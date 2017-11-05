@@ -84,6 +84,8 @@ architecture ARM_arch of ARM is
         ResultW : in std_logic_vector(31 downto 0);
         MCycleBusyE : in std_logic;
         MCycleStartE : in std_logic;
+        IsInterruptRaised : in std_logic;
+        InterruptHandlerAddress : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
@@ -584,6 +586,7 @@ begin
         end if;
     end process;
     PCPlus8D <= PCPlus4F;
+    PCPlus4D <= PCF;
 
     -- RegFile inputs
     RA1D <= x"F"
@@ -657,7 +660,7 @@ begin
                 WA4E <= WA4D;
                 ShTypeE <= ShTypeD;
                 Shamt5E <= Shamt5D;
-                PCPlus4D <= PCPlus4E;
+                PCPlus4E <= PCPlus4D;
             end if;
         end if;
     end process;
@@ -720,9 +723,9 @@ begin
                 RegWriteM <= RegWriteE;
                 MemWriteM <= MemWriteE;
                 MemToRegM <= MemToRegE;
-                OpResultM <= OpResultE;
+                OpResultM <= FinalOpResultE;
                 WriteDataM <= WriteDataE;
-                WA4M <= WA4E;
+                WA4M <= FinalWA4E;
             else
                 PCSrcM <= '0';
                 RegWriteM <= '0';
@@ -789,7 +792,7 @@ begin
         RA2M => RA2M,
         RA3D => RA3D,
         RA3E => RA3E,
-        WA4E => WA4E,
+        WA4E => FinalWA4E,
         WA4M => WA4M,
         WA4W => WA4W,
         RegWriteE => RegWriteE,
@@ -806,6 +809,8 @@ begin
         ResultW => ResultW,
         MCycleBusyE => MCycleBusyE,
         MCycleStartE => FinalMCycleStartE,
+        IsInterruptRaised => IsInterruptRaised,
+        InterruptHandlerAddress => InterruptHandlerAddress,
         ToForwardD1E => ToForwardD1E,
         ToForwardD2E => ToForwardD2E,
         ToForwardD3E => ToForwardD3E,
