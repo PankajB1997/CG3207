@@ -145,7 +145,7 @@ architecture ARM_arch of ARM is
         ALUResultSrc : out std_logic;
         NoWrite : out std_logic;
         ALUControl : out std_logic_vector(3 downto 0);
-        MCycleStart : out std_logic;
+        MCycleS : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(2 downto 0);
         isArithmeticDP : out std_logic
@@ -161,10 +161,12 @@ architecture ARM_arch of ARM is
         MemW : in std_logic;
         FlagW : in std_logic_vector(2 downto 0);
         Cond : in std_logic_vector(3 downto 0);
+        MCycleS : in std_logic;
         FinalFlags : in std_logic_vector(3 downto 0);
         PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic;
+        MCycleStart : out std_logic;
         CarryFlag : out std_logic
     );
     end component CondLogic;
@@ -283,7 +285,7 @@ architecture ARM_arch of ARM is
     signal ALUResultSrcD : std_logic;
     signal ShamtSrcD : std_logic_vector(1 downto 0);
     signal NoWriteD : std_logic;
-    signal MCycleStartD : std_logic;
+    signal MCycleSD : std_logic;
     signal MCycleOpD : std_logic_vector(1 downto 0);
     signal ALUControlD : std_logic_vector(3 downto 0);
     signal FlagWD : std_logic_vector(2 downto 0);
@@ -307,7 +309,7 @@ architecture ARM_arch of ARM is
     -- signal ALUResultSrcD : std_logic;
     -- signal ShamtSrcD : std_logic_vector(1 downto 0);
     -- signal NoWriteD : std_logic;
-    -- signal MCycleStartD : std_logic;
+    -- signal MCycleSD : std_logic;
     -- signal MCycleOpD : std_logic_vector(1 downto 0);
     -- signal isArithmeticDPD : std_logic;
     -- signal RA1D : std_logic_vector(3 downto 0) := x"0";
@@ -338,7 +340,7 @@ architecture ARM_arch of ARM is
     signal ALUResultSrcE : std_logic := '0';
     signal ShamtSrcE : std_logic_vector(1 downto 0);
     signal NoWriteE : std_logic := '0';
-    signal MCycleStartE : std_logic := '0';
+    signal MCycleSE : std_logic := '0';
     signal MCycleOpE : std_logic_vector(1 downto 0) := "00";
     signal isArithmeticDPE : std_logic := '0';
     signal RA1E : std_logic_vector(3 downto 0) := x"0";
@@ -360,10 +362,12 @@ architecture ARM_arch of ARM is
     -- signal MemWE : std_logic;
     -- signal FlagWE : std_logic_vector(2 downto 0);
     -- signal CondE : std_logic_vector(3 downto 0);
+    -- signal MCycleSE : std_logic;
     signal FinalFlagsE : std_logic_vector(3 downto 0);
     signal PCSrcE : std_logic;
     signal RegWriteE : std_logic;
     signal MemWriteE : std_logic;
+    signal MCycleStartE : std_logic;
     signal CarryFlagE : std_logic;
 
     -- Shifter signals
@@ -376,13 +380,13 @@ architecture ARM_arch of ARM is
     -- ALU signals
     signal Src_AE : std_logic_vector(31 downto 0);
     signal Src_BE : std_logic_vector(31 downto 0);
-    signal ALUFinalControlE : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
+    signal FinalALUControlE : std_logic_vector(3 downto 0);  -- From Decoder or MCycle.
     -- signal CarryFlagE : std_logic;
     signal ALUResultE : std_logic_vector(31 downto 0); -- name for internal signal -> output can't be read
     signal ALUFlagsE : std_logic_vector(3 downto 0);
 
     -- MCycle signals
-    -- signal MCycleStartE : std_logic;
+    signal FinalMCycleStartE : std_logic;
     -- signal MCycleOpE : std_logic_vector(1 downto 0);
     signal Operand1E : std_logic_vector(31 downto 0);
     signal Operand2E : std_logic_vector(31 downto 0);
@@ -513,6 +517,8 @@ architecture ARM_arch of ARM is
     -- signal ALUResultE : std_logic_vector(31 downto 0);
     -- signal ALUResultM : std_logic_vector(31 downto 0);
     -- signal ResultW : std_logic_vector(31 downto 0);
+    -- MCycleBusyE : in std_logic;
+    -- FinalMCycleStartE : in std_logic;
 
     -- Outputs
     -- signal ToForwardD1E : std_logic;
@@ -625,7 +631,7 @@ begin
                 RegWE <= '0';
                 MemWE <= '0';
                 FlagWE <= "000";
-                MCycleStartE <= '0';
+                MCycleSE <= '0';
             elsif StallE = '0' then
                 PCSE <= PCSD;
                 RegWE <= RegWD;
@@ -637,7 +643,7 @@ begin
                 ALUResultSrcE <= ALUResultSrcD;
                 ShamtSrcE <= ShamtSrcD;
                 NoWriteE <= NoWriteD;
-                MCycleStartE <= MCycleStartD;
+                MCycleSE <= MCycleSD;
                 MCycleOpE <= MCycleOpD;
                 isArithmeticDPE <= isArithmeticDPD;
                 RA1E <= RA1D;
@@ -676,11 +682,11 @@ begin
     Src_AE <= MCycleALUSrc1E when MCycleBusyE = '1' else FinalRD1E;
     Src_BE <= MCycleALUSrc2E when MCycleBusyE = '1'
               else ShOutE; -- to enable DP instructions with shift operation
-    ALUFinalControlE <= MCycleALUControlE when MCycleBusyE = '1' else ALUControlE;
+    FinalALUControlE <= MCycleALUControlE when MCycleBusyE = '1' else ALUControlE;
     -- CarryFlagE
 
     -- MCycle inputs
-    -- MCycleStartE
+    FinalMCycleStartE <= MCycleStartE and not DivByZeroInterruptE;
     -- MCycleOpE
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
     -- Operand1 for Division should be RD2. Switching it around makes no
@@ -698,8 +704,7 @@ begin
     WriteDataE <= FinalRD2E;
     FinalOpResultE <= PCPlus4E when isInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when isInterruptRaised = '1' else WA4E;
-  --  FinalWA4E <= WA4E or R14 depending on the signal
-
+    DivByZeroInterruptE <= '1' when MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
 
     -------------------------------------------
     -- Memory connections  --------------------
@@ -800,7 +805,7 @@ begin
         ALUResultM => OpResultM,
         ResultW => ResultW,
         MCycleBusyE => MCycleBusyE,
-        MCycleStartE => MCycleStartE,
+        MCycleStartE => FinalMCycleStartE,
         ToForwardD1E => ToForwardD1E,
         ToForwardD2E => ToForwardD2E,
         ToForwardD3E => ToForwardD3E,
@@ -867,7 +872,7 @@ begin
         RegSrc => RegSrcD,
         ALUResultSrc => ALUResultSrcD,
         NoWrite => NoWriteD,
-        MCycleStart => MCycleStartD,
+        MCycleS => MCycleSD,
         MCycleOp => MCycleOpD,
         ALUControl => ALUControlD,
         FlagW => FlagWD,
@@ -883,10 +888,12 @@ begin
         MemW => MemWE,
         FlagW => FlagWE,
         Cond => CondE,
+        MCycleS => MCycleSE,
         FinalFlags => FinalFlagsE,
         PCSrc => PCSrcE,
         RegWrite => RegWriteE,
         MemWrite => MemWriteE,
+        MCycleStart => MCycleStartE,
         CarryFlag => CarryFlagE
     );
 
@@ -903,7 +910,7 @@ begin
     port map(
         Src_A => Src_AE,
         Src_B => Src_BE,
-        ALUControl => ALUFinalControlE,
+        ALUControl => FinalALUControlE,
         CarryFlag => CarryFlagE,
         ALUResult => ALUResultE,
         ALUFlags => ALUFlagsE
@@ -916,7 +923,7 @@ begin
     port map (
         CLK => CLK,
         RESET => RESET,
-        Start => MCycleStartE,
+        Start => FinalMCycleStartE,
         MCycleOp => MCycleOpE,
         Operand1 => Operand1E,
         Operand2 => Operand2E,
