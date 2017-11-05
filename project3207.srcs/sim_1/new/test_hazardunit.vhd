@@ -32,7 +32,8 @@ architecture test_hazardunit_behavioral of test_hazardunit is
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
         MCycleBusyE : in std_logic;
-        MCycleStartE : in std_logic;
+        IsInterruptRaised : in std_logic;
+        InterruptHandlerAddress : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
         ToForwardD2E : out std_logic;
         ToForwardD3E : out std_logic;
@@ -74,7 +75,8 @@ architecture test_hazardunit_behavioral of test_hazardunit is
     signal t_ALUResultM : std_logic_vector(31 downto 0);
     signal t_ResultW : std_logic_vector(31 downto 0);
     signal t_MCycleBusyE : std_logic;
-    signal t_MCycleStartE : std_logic;
+    signal t_IsInterruptRaised : std_logic;
+    signal t_InterruptHandlerAddress : std_logic_vector(31 downto 0);
     signal t_ToForwardD1E : std_logic;
     signal t_ToForwardD2E : std_logic;
     signal t_ToForwardD3E : std_logic;
@@ -120,7 +122,8 @@ begin
         ALUResultM => t_ALUResultM,
         ResultW => t_ResultW,
         MCycleBusyE => t_MCycleBusyE,
-        MCycleStartE => t_MCycleStartE,
+        IsInterruptRaised => t_IsInterruptRaised,
+        InterruptHandlerAddress => t_InterruptHandlerAddress,
         -- Outputs
         ToForwardD1E => t_ToForwardD1E,
         ToForwardD2E => t_ToForwardD2E,
@@ -143,7 +146,7 @@ begin
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0'); t_MCycleBusyE <= '0'; t_MCycleStartE <= '0';
+        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0'); t_MCycleBusyE <= '0'; t_MCycleStartE <= '0'; t_IsInterruptRaised <= '0'; t_InterruptHandlerAddress <= (others => '0');
         wait for 5 ns;
 
         -------------------------------------------------------------------
@@ -267,6 +270,34 @@ begin
         t_PCSrcE <= '0'; t_ALUResultE <= x"00000001";
         wait for 5 ns;
         assert (t_FlushD = '0' and t_FlushE = '0' and t_ToForwardPC_INW = '0' and t_ForwardPC_INW = x"00000001") report "Failed HazardUnit Test Case 20" severity error;
+
+        ---------------------------------------------------------
+        -- Tests checking if hazards for MCycle are resolved ----
+        ---------------------------------------------------------
+
+        -- Test Case 21: When MCycle operation is running
+        t_MCycleBusyE <= '1';
+        wait for 5 ns;
+        assert (t_StallF = '1' and t_StallD = '1' and t_StallE = '1' and t_FlushM = '1') report "Failed HazardUnit Test Case 21" severity error;
+
+        -- Test Case 22: When MCycle operation is not running
+        t_MCycleBusyE <= '0';
+        wait for 5 ns;
+        assert (t_StallF = '0' and t_StallD = '0' and t_StallE = '0' and t_FlushM = '0') report "Failed HazardUnit Test Case 22" severity error;
+
+        ---------------------------------------------------------
+        -- Tests for Interrupts ---------------------------------
+        ---------------------------------------------------------
+
+        -- Test Case 23: When an interrupt is raised
+        t_IsInterruptRaised <= '1'; t_InterruptHandlerAddress <= x"0000002F";
+        wait for 5 ns;
+        assert (t_FlushD = '1' and t_FlushE = '1' and t_ToForwardPC_INW = '1' and t_ForwardPC_INW = x"0000002F") report "Failed HazardUnit Test Case 23" severity error;
+
+        -- Test Case 24: When no interrupt is raised
+        t_IsInterruptRaised <= '0'; t_InterruptHandlerAddress <= x"00000020";
+        wait for 5 ns;
+        assert (t_FlushD = '0' and t_FlushE = '0' and t_ToForwardPC_INW = '0' and t_ForwardPC_INW /= x"00000020") report "Failed HazardUnit Test Case 24" severity error;
 
         wait;
 

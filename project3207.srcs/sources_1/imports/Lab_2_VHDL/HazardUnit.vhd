@@ -26,7 +26,6 @@ port(
     ALUResultM : in std_logic_vector(31 downto 0);
     ResultW : in std_logic_vector(31 downto 0);
     MCycleBusyE : in std_logic;
-    MCycleStartE : in std_logic;
     IsInterruptRaised : in std_logic;
     InterruptHandlerAddress : in std_logic_vector(31 downto 0);
     ToForwardD1E : out std_logic;
@@ -99,14 +98,14 @@ begin
 
     -- Resolve Control Hazard
     IsControlHazard <= '1' when (PCSrcE = '1' or (PCSrcW = '1' and MemToRegW = '1')) else '0';
-    FlushD <= IsControlHazard or IsInterruptRaised;
-    ToForwardPC_INW <= IsControlHazard or IsInterruptRaised;
+    FlushD <= IsControlHazard or IsInterruptRaised; -- Also checks for interrupts
+    ToForwardPC_INW <= IsControlHazard or IsInterruptRaised; -- Also checks for interrupts
     ForwardPC_INW <= InterruptHandlerAddress when (IsInterruptRaised = '1')
                         else ResultW when (PCSrcW = '1' and MemToRegW = '1')
-                        else ALUResultE;
+                        else ALUResultE; -- Also checks for interrupts
 
     -- Used in Load and Use and Control Hazards
-    FlushE <= '1' when (LDRStall = '1' or IsControlHazard = '1' or IsInterruptRaised = '1') else '0';
+    FlushE <= '1' when (LDRStall = '1' or IsControlHazard = '1' or IsInterruptRaised = '1') else '0'; -- Also checks for interrupts
 
     -- Resolve hazard for MCycle
     StallE <= MCycleBusyE;
