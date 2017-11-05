@@ -34,12 +34,12 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity RegFile is port (
     CLK : in std_logic;
-    WE3 : in std_logic;
+    WE4 : in std_logic;
     A1 : in std_logic_vector(3 downto 0);
     A2 : in std_logic_vector(3 downto 0);
     A3 : in std_logic_vector(3 downto 0);
     A4 : in std_logic_vector(3 downto 0);
-    WD3 : in std_logic_vector(31 downto 0);
+    WD4 : in std_logic_vector(31 downto 0);
     R15 : in std_logic_vector(31 downto 0);
     RD1 : out std_logic_vector(31 downto 0);
     RD2 : out std_logic_vector(31 downto 0);
@@ -59,9 +59,9 @@ begin
     -- write
     process(CLK)
     begin
-        if CLK'event and CLK = '1' then
-            if A4 /= "1111" and WE3 = '1' then
-                RegBank( to_integer(unsigned(A4)) ) <=  WD3;
+        if CLK'event and CLK = '0' then
+            if A4 /= "1111" and WE4 = '1' then
+                RegBank( to_integer(unsigned(A4)) ) <=  WD4;
             end if;
         end if;
     end process;

@@ -67,8 +67,10 @@ begin
         variable signed_multiplier_top_bit : std_logic := '0';
         variable shifted_out_bit : std_logic := '0';
         variable shifted_dividend : std_logic_vector(2 * width downto 0) := (others => '0');
+        variable stored_operand_1 : std_logic_vector(width - 1 downto 0) := (others => '0');
+        variable stored_operand_2 : std_logic_vector(width - 1 downto 0) := (others => '0');
     begin
-        if (CLK'event and CLK = '1') then
+        if (CLK'event and CLK = '0') then
             -- n_state = COMPUTING and state = IDLE implies we are just transitioning into COMPUTING
             if RESET = '1' or (n_state = COMPUTING and state = IDLE) then
                 count := (others => '0');
@@ -76,6 +78,8 @@ begin
                 signed_multiplier_top_bit := '0';
                 shifted_out_bit := '0';
                 shifted_dividend := (2 * width downto width + 1 => '0') & Operand1 & '0';
+                stored_operand_1 := Operand1;
+                stored_operand_2 := Operand2;
             end if;
 
             done <= '0';
@@ -92,7 +96,7 @@ begin
                     ALUControl <= "0100";
                     ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
                     if shifted_multiplier(0) = '1' then -- add only if b0 = 1
-                        ALUSrc2 <= Operand1;
+                        ALUSrc2 <= stored_operand_1;
                     else
                         ALUSrc2 <= (others => '0');
                     end if;
@@ -106,16 +110,16 @@ begin
                     end if;
 
                     ALUSrc1 <= shifted_multiplier(2 * width - 1 downto width);
-                    ALUSrc2 <= Operand1;
+                    ALUSrc2 <= stored_operand_1;
                     topBit1 <= signed_multiplier_top_bit;
                     if ((not shifted_multiplier(0)) and shifted_out_bit) = '1' then
                         -- If shifted out bit is 1 and current last bit is 0, then add
                         ALUControl <= "0100";
-                        topBit2 <= Operand1(width - 1);
+                        topBit2 <= stored_operand_1(width - 1);
                     elsif (shifted_multiplier(0) and (not shifted_out_bit)) = '1' then
                         -- If shifted out bit is 0 and current last bit is 1, then subtract
                         ALUControl <= "0010";
-                        topBit2 <= not Operand1(width - 1);
+                        topBit2 <= not stored_operand_1(width - 1);
                     else
                         -- If shifted out bit and current last bit are same, then do nothing
                         -- Below code simply sets the adder to add first half of shifted_multiplier with 0
@@ -145,14 +149,14 @@ begin
                     Result2 <= shifted_dividend(2 * width downto width + 1);
                     Result1 <= shifted_dividend(width - 1 downto 0);
                     ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                    ALUSrc2 <= Operand2;
+                    ALUSrc2 <= stored_operand_2;
                     ALUControl <= "0010";
                 else -- Signed Division
                     if count = 0 then
                         -- negate the dividend if it is negative
                         ALUSrc1 <= (width - 1 downto 0 => '0');
-                        ALUSrc2 <= Operand1;
-                        if Operand1(width - 1) = '1' then
+                        ALUSrc2 <= stored_operand_1;
+                        if stored_operand_1(width - 1) = '1' then
                             ALUControl <= "0010";
                         else
                             ALUControl <= "0100";
@@ -162,8 +166,8 @@ begin
                         shifted_dividend := (2 * width downto width + 1 => '0') & ALUResult & '0';
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                        ALUSrc2 <= Operand2;
-                        if Operand2(width - 1) = '1' then
+                        ALUSrc2 <= stored_operand_2;
+                        if stored_operand_2(width - 1) = '1' then
                             ALUControl <= "0100";
                         else
                             ALUControl <= "0010";
@@ -178,7 +182,7 @@ begin
 
                         ALUSrc1 <= (width - 1 downto 0 => '0');
                         -- if quotient will be negative, negate the current value, else keep it unchanged
-                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                        if (stored_operand_1(width - 1) xor stored_operand_2(width - 1)) = '1' then
                             ALUSrc2 <= shifted_dividend(2 * width downto width + 1);
                             ALUControl <= "0010";
                         else
@@ -191,7 +195,7 @@ begin
 
                         ALUSrc1 <= (width - 1 downto 0 => '0');
                         -- if remainder will be negative, negate the current value, else keep it unchanged
-                        if (Operand1(width - 1) xor Operand2(width - 1)) = '1' then
+                        if (stored_operand_1(width - 1) xor stored_operand_2(width - 1)) = '1' then
                             ALUSrc2 <= shifted_dividend(width - 1 downto 0);
                             ALUControl <= "0010";
                         else
@@ -209,12 +213,12 @@ begin
                         end if;
 
                         ALUSrc1 <= shifted_dividend(2 * width - 1 downto width);
-                        ALUSrc2 <= Operand2;
+                        ALUSrc2 <= stored_operand_2;
 
                         -- If divisor is positive, then have to subtract it as normal.
                         -- If divisor is negative, then have to subtract its absolute value,
                         -- which is the same as adding it.
-                        if Operand2(width - 1) = '1' then
+                        if stored_operand_2(width - 1) = '1' then
                             ALUControl <= "0100";
                         else
                             ALUControl <= "0010";
@@ -236,7 +240,7 @@ begin
 
     state_update_process : process (CLK) -- state updating
     begin
-        if (CLK'event and CLK = '1') then
+        if (CLK'event and CLK = '0') then
            state <= n_state;
         end if;
     end process;

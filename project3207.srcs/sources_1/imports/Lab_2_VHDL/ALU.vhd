@@ -53,7 +53,7 @@ architecture ALU_arch of ALU is
     signal N, Z, C, V : std_logic;
 begin
     S_wider <= std_logic_vector(unsigned(Src_A_comp) + unsigned(Src_B_comp) + unsigned(C_0));
-    process(Src_A, Src_B, ALUControl, S_wider)
+    process(Src_A, Src_B, ALUControl, S_wider, CarryFlag)
     begin
         C_0 <= (others => '0'); -- default value, will help avoid latches
         Src_A_comp <= '0' & Src_A;
