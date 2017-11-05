@@ -50,6 +50,13 @@ end ARM;
 
 architecture ARM_arch of ARM is
 
+    component InterruptControl is
+    port (
+        DivByZeroInterrupt : in STD_LOGIC;
+        IsInterruptRaised : out STD_LOGIC
+    );
+    end component InterruptControl;
+
     component HazardUnit is
     port (
         RA1D : in std_logic_vector(3 downto 0);
@@ -401,9 +408,9 @@ architecture ARM_arch of ARM is
     signal FinalRD3E : std_logic_vector(31 downto 0);
     signal OpResultE : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal WriteDataE : std_logic_vector(31 downto 0);
-    signal finalWA4E : std_logic_vector(3 downto 0);
-    signal finalD4E : std_logic_vector(3 downto 0);
-    
+    signal FinalWA4E : std_logic_vector(3 downto 0);
+    signal FinalD4E : std_logic_vector(3 downto 0);
+    signal DivByZeroInterruptE : std_logic;
 
     -- Outputs
     -- signal RA2E : std_logic_vector(3 downto 0);
@@ -522,6 +529,16 @@ architecture ARM_arch of ARM is
     signal FlushD : std_logic;
     signal FlushE : std_logic;
     signal FlushM : std_logic;
+
+    -------------------------------------------
+    -- InterruptControl signals  --------------
+    -------------------------------------------
+
+    -- Inputs
+    -- signal DivByZeroInterruptE : std_logic;
+
+    -- Outputs
+    signal IsInterruptRaised : std_logic;
 
 begin
 
@@ -747,6 +764,12 @@ begin
 
 
     -- Port maps
+
+    InterruptControl1: InterruptControl
+    port map(
+        DivByZeroInterrupt => DivByZeroInterruptE,
+        IsInterruptRaised => IsInterruptRaised
+    );
 
     HazardUnit1: HazardUnit
     port map(
