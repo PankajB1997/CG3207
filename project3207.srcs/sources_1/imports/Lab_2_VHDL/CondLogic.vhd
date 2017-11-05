@@ -41,10 +41,12 @@ port (
     MemW : in std_logic;
     FlagW : in std_logic_vector(2 downto 0);
     Cond : in std_logic_vector(3 downto 0);
+    MCycleS : in std_logic;
     FinalFlags : in std_logic_vector(3 downto 0);
     PCSrc : out std_logic;
     RegWrite : out std_logic;
     MemWrite : out std_logic;
+    MCycleStart : out std_logic;
     CarryFlag : out std_logic
 );
 end CondLogic;
@@ -56,7 +58,7 @@ architecture CondLogic_arch of CondLogic is
     signal FlagWrite : std_logic_vector(2 downto 0);
 begin
     CarryFlag <= C;
-    
+
     with Cond select CondEx <=  Z when "0000",  -- EQ
                                 not Z when "0001",  -- NE
                                 C when "0010",  -- CS / HS
@@ -78,6 +80,7 @@ begin
     PCSrc <= PCS and CondEx;
     RegWrite <= RegW and CondEx and (not NoWrite);
     MemWrite <= MemW and CondEx;
+    MCycleStart <= MCycleS and CondEx;
 
     -- Flag write logic
     FlagWrite <= FlagW when CondEx = '1' else "000";

@@ -26,7 +26,7 @@ architecture test_decoder_behavioral of test_decoder is
         ALUResultSrc : out std_logic;
         NoWrite : out std_logic;
         ALUControl : out std_logic_vector(3 downto 0);
-        MCycleStart : out std_logic;
+        MCycleS : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(2 downto 0);
         isArithmeticDP : out std_logic);
@@ -48,7 +48,7 @@ architecture test_decoder_behavioral of test_decoder is
     signal t_ALUResultSrc : std_logic;
     signal t_NoWrite : std_logic;
     signal t_ALUControl : std_logic_vector(3 downto 0);
-    signal t_MCycleStart : std_logic;
+    signal t_MCycleS : std_logic;
     signal t_MCycleOp : std_logic_vector(1 downto 0);
     signal t_FlagW : std_logic_vector(2 downto 0);
     signal t_isArithmeticDP : std_logic;
@@ -75,7 +75,7 @@ begin
         ALUResultSrc => t_ALUResultSrc,
         NoWrite => t_NoWrite,
         ALUControl => t_ALUControl,
-        MCycleStart => t_MCycleStart,
+        MCycleS => t_MCycleS,
         MCycleOp => t_MCycleOp,
         FlagW => t_FlagW,
         isArithmeticDP => t_isArithmeticDP
@@ -322,24 +322,24 @@ begin
         -- Test case 45.1: DP (MUL) Instruction
         t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000000"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '0';
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="01") report "Failed Decoder Test Case 45.1" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleS='1' and t_MCycleOp="01") report "Failed Decoder Test Case 45.1" severity error;
 
         -- Test case 45.2: DP (MUL) Instruction
         -- S flag set, but MUL does not set any flags.
         t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000001"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '1';
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="01") report "Failed Decoder Test Case 45.2" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleS='1' and t_MCycleOp="01") report "Failed Decoder Test Case 45.2" severity error;
 
         -- Test case 46.1: DP (DIV) Instruction
         t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000010"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '0';
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="11") report "Failed Decoder Test Case 46.1" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleS='1' and t_MCycleOp="11") report "Failed Decoder Test Case 46.1" severity error;
 
         -- Test case 46.2: DP (DIV) Instruction
         -- S flag set, but DIV does not set any flags.
         t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '1';
         wait for 5 ns;
-        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleStart='1' and t_MCycleOp="11") report "Failed Decoder Test Case 46.2" severity error;
+        assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleS='1' and t_MCycleOp="11") report "Failed Decoder Test Case 46.2" severity error;
 
         wait;
 

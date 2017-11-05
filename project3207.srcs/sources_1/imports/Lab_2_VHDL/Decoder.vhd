@@ -50,7 +50,7 @@ port(
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
     ALUControl : out std_logic_vector(3 downto 0);
-    MCycleStart : out std_logic;
+    MCycleS : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(2 downto 0);
     isArithmeticDP : out std_logic
@@ -173,7 +173,7 @@ begin
                 NoWrite <= '0';
                 ALUControl <= "0100";  -- ADD
                 ALUResultSrc <= '0';
-                MCycleStart <= '0';
+                MCycleS <= '0';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
             when "10" =>          -- LDR/STR with Negative offset
@@ -181,7 +181,7 @@ begin
                 NoWrite <= '0';
                 ALUControl <= "0010";  -- SUB
                 ALUResultSrc <= '0';
-                MCycleStart <= '0';
+                MCycleS <= '0';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
 
@@ -192,7 +192,7 @@ begin
                     -- MUL/DIV instruction
                     ALUControl <= "----";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
-                    MCycleStart <= '1';
+                    MCycleS <= '1';
                     FlagWInternal <= "000";
                     isArithmeticDP <= '-';
                     if Funct(1) = '0' then
@@ -205,7 +205,7 @@ begin
                 else
                     -- Not MUL/DIV
                     ALUResultSrc <= '0';
-                    MCycleStart <= '0';
+                    MCycleS <= '0';
                     MCycleOp <= "--";
                     ALUControl <= Funct(4 downto 1);
                     isArithmeticDP <= '-';
@@ -305,7 +305,7 @@ begin
                 ALUControl  <= "----";
                 FlagWInternal <= "---";
                 ALUResultSrc <= '-';
-                MCycleStart <= '-';
+                MCycleS <= '-';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
                 IllegalALUDecoder <= '1';
