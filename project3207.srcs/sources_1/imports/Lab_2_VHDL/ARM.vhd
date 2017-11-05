@@ -707,7 +707,7 @@ begin
     WriteDataE <= FinalRD2E;
     FinalOpResultE <= PCPlus4E when isInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when isInterruptRaised = '1' else WA4E;
-    DivByZeroInterruptE <= '1' when MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
+    DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
 
     -------------------------------------------
     -- Memory connections  --------------------

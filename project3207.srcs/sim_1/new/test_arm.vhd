@@ -428,6 +428,7 @@ begin
         t_Instr <= x"E" & "01" & "011001" & x"0" & x"F" & x"000";
         wait for ClkPeriod;
 
+        t_Instr <= x"00000000";
         wait for ClkPeriod;  -- No assertion to be made for branch instruction.
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 28" severity error;
@@ -450,9 +451,45 @@ begin
         t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"0" & "00000" & "00" & "0" & x"0";
         wait for ClkPeriod;
 
-        t_Instr <= x"00000000";
-        wait for ClkPeriod * 2;
+        -- Test Case 30: Division by 0
+        -- MOV R0, #0
+        t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"0" & x"0" & x"0" & x"00";
+        wait for ClkPeriod;
+        
+        -- DIV R2, R1, R0
+        -- Should have division by 0 error.
+        t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"2" & x"0" & x"0" & x"9" & x"1";
+        wait for ClkPeriod;
+         
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 29.3" severity error;
+        
+        -- MOV R5, #8
+        t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"5" & x"0" & x"0" & x"08";
+        wait for ClkPeriod;
+        
+        -- MOV R4, #8
+        t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"4" & x"0" & x"0" & x"08";
+        wait for ClkPeriod;
+
+        assert (t_PC = x"00000020") report "Failed ARM Test Case 30.1" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000014") report "Failed ARM Test Case 30.2" severity error;
+        
+        -- MOV R5, R5
+        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"5" & "00000" & "00" & "0" & x"5";
+        wait for ClkPeriod;
+        
+        -- MOV R4, R4
+        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"4";
+        wait for ClkPeriod;
+        
+        t_Instr <= x"00000000";
+        wait for ClkPeriod;
+        
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 30.3" severity error;
+        wait for ClkPeriod;
+        
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 30.4" severity error;
+        wait for ClkPeriod;
 
         wait;
 
