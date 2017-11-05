@@ -52,8 +52,9 @@ architecture ARM_arch of ARM is
 
     component InterruptControl is
     port (
-        DivByZeroInterrupt : in STD_LOGIC;
-        IsInterruptRaised : out STD_LOGIC
+        DivByZeroInterrupt : in std_logic;
+        IsInterruptRaised : out std_logic;
+        InterruptHandlerAddress : out std_logic
     );
     end component InterruptControl;
 
@@ -539,6 +540,7 @@ architecture ARM_arch of ARM is
 
     -- Outputs
     signal IsInterruptRaised : std_logic;
+    signal InterruptHandlerAddress : std_logic_vector(31 downto 0);
 
 begin
 
@@ -768,7 +770,8 @@ begin
     InterruptControl1: InterruptControl
     port map(
         DivByZeroInterrupt => DivByZeroInterruptE,
-        IsInterruptRaised => IsInterruptRaised
+        IsInterruptRaised => IsInterruptRaised,
+        InterruptHandlerAddress => InterruptHandlerAddress
     );
 
     HazardUnit1: HazardUnit
