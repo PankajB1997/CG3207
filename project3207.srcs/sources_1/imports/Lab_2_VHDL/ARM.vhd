@@ -83,7 +83,6 @@ architecture ARM_arch of ARM is
         ALUResultM : in std_logic_vector(31 downto 0);
         ResultW : in std_logic_vector(31 downto 0);
         MCycleBusyE : in std_logic;
-        MCycleStartE : in std_logic;
         IsInterruptRaised : in std_logic;
         InterruptHandlerAddress : in std_logic_vector(31 downto 0);
         ToForwardD1E : out std_logic;
@@ -565,7 +564,7 @@ begin
     InstrF <= Instr;  -- Comes from outside ARM
 
     -- Internal
-    --PCPlus4E 
+    --PCPlus4E
     PCPlus4F <= PCF + 4;
   --  PCPlus4E <= PCPlus4F;
 
@@ -707,7 +706,7 @@ begin
     WriteDataE <= FinalRD2E;
     FinalOpResultE <= PCPlus4E when isInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when isInterruptRaised = '1' else WA4E;
-    DivByZeroInterruptE <= '1' when MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
+    DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
 
     -------------------------------------------
     -- Memory connections  --------------------
@@ -769,7 +768,7 @@ begin
     PC_INW <= ForwardPC_INW when ToForwardPC_INW = '1' else PCPlus4F;
     WE_PCW <= not StallF;
 
-    
+
     -- Internal
     ResultW <= ReadDataW when MemToRegW = '1' else OpResultW;
 
@@ -808,7 +807,6 @@ begin
         ALUResultM => OpResultM,
         ResultW => ResultW,
         MCycleBusyE => MCycleBusyE,
-        MCycleStartE => FinalMCycleStartE,
         IsInterruptRaised => IsInterruptRaised,
         InterruptHandlerAddress => InterruptHandlerAddress,
         ToForwardD1E => ToForwardD1E,

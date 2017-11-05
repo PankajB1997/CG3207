@@ -146,7 +146,7 @@ begin
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0'); t_MCycleBusyE <= '0'; t_MCycleStartE <= '0'; t_IsInterruptRaised <= '0'; t_InterruptHandlerAddress <= (others => '0');
+        t_RA1D <= (others => '0'); t_RA1E <= (others => '0'); t_RA2D <= (others => '0'); t_RA2E <= (others => '0'); t_RA2M <= (others => '0'); t_RA3D <= (others => '0'); t_RA3E <= (others => '0'); t_WA4E <= (others => '0'); t_WA4M <= (others => '0'); t_WA4W <= (others => '0'); t_RegWriteE <= '0'; t_RegWriteM <= '0'; t_RegWriteW <= '0'; t_MemWriteD <= '0'; t_MemWriteM <= '0'; t_MemToRegE <= '0'; t_MemToRegW <= '0'; t_PCSrcE <= '0'; t_PCSrcW <= '0'; t_ALUResultE <= (others => '0'); t_ALUResultM <= (others => '0'); t_ResultW <= (others => '0'); t_MCycleBusyE <= '0'; t_IsInterruptRaised <= '0'; t_InterruptHandlerAddress <= (others => '0');
         wait for 5 ns;
 
         -------------------------------------------------------------------
