@@ -52,7 +52,11 @@ architecture ARM_arch of ARM is
 
     component InterruptControl is
     port (
+        CLK : in std_logic;
         DivByZeroInterrupt : in std_logic;
+        InterruptNumber : in std_logic_vector(0 downto 0);
+        WriteEnable : in std_logic;
+        WriteHandlerAddress : in std_logic_vector(31 downto 0);
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
     );
@@ -544,7 +548,11 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
-    -- signal DivByZeroInterruptE : std_logic;
+    -- signal CLK : std_logic;
+    -- signal DivByZeroInterrupt : std_logic;
+    signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
+    signal WriteEnableInterruptControlE : std_logic;
+    signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
 
     -- Outputs
     signal IsInterruptRaised : std_logic;
@@ -704,8 +712,8 @@ begin
     FinalRD3E <= RD3E when ToForwardD3E = '0' else ForwardD3E;
     OpResultE <= MCycleResultE when ALUResultSrcE = '1' else ALUResultE;
     WriteDataE <= FinalRD2E;
-    FinalOpResultE <= PCPlus4E when isInterruptRaised = '1' else OpResultE;
-    FinalWA4E <= x"E" when isInterruptRaised = '1' else WA4E;
+    FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
+    FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
 
     -------------------------------------------
@@ -777,7 +785,11 @@ begin
 
     InterruptControl1: InterruptControl
     port map(
+        CLK => CLK,
         DivByZeroInterrupt => DivByZeroInterruptE,
+        InterruptNumber => WriteInterruptNumberE,
+        WriteEnable => WriteEnableInterruptControlE,
+        WriteHandlerAddress => WriteHandlerAddressInterruptControlE,
         IsInterruptRaised => IsInterruptRaised,
         InterruptHandlerAddress => InterruptHandlerAddress
     );
