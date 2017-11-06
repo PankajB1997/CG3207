@@ -165,6 +165,7 @@ architecture ARM_arch of ARM is
         RegW : in std_logic;
         NoWrite : in std_logic;
         MemW : in std_logic;
+        InterruptControlWE : in std_logic;
         FlagW : in std_logic_vector(2 downto 0);
         Cond : in std_logic_vector(3 downto 0);
         MCycleS : in std_logic;
@@ -172,6 +173,7 @@ architecture ARM_arch of ARM is
         PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic;
+        InterruptControlWriteE : out std_logic;
         MCycleStart : out std_logic;
         CarryFlag : out std_logic
     );
@@ -309,6 +311,7 @@ architecture ARM_arch of ARM is
     -- signal PCSD : std_logic;
     -- signal RegWD : std_logic;
     -- signal MemWD : std_logic;
+    -- signal InterruptControlWD : std_logic;
     -- signal FlagWD : std_logic_vector(2 downto 0);
     -- signal ALUControlD : std_logic_vector(3 downto 0);
     -- signal MemToRegD : std_logic;
@@ -340,6 +343,7 @@ architecture ARM_arch of ARM is
     signal PCSE : std_logic := '0';
     signal RegWE : std_logic := '0';
     signal MemWE : std_logic := '0';
+    signal InterruptControlWE : std_logic := '0';
     signal FlagWE : std_logic_vector(2 downto 0) := "000";
     signal ALUControlE : std_logic_vector(3 downto 0) := "0000";
     signal MemToRegE : std_logic := '0';
@@ -367,6 +371,7 @@ architecture ARM_arch of ARM is
     -- signal RegWE : std_logic;
     -- signal NoWriteE : std_logic;
     -- signal MemWE : std_logic;
+    -- signal InterruptControlWE : std_logic;
     -- signal FlagWE : std_logic_vector(2 downto 0);
     -- signal CondE : std_logic_vector(3 downto 0);
     -- signal MCycleSE : std_logic;
@@ -374,6 +379,7 @@ architecture ARM_arch of ARM is
     signal PCSrcE : std_logic;
     signal RegWriteE : std_logic;
     signal MemWriteE : std_logic;
+    signal InterruptControlWriteE : std_logic;
     signal MCycleStartE : std_logic;
     signal CarryFlagE : std_logic;
 
@@ -422,7 +428,6 @@ architecture ARM_arch of ARM is
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
     signal DivByZeroInterruptE : std_logic;
-    signal InterruptControlWriteE : std_logic;
     signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
     signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
@@ -647,12 +652,14 @@ begin
                 PCSE <= '0';
                 RegWE <= '0';
                 MemWE <= '0';
+                InterruptControlWE <= '0';
                 FlagWE <= "000";
                 MCycleSE <= '0';
             elsif StallE = '0' then
                 PCSE <= PCSD;
                 RegWE <= RegWD;
                 MemWE <= MemWD;
+                InterruptControlWE <= InterruptControlWD;
                 FlagWE <= FlagWD;
                 ALUControlE <= ALUControlD;
                 MemToRegE <= MemToRegD;
@@ -722,6 +729,8 @@ begin
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
+    WriteInterruptNumberE <= '0' when DivByZeroInterruptE else '1';
+    WriteHandlerAddressE <= FinalRD2E;
 
     -------------------------------------------
     -- Memory connections  --------------------
@@ -909,6 +918,7 @@ begin
         RegW => RegWE,
         NoWrite => NoWriteE,
         MemW => MemWE,
+        InterruptControlW => InterruptControlWE,
         FlagW => FlagWE,
         Cond => CondE,
         MCycleS => MCycleSE,
@@ -916,6 +926,7 @@ begin
         PCSrc => PCSrcE,
         RegWrite => RegWriteE,
         MemWrite => MemWriteE,
+        InterruptControlWrite => InterruptControlWriteE,
         MCycleStart => MCycleStartE,
         CarryFlag => CarryFlagE
     );
