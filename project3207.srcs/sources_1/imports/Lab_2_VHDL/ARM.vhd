@@ -165,7 +165,7 @@ architecture ARM_arch of ARM is
         RegW : in std_logic;
         NoWrite : in std_logic;
         MemW : in std_logic;
-        InterruptControlWE : in std_logic;
+        InterruptControlW : in std_logic;
         FlagW : in std_logic_vector(2 downto 0);
         Cond : in std_logic_vector(3 downto 0);
         MCycleS : in std_logic;
@@ -173,7 +173,7 @@ architecture ARM_arch of ARM is
         PCSrc : out std_logic;
         RegWrite : out std_logic;
         MemWrite : out std_logic;
-        InterruptControlWriteE : out std_logic;
+        InterruptControlWrite : out std_logic;
         MCycleStart : out std_logic;
         CarryFlag : out std_logic
     );
@@ -729,7 +729,7 @@ begin
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
-    WriteInterruptNumberE <= '0' when DivByZeroInterruptE else '1';
+    WriteInterruptNumberE <= "0" when DivByZeroInterruptE = '1' else "1";
     WriteHandlerAddressE <= FinalRD2E;
 
     -------------------------------------------
