@@ -408,11 +408,9 @@ architecture ARM_arch of ARM is
     signal ToForwardD1E : std_logic;
     signal ToForwardD2E : std_logic;
     signal ToForwardD3E : std_logic;
-    signal ToForwardWriteDataM : std_logic;
     signal ForwardD1E : std_logic_vector(31 downto 0);
     signal ForwardD2E : std_logic_vector(31 downto 0);
     signal ForwardD3E : std_logic_vector(31 downto 0);
-    signal ForwardWriteDataM : std_logic_vector(31 downto 0);
     signal FinalRD1E : std_logic_vector(31 downto 0);
     signal FinalRD2E : std_logic_vector(31 downto 0);
     signal FinalRD3E : std_logic_vector(31 downto 0);
@@ -422,6 +420,9 @@ architecture ARM_arch of ARM is
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
     signal DivByZeroInterruptE : std_logic;
+    signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
+    signal WriteEnableInterruptControlE : std_logic;
+    signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal RA2E : std_logic_vector(3 downto 0);
@@ -454,6 +455,10 @@ architecture ARM_arch of ARM is
     -- MemWrite
     signal ReadDataM : std_logic_vector(31 downto 0);
     signal FinalWriteDataM : std_logic_vector(31 downto 0);
+
+    -- Internal
+    signal ToForwardWriteDataM : std_logic;
+    signal ForwardWriteDataM : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal PCSrcM : std_logic;  -- Carried straight through
@@ -549,10 +554,10 @@ architecture ARM_arch of ARM is
 
     -- Inputs
     -- signal CLK : std_logic;
-    -- signal DivByZeroInterrupt : std_logic;
-    signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
-    signal WriteEnableInterruptControlE : std_logic;
-    signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
+    -- signal DivByZeroInterruptE : std_logic;
+    -- signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
+    -- signal WriteEnableInterruptControlE : std_logic;
+    -- signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
 
     -- Outputs
     signal IsInterruptRaised : std_logic;
