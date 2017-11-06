@@ -11,8 +11,8 @@ architecture test_interruptcontrol_behavioral of test_interruptcontrol is
     port (
         CLK : in std_logic;
         DivByZeroInterrupt : in std_logic;
-        InterruptNumber : in std_logic_vector(0 downto 0);
         WriteEnable : in std_logic;
+        InterruptNumber : in std_logic_vector(0 downto 0);
         WriteHandlerAddress : in std_logic_vector(31 downto 0);
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
@@ -21,8 +21,8 @@ architecture test_interruptcontrol_behavioral of test_interruptcontrol is
 
     signal t_CLK : std_logic;
     signal t_DivByZeroInterrupt : std_logic;
-    signal t_InterruptNumber : std_logic_vector(0 downto 0);
     signal t_WriteEnable : std_logic;
+    signal t_InterruptNumber : std_logic_vector(0 downto 0);
     signal t_WriteHandlerAddress : std_logic_vector(31 downto 0);
     signal t_IsInterruptRaised : std_logic;
     signal t_InterruptHandlerAddress : std_logic_vector(31 downto 0);
@@ -35,8 +35,8 @@ begin
         -- Inputs
         CLK => t_CLK,
         DivByZeroInterrupt => t_DivByZeroInterrupt,
-        InterruptNumber => t_InterruptNumber,
         WriteEnable => t_WriteEnable,
+        InterruptNumber => t_InterruptNumber,
         WriteHandlerAddress => t_WriteHandlerAddress,
         -- Outputs
         IsInterruptRaised => t_IsInterruptRaised,

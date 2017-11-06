@@ -54,8 +54,8 @@ architecture ARM_arch of ARM is
     port (
         CLK : in std_logic;
         DivByZeroInterrupt : in std_logic;
-        InterruptNumber : in std_logic_vector(0 downto 0);
         WriteEnable : in std_logic;
+        InterruptNumber : in std_logic_vector(0 downto 0);
         WriteHandlerAddress : in std_logic_vector(31 downto 0);
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
@@ -142,6 +142,7 @@ architecture ARM_arch of ARM is
         PCS : out std_logic;
         RegW : out std_logic;
         MemW : out std_logic;
+        InterruptControlW : out std_logic;
         MemtoReg : out std_logic;
         ALUSrc : out std_logic;
         ImmSrc : out std_logic_vector(1 downto 0);
@@ -283,6 +284,7 @@ architecture ARM_arch of ARM is
     signal PCSD : std_logic;
     signal RegWD : std_logic;
     signal MemWD : std_logic;
+    signal InterruptControlWD : std_logic;
     signal MemtoRegD : std_logic;
     signal ALUSrcD : std_logic;
     -- signal ImmSrcD : std_logic_vector(1 downto 0);
@@ -420,9 +422,9 @@ architecture ARM_arch of ARM is
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
     signal DivByZeroInterruptE : std_logic;
+    signal InterruptControlWriteE : std_logic;
     signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
-    signal WriteEnableInterruptControlE : std_logic;
-    signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
+    signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal RA2E : std_logic_vector(3 downto 0);
@@ -555,9 +557,9 @@ architecture ARM_arch of ARM is
     -- Inputs
     -- signal CLK : std_logic;
     -- signal DivByZeroInterruptE : std_logic;
+    -- signal InterruptControlWriteE : std_logic;
     -- signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
-    -- signal WriteEnableInterruptControlE : std_logic;
-    -- signal WriteHandlerAddressInterruptControlE : std_logic_vector(31 downto 0);
+    -- signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
     signal IsInterruptRaised : std_logic;
@@ -792,9 +794,9 @@ begin
     port map(
         CLK => CLK,
         DivByZeroInterrupt => DivByZeroInterruptE,
+        WriteEnable => InterruptControlWriteE,
         InterruptNumber => WriteInterruptNumberE,
-        WriteEnable => WriteEnableInterruptControlE,
-        WriteHandlerAddress => WriteHandlerAddressInterruptControlE,
+        WriteHandlerAddress => WriteHandlerAddressE,
         IsInterruptRaised => IsInterruptRaised,
         InterruptHandlerAddress => InterruptHandlerAddress
     );
@@ -885,6 +887,7 @@ begin
         PCS => PCSD,
         RegW => RegWD,
         MemW => MemWD,
+        InterruptControlW => InterruptControlWD,
         MemtoReg => MemtoRegD,
         ALUSrc => ALUSrcD,
         ImmSrc => ImmSrcD,

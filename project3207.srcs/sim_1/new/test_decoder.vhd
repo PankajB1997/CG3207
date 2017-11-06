@@ -18,6 +18,7 @@ architecture test_decoder_behavioral of test_decoder is
         PCS : out std_logic;
         RegW : out std_logic;
         MemW : out std_logic;
+        InterruptControlW : out std_logic;
         MemtoReg : out std_logic;
         ALUSrc : out std_logic;
         ImmSrc : out std_logic_vector(1 downto 0);
@@ -40,6 +41,7 @@ architecture test_decoder_behavioral of test_decoder is
     signal t_PCS : std_logic;
     signal t_RegW : std_logic;
     signal t_MemW : std_logic;
+    signal t_InterruptControlW : std_logic;
     signal t_MemtoReg : std_logic;
     signal t_ALUSrc : std_logic;
     signal t_ImmSrc : std_logic_vector(1 downto 0);
@@ -67,6 +69,7 @@ begin
         PCS => t_PCS,
         RegW => t_RegW,
         MemW => t_MemW,
+        InterruptControlW => t_InterruptControlW,
         MemtoReg => t_MemtoReg,
         ALUSrc => t_ALUSrc,
         ImmSrc => t_ImmSrc,
