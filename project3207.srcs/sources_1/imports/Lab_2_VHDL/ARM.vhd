@@ -154,7 +154,8 @@ architecture ARM_arch of ARM is
         MCycleS : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(2 downto 0);
-        isArithmeticDP : out std_logic
+        isArithmeticDP : out std_logic;
+        IsBLInstruction : out std_logic
     );
     end component Decoder;
 
@@ -299,6 +300,7 @@ architecture ARM_arch of ARM is
     signal ALUControlD : std_logic_vector(3 downto 0);
     signal FlagWD : std_logic_vector(2 downto 0);
     signal isArithmeticDPD : std_logic;
+    signal IsBLInstructionD : std_logic;
 
     -- Internal
     signal CondD : std_logic_vector(3 downto 0);
@@ -630,8 +632,8 @@ begin
 
     -- Internal
     CondD <= InstrD(31 downto 28);
-    WA4D <= InstrD(19 downto 16)  -- Rd for MUL/DIV is 19 downto 16.
-            when RegSrcD(2) = '1'
+    WA4D <= "E" when IsBLInstructionD = '1'
+            else InstrD(19 downto 16) when RegSrcD(2) = '1' -- Rd for MUL/DIV is 19 downto 16.
             else InstrD(15 downto 12);
     ShTypeD <= "11" when ALUSrcD = '1' else InstrD(6 downto 5);
     Shamt5D <= InstrD(11 downto 7) when ShamtSrcD = "01"
@@ -908,7 +910,8 @@ begin
         MCycleOp => MCycleOpD,
         ALUControl => ALUControlD,
         FlagW => FlagWD,
-        isArithmeticDP => isArithmeticDPD
+        isArithmeticDP => isArithmeticDPD,
+        IsBLInstruction => IsBLInstructionD
     );
 
     CondLogic1: CondLogic

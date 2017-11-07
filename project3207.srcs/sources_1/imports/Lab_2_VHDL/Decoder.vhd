@@ -54,7 +54,8 @@ port(
     MCycleS : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(2 downto 0);
-    isArithmeticDP : out std_logic
+    isArithmeticDP : out std_logic;
+    IsBLInstruction : out std_logic
 );
 end Decoder;
 
@@ -78,7 +79,7 @@ begin
         InterruptControlWInternal <= '0';
 
         case Op is
-            -- Branch Instruction
+            -- Either B or Cannibalized BL Instruction
             when "10" =>
                 Branch <= '1';
                 MemtoReg <= '0';
@@ -86,9 +87,10 @@ begin
                 ALUSrc <= '1';
                 ImmSrc <= "10";
                 ShamtSrc <= "00";
-                RegWInternal <= '0';
+                RegWInternal <= Funct(4); -- writes '0' for B and '1' for Cannibalized BL
                 RegSrc <= "0-1";
                 ALUOp <= "11"; -- ADD always
+                IsBLInstruction <= Funct(4); -- writes '0' for B and '1' for Cannibalized BL
 
             -- Memory Instruction
             when "01" =>
@@ -96,6 +98,7 @@ begin
                 ALUSrc <= '1';
                 ImmSrc <= "01";
                 ShamtSrc <= "00";
+                IsBLInstruction <= '0';
                 if Funct(3) = '0' then -- U bit '0'
                     ALUOp <= "10"; -- LDR/STR with Negative offset
                 else
@@ -134,6 +137,7 @@ begin
                 MemWInternal <= '0';
                 RegWInternal <= '1';
                 ALUOp <= "00";
+                IsBLInstruction <= '0';
 
                 if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV Instruction
@@ -173,6 +177,7 @@ begin
                 ShamtSrc <= "--";
                 ALUOp <= "--";
                 IllegalMainDecoder <= '1';
+                IsBLInstruction <= '-';
         end case;
     end process;
 
