@@ -55,7 +55,7 @@ begin
         RegW => t_RegW,
         NoWrite => t_NoWrite,
         MemW => t_MemW,
-        InterruptControlW <= t_InterruptControlW,
+        InterruptControlW => t_InterruptControlW,
         FlagW => t_FlagW,
         Cond => t_Cond,
         MCycleS => t_MCycleS,
@@ -64,7 +64,7 @@ begin
         PCSrc => t_PCSrc,
         RegWrite => t_RegWrite,
         MemWrite => t_MemWrite,
-        InterruptControlWrite <= t_InterruptControlWrite,
+        InterruptControlWrite => t_InterruptControlWrite,
         MCycleStart => t_MCycleStart,
         CarryFlag => t_CarryFlag
     );
