@@ -58,8 +58,12 @@ begin
 
         -- Test Case 1: Check if DivByZeroInterrupt is raised, it causes an interrupt signal to be raised
         t_DivByZeroInterrupt <= '1';
-        wait for 1 ns;
+        wait for ClkPeriod / 10;
         assert (t_IsInterruptRaised = '1' and t_InterruptHandlerAddress = x"00000020") report "Failed InterruptControl Test Case 1" severity error;
+
+        wait for ClkPeriod * 9 / 10;
+
+
 
         wait;
 

@@ -6,8 +6,9 @@ entity InterruptControl is
 port (
     CLK : in std_logic;
     DivByZeroInterrupt : in std_logic;
+    IllegalInstructionInterrupt : in std_logic;
     -- Add more interrupt(s)
-    InterruptNumber : in std_logic_vector(0 downto 0);
+    InterruptNumber : in std_logic_vector(1 downto 0);
     WriteEnable : in std_logic;
     WriteHandlerAddress : in std_logic_vector(31 downto 0);
     IsInterruptRaised : out std_logic;
@@ -16,14 +17,16 @@ port (
 end InterruptControl;
 
 architecture InterruptControl_arch of InterruptControl is
-    type HandlerAddressBank_type is array (0 to 1) of std_logic_vector(31 downto 0);
-    signal HandlerAddressBank : HandlerAddressBank_type := (x"00000020", x"00000000");
+    type HandlerAddressBank_type is array (0 to 2) of std_logic_vector(31 downto 0);
+    signal HandlerAddressBank : HandlerAddressBank_type := (x"00000004", x"00000020", x"00000000");
 begin
 
-    IsInterruptRaised <= DivByZeroInterrupt;
+    IsInterruptRaised <= DivByZeroInterrupt or IllegalInstructionInterrupt;
     InterruptHandlerAddress <= HandlerAddressBank(0)
-                               when DivByZeroInterrupt = '1'
-                               else HandlerAddressBank(1);
+                               when IllegalInstructionInterrupt = '1'
+                               else HandlerAddressBank(1)
+                               when DivByZeroInterrupt = '1' 
+                               else HandlerAddressBank(2);
 
     process(CLK)
     begin
