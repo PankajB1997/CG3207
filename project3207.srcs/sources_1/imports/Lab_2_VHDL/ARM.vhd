@@ -55,7 +55,7 @@ architecture ARM_arch of ARM is
         DivByZeroInterrupt : in std_logic;
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
-    );
+    ); 
     end component InterruptControl;
 
     component HazardUnit is
