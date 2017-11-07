@@ -42,6 +42,7 @@ port(
     PCS : out std_logic;
     RegW : out std_logic;
     MemW : out std_logic;
+    InterruptControlW : out std_logic;
     MemtoReg : out std_logic;
     ALUSrc : out std_logic;
     ImmSrc : out std_logic_vector(1 downto 0);
@@ -63,6 +64,7 @@ architecture Decoder_arch of Decoder is
     signal RdEquals15 : std_logic;
     signal RegWInternal : std_logic;
     signal MemWInternal : std_logic;
+    signal InterruptControlWInternal : std_logic;
     signal FlagWInternal : std_logic_vector (2 downto 0);
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder : std_logic;
@@ -73,6 +75,7 @@ begin
     main_decoder: process (Op, Funct, MCycleFunct, IsShiftReg)
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
+        InterruptControlWInternal <= '0';
 
         case Op is
             -- Branch Instruction
@@ -99,12 +102,23 @@ begin
                     ALUOp <= "11"; -- LDR/STR with Positive offset
                 end if;
 
-                -- STR Instruction
+                -- Check 'L' bit
                 if Funct(0) = '0' then
-                    MemtoReg <= '-';
-                    MemWInternal <= '1';
-                    RegWInternal <= '0';
-                    RegSrc <= "010";
+                    -- Check 'P' bit
+                    if Funct(4) = '0' then
+                        -- Save Handler Instruction
+                        MemtoReg <= '-';
+                        MemWInternal <= '0';
+                        RegWInternal <= '0';
+                        RegSrc <= "010";
+                        InterruptControlWInternal <= '1';
+                    else
+                        -- STR Instruction
+                        MemtoReg <= '-';
+                        MemWInternal <= '1';
+                        RegWInternal <= '0';
+                        RegSrc <= "010";
+                    end if;
                 -- LDR Instruction
                 else
                     MemtoReg <= '1';
@@ -327,6 +341,7 @@ begin
     -- If instruction is illegal, don't write any values
     RegW <= RegWInternal and (not IllegalInstruction);
     MemW <= MemWInternal and (not IllegalInstruction);
+    InterruptControlW <= InterruptControlWInternal and (not IllegalInstruction);
     FlagW <= FlagWInternal when (IllegalInstruction = '0') else "000";
 
 end Decoder_arch;

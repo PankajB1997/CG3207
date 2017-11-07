@@ -39,6 +39,7 @@ port (
     RegW : in std_logic;
     NoWrite : in std_logic;
     MemW : in std_logic;
+    InterruptControlW : in std_logic;
     FlagW : in std_logic_vector(2 downto 0);
     Cond : in std_logic_vector(3 downto 0);
     MCycleS : in std_logic;
@@ -46,6 +47,7 @@ port (
     PCSrc : out std_logic;
     RegWrite : out std_logic;
     MemWrite : out std_logic;
+    InterruptControlWrite : out std_logic;
     MCycleStart : out std_logic;
     CarryFlag : out std_logic
 );
@@ -80,6 +82,7 @@ begin
     PCSrc <= PCS and CondEx;
     RegWrite <= RegW and CondEx and (not NoWrite);
     MemWrite <= MemW and CondEx;
+    InterruptControlWrite <= InterruptControlW and CondEx;
     MCycleStart <= MCycleS and CondEx;
 
     -- Flag write logic
