@@ -30,7 +30,8 @@ architecture test_decoder_behavioral of test_decoder is
         MCycleS : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(2 downto 0);
-        isArithmeticDP : out std_logic);
+        isArithmeticDP : out std_logic;
+        IllegalInstructionInterrupt : out std_logic);
     end component;
 
     signal t_Rd : std_logic_vector(3 downto 0);
@@ -54,6 +55,8 @@ architecture test_decoder_behavioral of test_decoder is
     signal t_MCycleOp : std_logic_vector(1 downto 0);
     signal t_FlagW : std_logic_vector(2 downto 0);
     signal t_isArithmeticDP : std_logic;
+    signal t_IllegalInstructionInterrupt : std_logic;
+
 
 begin
 
@@ -81,13 +84,16 @@ begin
         MCycleS => t_MCycleS,
         MCycleOp => t_MCycleOp,
         FlagW => t_FlagW,
-        isArithmeticDP => t_isArithmeticDP
+        isArithmeticDP => t_isArithmeticDP,
+        IllegalInstructionInterrupt => t_IllegalInstructionInterrupt 
+
+
     );
 
     stim_proc: process begin
 
         -- Set initial values for inputs
-        t_Rd <= (others => '0'); t_Op <= (others => '0'); t_Funct <= (others => '0'); t_IsShiftReg <= '0'; t_MCycleFunct <= (others => '0');
+        t_Rd <= (others => '0'); t_Op <= (others => '0'); t_Funct <= (others => '0'); t_IsShiftReg <= '0'; t_MCycleFunct <= (others => '0'); 
         wait for 5 ns;
 
         -- Note: Most of the tests require MCycleFunct to be something other than 1001.
@@ -256,6 +262,11 @@ begin
         t_Rd <= "0101"; t_Op <= "00"; t_Funct <= "010101"; t_IsShiftReg <= '0';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="01" and t_RegSrc="000" and t_NoWrite='1' and t_ALUControl="1010" and t_FlagW="111" and t_isArithmeticDP='1') report "Failed Decoder Test Case 31" severity error;
+        
+        -- Test case 31.2: DP Reg (CMP) Instruction as an illegal instruction (S flag not set)
+        t_Rd <= "0101"; t_Op <= "00"; t_Funct <= "010100"; t_IsShiftReg <= '0';
+        wait for 5 ns;
+        assert (t_IllegalInstructionInterrupt= '1') report "Failed Decoder Test Case 31.2" severity error;
 
         -- Test case 32: DP Imm (CMP) Instruction
         t_Rd <= "0110"; t_Op <= "00"; t_Funct <= "110101"; t_IsShiftReg <= '1';
@@ -343,6 +354,13 @@ begin
         t_Rd <= "----"; t_Op <= "00"; t_Funct <= "000011"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '1';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='1' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='0' and t_ShamtSrc="00" and t_RegSrc="100" and t_NoWrite='0' and t_FlagW="000" and t_ALUResultSrc='1' and t_MCycleS='1' and t_MCycleOp="11") report "Failed Decoder Test Case 46.2" severity error;
+        
+        -- Test case 46.3: DP (DIV) Instruction with Illegal Instruction Interrupt
+        -- Op code is illegal (11)
+        t_Rd <= "----"; t_Op <= "11"; t_Funct <= "000011"; t_MCycleFunct <= "1001"; t_IsShiftReg <= '1';
+        wait for 5 ns;
+        assert (t_IllegalInstructionInterrupt= '1') report "Failed Decoder Test Case 46.3" severity error;
+
 
         wait;
 

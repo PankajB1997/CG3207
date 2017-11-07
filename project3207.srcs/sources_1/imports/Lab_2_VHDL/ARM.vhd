@@ -54,8 +54,9 @@ architecture ARM_arch of ARM is
     port (
         CLK : in std_logic;
         DivByZeroInterrupt : in std_logic;
+        IllegalInstructionInterrupt : in std_logic;
         WriteEnable : in std_logic;
-        InterruptNumber : in std_logic_vector(0 downto 0);
+        InterruptNumber : in std_logic_vector(1 downto 0);
         WriteHandlerAddress : in std_logic_vector(31 downto 0);
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
@@ -154,7 +155,8 @@ architecture ARM_arch of ARM is
         MCycleS : out std_logic;
         MCycleOp : out std_logic_vector(1 downto 0);
         FlagW : out std_logic_vector(2 downto 0);
-        isArithmeticDP : out std_logic
+        isArithmeticDP : out std_logic;
+        IllegalInstructionInterrupt : out std_logic
     );
     end component Decoder;
 
@@ -428,7 +430,9 @@ architecture ARM_arch of ARM is
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
     signal DivByZeroInterruptE : std_logic;
-    signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
+    signal IllegalInstructionInterruptD : std_logic;
+    signal IllegalInstructionInterruptE : std_logic;
+    signal WriteInterruptNumberE : std_logic_vector(1 downto 0);
     signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -562,8 +566,9 @@ architecture ARM_arch of ARM is
     -- Inputs
     -- signal CLK : std_logic;
     -- signal DivByZeroInterruptE : std_logic;
+    -- signal IllegalInstructionInterrupt : std_logic;
     -- signal InterruptControlWriteE : std_logic;
-    -- signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
+    -- signal WriteInterruptNumberE : std_logic_vector(1 downto 0);
     -- signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -587,7 +592,6 @@ begin
     --PCPlus4E
     PCPlus4F <= PCF + 4;
   --  PCPlus4E <= PCPlus4F;
-
 
     -------------------------------------------
     -- Decode connections  --------------------
@@ -659,6 +663,7 @@ begin
                 PCSE <= PCSD;
                 RegWE <= RegWD;
                 MemWE <= MemWD;
+                IllegalInstructionInterruptE <= IllegalInstructionInterruptD;
                 InterruptControlWE <= InterruptControlWD;
                 FlagWE <= FlagWD;
                 ALUControlE <= ALUControlD;
@@ -710,7 +715,7 @@ begin
     -- CarryFlagE
 
     -- MCycle inputs
-    FinalMCycleStartE <= MCycleStartE and not DivByZeroInterruptE;
+    FinalMCycleStartE <= MCycleStartE and not DivByZeroInterruptE and not IllegalInstructionInterruptE;
     -- MCycleOpE
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
     -- Operand1 for Division should be RD2. Switching it around makes no
@@ -729,7 +734,9 @@ begin
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
-    WriteInterruptNumberE <= "0" when DivByZeroInterruptE = '1' else "1";
+    WriteInterruptNumberE <= "00" when IllegalInstructionInterruptE = '1' 
+                             else "01" when DivByZeroInterruptE = '1' 
+                             else "10";
     WriteHandlerAddressE <= FinalRD2E;
 
     -------------------------------------------
@@ -803,6 +810,7 @@ begin
     port map(
         CLK => CLK,
         DivByZeroInterrupt => DivByZeroInterruptE,
+        IllegalInstructionInterrupt => IllegalInstructionInterruptE,
         WriteEnable => InterruptControlWriteE,
         InterruptNumber => WriteInterruptNumberE,
         WriteHandlerAddress => WriteHandlerAddressE,
@@ -908,7 +916,8 @@ begin
         MCycleOp => MCycleOpD,
         ALUControl => ALUControlD,
         FlagW => FlagWD,
-        isArithmeticDP => isArithmeticDPD
+        isArithmeticDP => isArithmeticDPD,
+        IllegalInstructionInterrupt => IllegalInstructionInterruptD
     );
 
     CondLogic1: CondLogic

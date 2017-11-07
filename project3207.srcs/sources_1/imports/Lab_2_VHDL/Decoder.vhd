@@ -54,7 +54,8 @@ port(
     MCycleS : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(2 downto 0);
-    isArithmeticDP : out std_logic
+    isArithmeticDP : out std_logic;
+    IllegalInstructionInterrupt : out std_logic
 );
 end Decoder;
 
@@ -105,20 +106,20 @@ begin
                 -- Check 'L' bit
                 if Funct(0) = '0' then
                     -- Check 'P' bit
-                    if Funct(4) = '0' then
-                        -- Save Handler Instruction
-                        MemtoReg <= '-';
-                        MemWInternal <= '0';
-                        RegWInternal <= '0';
-                        RegSrc <= "010";
-                        InterruptControlWInternal <= '1';
-                    else
+--                    if Funct(4) = '0' then
+--                        -- Save Handler Instruction
+--                        MemtoReg <= '-';
+--                        MemWInternal <= '0';
+--                        RegWInternal <= '0';
+--                        RegSrc <= "010";
+--                        InterruptControlWInternal <= '1';
+--                    else
                         -- STR Instruction
                         MemtoReg <= '-';
                         MemWInternal <= '1';
                         RegWInternal <= '0';
                         RegSrc <= "010";
-                    end if;
+                    --end if;
                 -- LDR Instruction
                 else
                     MemtoReg <= '1';
@@ -337,6 +338,7 @@ begin
     end process;
 
     IllegalInstruction <= IllegalMainDecoder or IllegalALUDecoder;
+    IllegalInstructionInterrupt <= IllegalInstruction;
 
     -- If instruction is illegal, don't write any values
     RegW <= RegWInternal and (not IllegalInstruction);
