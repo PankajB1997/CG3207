@@ -42,6 +42,7 @@ port(
     PCS : out std_logic;
     RegW : out std_logic;
     MemW : out std_logic;
+    InterruptControlW : out std_logic;
     MemtoReg : out std_logic;
     ALUSrc : out std_logic;
     ImmSrc : out std_logic_vector(1 downto 0);
@@ -50,10 +51,12 @@ port(
     ALUResultSrc : out std_logic;
     NoWrite : out std_logic;
     ALUControl : out std_logic_vector(3 downto 0);
-    MCycleStart : out std_logic;
+    MCycleS : out std_logic;
     MCycleOp : out std_logic_vector(1 downto 0);
     FlagW : out std_logic_vector(2 downto 0);
-    isArithmeticDP : out std_logic
+    isArithmeticDP : out std_logic;
+    IsBLInstruction : out std_logic;
+    IllegalInstructionInterrupt : out std_logic
 );
 end Decoder;
 
@@ -63,6 +66,7 @@ architecture Decoder_arch of Decoder is
     signal RdEquals15 : std_logic;
     signal RegWInternal : std_logic;
     signal MemWInternal : std_logic;
+    signal InterruptControlWInternal : std_logic;
     signal FlagWInternal : std_logic_vector (2 downto 0);
     signal IllegalMainDecoder : std_logic;
     signal IllegalALUDecoder : std_logic;
@@ -73,9 +77,11 @@ begin
     main_decoder: process (Op, Funct, MCycleFunct, IsShiftReg)
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
+        InterruptControlWInternal <= '0';
+        IsBLInstruction <= '0';
 
         case Op is
-            -- Branch Instruction
+            -- Either B or Cannibalized BL Instruction
             when "10" =>
                 Branch <= '1';
                 MemtoReg <= '0';
@@ -83,9 +89,10 @@ begin
                 ALUSrc <= '1';
                 ImmSrc <= "10";
                 ShamtSrc <= "00";
-                RegWInternal <= '0';
+                RegWInternal <= Funct(4); -- writes '0' for B and '1' for Cannibalized BL
                 RegSrc <= "0-1";
                 ALUOp <= "11"; -- ADD always
+                IsBLInstruction <= Funct(4); -- writes '0' for B and '1' for Cannibalized BL
 
             -- Memory Instruction
             when "01" =>
@@ -99,12 +106,23 @@ begin
                     ALUOp <= "11"; -- LDR/STR with Positive offset
                 end if;
 
-                -- STR Instruction
+                -- Check 'L' bit
                 if Funct(0) = '0' then
-                    MemtoReg <= '-';
-                    MemWInternal <= '1';
-                    RegWInternal <= '0';
-                    RegSrc <= "010";
+                    -- Check 'P' bit
+                    if Funct(4) = '0' then
+                        -- Save Handler Instruction
+                        MemtoReg <= '-';
+                        MemWInternal <= '0';
+                        RegWInternal <= '0';
+                        RegSrc <= "010";
+                        InterruptControlWInternal <= '1';
+                    else
+                        -- STR Instruction
+                        MemtoReg <= '-';
+                        MemWInternal <= '1';
+                        RegWInternal <= '0';
+                        RegSrc <= "010";
+                    end if;
                 -- LDR Instruction
                 else
                     MemtoReg <= '1';
@@ -159,6 +177,7 @@ begin
                 ShamtSrc <= "--";
                 ALUOp <= "--";
                 IllegalMainDecoder <= '1';
+                IsBLInstruction <= '-';
         end case;
     end process;
 
@@ -173,7 +192,7 @@ begin
                 NoWrite <= '0';
                 ALUControl <= "0100";  -- ADD
                 ALUResultSrc <= '0';
-                MCycleStart <= '0';
+                MCycleS <= '0';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
             when "10" =>          -- LDR/STR with Negative offset
@@ -181,7 +200,7 @@ begin
                 NoWrite <= '0';
                 ALUControl <= "0010";  -- SUB
                 ALUResultSrc <= '0';
-                MCycleStart <= '0';
+                MCycleS <= '0';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
 
@@ -192,7 +211,7 @@ begin
                     -- MUL/DIV instruction
                     ALUControl <= "----";  -- MCycle controls ALU.
                     ALUResultSrc <= '1';
-                    MCycleStart <= '1';
+                    MCycleS <= '1';
                     FlagWInternal <= "000";
                     isArithmeticDP <= '-';
                     if Funct(1) = '0' then
@@ -205,7 +224,7 @@ begin
                 else
                     -- Not MUL/DIV
                     ALUResultSrc <= '0';
-                    MCycleStart <= '0';
+                    MCycleS <= '0';
                     MCycleOp <= "--";
                     ALUControl <= Funct(4 downto 1);
                     isArithmeticDP <= '-';
@@ -305,7 +324,7 @@ begin
                 ALUControl  <= "----";
                 FlagWInternal <= "---";
                 ALUResultSrc <= '-';
-                MCycleStart <= '-';
+                MCycleS <= '-';
                 MCycleOp <= "--";
                 isArithmeticDP <= '-';
                 IllegalALUDecoder <= '1';
@@ -323,10 +342,12 @@ begin
     end process;
 
     IllegalInstruction <= IllegalMainDecoder or IllegalALUDecoder;
+    IllegalInstructionInterrupt <= IllegalInstruction;
 
     -- If instruction is illegal, don't write any values
     RegW <= RegWInternal and (not IllegalInstruction);
     MemW <= MemWInternal and (not IllegalInstruction);
+    InterruptControlW <= InterruptControlWInternal and (not IllegalInstruction);
     FlagW <= FlagWInternal when (IllegalInstruction = '0') else "000";
 
 end Decoder_arch;
