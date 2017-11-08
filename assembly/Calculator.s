@@ -35,6 +35,10 @@
 ; ------- <code memory (ROM mapped to Instruction Memory) begins>
 ; Total number of instructions should not exceed 127 (126 excluding the last line 'halt B halt').
 
+; Configure all interrupts.
+		BL divisionbyzerointerruptlabel
+		BL illegalinstructioninterruptlabel
+
 ; Load necessary constants.
 		MOV R3, #1
 		MOV R9, #3
@@ -147,6 +151,16 @@ computationdone
 ; Loop back to input1 to restart input.
 		B  input1
 
+divisionbyzerointerruptlabel
+		MOV R0, #1024
+		STR R0, [R8, #20]
+		MOV R15, R14
+		
+illegalinstructioninterruptlabel
+		MOV R0, #2048
+		STR R0, [R8, #20]
+		MOV R15, R14
+		
 
 ; ------- <\code memory (ROM mapped to Instruction Memory) ends>
 
