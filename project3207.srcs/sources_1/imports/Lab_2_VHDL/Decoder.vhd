@@ -83,7 +83,7 @@ begin
         case Op is
             -- Either B or Cannibalized BL Instruction
             when "10" =>
-                Branch <= '1';
+                Branch <= not Funct(4); -- writes '1' for B and '0' for Cannibalized BL
                 MemtoReg <= '0';
                 MemWInternal <= '0';
                 ALUSrc <= '1';
