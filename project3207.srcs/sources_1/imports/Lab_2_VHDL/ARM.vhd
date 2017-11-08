@@ -56,7 +56,7 @@ architecture ARM_arch of ARM is
         DivByZeroInterrupt : in std_logic;
         IllegalInstructionInterrupt : in std_logic;
         WriteEnable : in std_logic;
-        InterruptNumber : in std_logic_vector(1 downto 0);
+        InterruptNumber : in std_logic_vector(0 downto 0);
         WriteHandlerAddress : in std_logic_vector(31 downto 0);
         IsInterruptRaised : out std_logic;
         InterruptHandlerAddress : out std_logic_vector(31 downto 0)
@@ -249,8 +249,6 @@ architecture ARM_arch of ARM is
 
     -- Internal
     signal PCPlus4F : std_logic_vector(31 downto 0);
-    signal PCPlus4E : std_logic_vector(31 downto 0);
-    signal PCPlus4D : std_logic_vector(31 downto 0);
 
     -- Outputs
     -- signal InstrF : std_logic_vector(31 downto 0);
@@ -263,6 +261,7 @@ architecture ARM_arch of ARM is
 
     -- Inputs
     signal InstrD : std_logic_vector(31 downto 0) := x"00000000";
+    signal PCPlus4D : std_logic_vector(31 downto 0) := x"00000000";
     signal PCPlus8D : std_logic_vector(31 downto 0) := x"00000000"; -- Same as PCPlus4F due to delaying
 
     -- RegFile signals
@@ -344,6 +343,7 @@ architecture ARM_arch of ARM is
     -------------------------------------------
 
     -- Inputs
+    signal PCPlus4E : std_logic_vector(31 downto 0) := x"00000000";
     signal PCSE : std_logic := '0';
     signal RegWE : std_logic := '0';
     signal MemWE : std_logic := '0';
@@ -434,7 +434,7 @@ architecture ARM_arch of ARM is
     signal DivByZeroInterruptE : std_logic;
     signal IllegalInstructionInterruptD : std_logic;
     signal IllegalInstructionInterruptE : std_logic;
-    signal WriteInterruptNumberE : std_logic_vector(1 downto 0);
+    signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
     signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -570,7 +570,7 @@ architecture ARM_arch of ARM is
     -- signal DivByZeroInterruptE : std_logic;
     -- signal IllegalInstructionInterrupt : std_logic;
     -- signal InterruptControlWriteE : std_logic;
-    -- signal WriteInterruptNumberE : std_logic_vector(1 downto 0);
+    -- signal WriteInterruptNumberE : std_logic_vector(0 downto 0);
     -- signal WriteHandlerAddressE : std_logic_vector(31 downto 0);
 
     -- Outputs
@@ -636,7 +636,7 @@ begin
 
     -- Internal
     CondD <= InstrD(31 downto 28);
-    WA4D <= "E" when IsBLInstructionD = '1'
+    WA4D <= x"D" when IsBLInstructionD = '1'
             else InstrD(19 downto 16) when RegSrcD(2) = '1' -- Rd for MUL/DIV is 19 downto 16.
             else InstrD(15 downto 12);
     ShTypeD <= "11" when ALUSrcD = '1' else InstrD(6 downto 5);
@@ -736,10 +736,7 @@ begin
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
-    -- WriteInterruptNumberE <= "00" when IllegalInstructionInterruptE = '1'
-    --                          else "01" when DivByZeroInterruptE = '1'
-    --                          else "10";
-    WriteInterruptNumberE <= ExtImmE(1 downto 0);
+    WriteInterruptNumberE <= ExtImmE(0 downto 0);
     WriteHandlerAddressE <= FinalRD2E;
 
     -------------------------------------------

@@ -32,7 +32,7 @@ architecture test_decoder_behavioral of test_decoder is
         FlagW : out std_logic_vector(2 downto 0);
         isArithmeticDP : out std_logic;
         IsBLInstruction : out std_logic;
-        IllegalInstructionInterrupt : out std_logic;
+        IllegalInstructionInterrupt : out std_logic);
     end component;
 
     signal t_Rd : std_logic_vector(3 downto 0);
@@ -104,7 +104,7 @@ begin
         assert (t_PCS='1' and t_RegW='0' and t_MemW='0' and t_MemtoReg='0' and t_ALUSrc='1' and t_ImmSrc="10" and t_ShamtSrc="00" and t_RegSrc="0-1" and t_NoWrite='0' and t_ALUControl="0100" and t_FlagW="000" and t_IsBLInstruction = '0') report "Failed Decoder Test Case 1" severity error;
 
         -- Test case 2.1: Memory (STR) Instruction
-        t_Rd <= "0001"; t_Op <= "01"; t_Funct(0) <= '0'; t_Funct(3) <= '1'; t_IsShiftReg <= '1';
+        t_Rd <= "0001"; t_Op <= "01"; t_Funct(0) <= '0'; t_Funct(4) <= '1'; t_Funct(3) <= '1'; t_IsShiftReg <= '1';
         wait for 5 ns;
         assert (t_PCS='0' and t_RegW='0' and t_MemW='1' and t_ALUSrc='1' and t_ImmSrc="01" and t_ShamtSrc="00" and t_RegSrc="010" and t_NoWrite='0' and t_ALUControl="0100" and t_FlagW="000" and t_IsBLInstruction = '0') report "Failed Decoder Test Case 2.1" severity error;
 

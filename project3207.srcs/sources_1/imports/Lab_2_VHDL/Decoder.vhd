@@ -78,6 +78,7 @@ begin
     begin
         IllegalMainDecoder <= '0';  -- Legal by default.
         InterruptControlWInternal <= '0';
+        IsBLInstruction <= '0';
 
         case Op is
             -- Either B or Cannibalized BL Instruction
@@ -99,7 +100,6 @@ begin
                 ALUSrc <= '1';
                 ImmSrc <= "01";
                 ShamtSrc <= "00";
-                IsBLInstruction <= '0';
                 if Funct(3) = '0' then -- U bit '0'
                     ALUOp <= "10"; -- LDR/STR with Negative offset
                 else
@@ -109,20 +109,20 @@ begin
                 -- Check 'L' bit
                 if Funct(0) = '0' then
                     -- Check 'P' bit
---                    if Funct(4) = '0' then
---                        -- Save Handler Instruction
---                        MemtoReg <= '-';
---                        MemWInternal <= '0';
---                        RegWInternal <= '0';
---                        RegSrc <= "010";
---                        InterruptControlWInternal <= '1';
---                    else
+                    if Funct(4) = '0' then
+                        -- Save Handler Instruction
+                        MemtoReg <= '-';
+                        MemWInternal <= '0';
+                        RegWInternal <= '0';
+                        RegSrc <= "010";
+                        InterruptControlWInternal <= '1';
+                    else
                         -- STR Instruction
                         MemtoReg <= '-';
                         MemWInternal <= '1';
                         RegWInternal <= '0';
                         RegSrc <= "010";
-                    --end if;
+                    end if;
                 -- LDR Instruction
                 else
                     MemtoReg <= '1';
@@ -138,7 +138,6 @@ begin
                 MemWInternal <= '0';
                 RegWInternal <= '1';
                 ALUOp <= "00";
-                IsBLInstruction <= '0';
 
                 if MCycleFunct = "1001" and Funct(5) = '0' then
                     -- MUL/DIV Instruction
