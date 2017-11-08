@@ -48,6 +48,7 @@
 		SUB R10, R10, #1  ; R10 now stores 65535 = 2^16 - 1
 		LDR R8, DIPS
 
+
 ; Wait for user to signal input1 is ready.
 input1
 		LDR R0, [R8, #4]
@@ -154,13 +155,15 @@ computationdone
 		B  input1
 
 divisionbyzerointerruptlabel
-		MOV R0, #1024
-		STR R0, [R8, #20]
+		LDR R11, OOPS
+		LDR R12, [R11]
+		STR R12, [R8, #20]
 		MOV R15, R14
 		
 illegalinstructioninterruptlabel
-		MOV R0, #2048
-		STR R0, [R8, #20]
+		LDR R11, OOPS
+		LDR R12, [R11]
+		STR R12, [R8, #20]
 		MOV R15, R14
 		
 
@@ -187,6 +190,9 @@ DIPS
 ; All variables should be declared in this section. This section is read-write.
 ; Total number of variables should not exceed 128. 
 ; No initialization possible in this region. In other words, you should write to a location before you can read from it (i.e., write to a location using STR before reading using LDR).
+
+OOPS
+		DCD 0x00002215
 
 
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	

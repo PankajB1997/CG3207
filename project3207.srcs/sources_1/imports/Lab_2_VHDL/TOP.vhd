@@ -30,7 +30,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_unsigned.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use ieee.math_real.exp;
 
 ----------------------------------------------------------------
 -- TOP level module interface
@@ -38,6 +37,7 @@ use ieee.math_real.exp;
 entity TOP is
 		Generic
 		(
+            constant CLK_DIV_BITS : integer := 26;
 			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
 			-- LED(15-N_LEDs_OUT) showing the divided clock.
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
@@ -70,7 +70,7 @@ architecture arch_TOP of TOP is
 ----------------------------------------------------------------
 -- TOP Constants
 ----------------------------------------------------------------
-constant CLK_DIV_BITS : integer := 5; 	-- Set this to 26 for a ~1Hz clock. 0 for a 100MHz clock. Should not exceed 26.
+-- constant CLK_DIV_BITS : integer := 26; 	-- Set this to 26 for a ~1Hz clock. 0 for a 100MHz clock. Should not exceed 26.
 										-- There is no need to change it for simulation, as this entity/module should not be simulated
 										-- If this is set to less than 17, you might need a software delay loop between successive reads / writes to/from UART.
 
@@ -121,7 +121,7 @@ signal	CLK					: STD_LOGIC;
 -- Memory type declaration (Character map for 7-Seg
 ----------------------------------------------------------------
 type MEM_16x7 is array (0 to 15) of std_logic_vector (6 downto 0);
-constant SevenSegHexMap : MEM_16x7 := ("0111111", "1100111", "1011011", "1001111", "1100110", "1101101", "1111101", "0000111", "1111111", "1100111", "1110111", "1111100", "0111001", "1011110", "1111001", "1110001"); 
+constant SevenSegHexMap : MEM_16x7 := ("0000000", "1100111", "0111111", "1001111", "1100110", "1101101", "1111101", "0000111", "1111111", "1100111", "1110111", "1111100", "0111001", "1011110", "1111001", "1110001");
 -- SevenSeg display cathode bits (active low)
 --      0
 --     ---
