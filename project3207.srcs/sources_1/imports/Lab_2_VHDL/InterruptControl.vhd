@@ -17,7 +17,7 @@ end InterruptControl;
 
 architecture InterruptControl_arch of InterruptControl is
     type HandlerAddressBank_type is array (0 to 1) of std_logic_vector(31 downto 0);
-    signal HandlerAddressBank : HandlerAddressBank_type := (x"00000020", x"00000000");
+    signal HandlerAddressBank : HandlerAddressBank_type;
 begin
 
     IsInterruptRaised <= DivByZeroInterrupt or IllegalInstructionInterrupt;

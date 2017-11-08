@@ -463,20 +463,38 @@ begin
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 29.3" severity error;
+        assert (t_PC = x"00000014") report "Failed ARM Test Case 31.1" severity error;
 
-        -- Test Case 31: Division by 0
-        -- MOV R0, #0
-        t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"0" & x"0" & x"0" & x"00";
+        -- Test Case 31: Handle Div by 0 interrupt.
+        -- BL LABEL
+        -- Should put PC + 8 + 0xC << 2 = 0x14 + 8 + 12 << 2 = 0x4C.
+        t_Instr <= x"E" & "10" & "11" & x"00000C";
         wait for ClkPeriod;
 
         -- No assertion for MUL instruction.
 
-        -- DIV R2, R1, R0
-        -- Should have division by 0 error.
-        t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"2" & x"0" & x"0" & x"9" & x"1";
+        -- STR R13, [R-], #0
+        -- Store intruction handler in R13 for Div By 0 interrupt.
+        t_Instr <= x"E" & "01" & "001000" & x"0" & x"D" & x"000";
         wait for ClkPeriod;
 
         assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 30" severity error;
+
+        -- MOV R0, #0
+        -- Store 0 in R0 for Division By 0.
+        t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"0" & x"0" & x"0" & x"00";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"0000004C") report "Failed ARM Test Case 31.2" severity error;
+        assert (t_PC = x"00000020") report "Failed ARM Test Case 31.3" severity error;
+
+        -- DIV R2, R1, R0
+        -- Should have division by 0 error.
+        -- Should store PC + 4 = 0x24 into R14.
+        t_Instr <= x"E" & "00" & '0' & x"1" & '0' & x"2" & x"0" & x"0" & x"9" & x"1";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0') report "Failed ARM Test Case 31.4" severity error;
 
         -- MOV R5, #8
         -- Should not execute due to interrupt above.
@@ -490,24 +508,34 @@ begin
         t_Instr <= x"E" & "00" & "1" & x"D" & "0" & x"4" & x"0" & x"0" & x"08";
         wait for ClkPeriod;
 
-        assert (t_PC = x"00000020") report "Failed ARM Test Case 31.1" severity error;
-        assert (t_MemWrite = '0' and t_ALUResult = x"0000001C") report "Failed ARM Test Case 31.2" severity error;
+        -- Load interrupt handler into PC.
+        assert (t_PC = x"0000004C") report "Failed ARM Test Case 31.5" severity error;
+        -- ALUResult is PC + 4 of the interrupted instruction.
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000024") report "Failed ARM Test Case 31.6" severity error;
 
         -- MOV R5, R5
-        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"5" & "00000" & "00" & "0" & x"5";
+        t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"5" & "00000" & "00" & "0" & x"5";
         wait for ClkPeriod;
 
         -- MOV R4, R4
-        t_Instr <= x"E" & "00" & "0" & x"D" & "1" & x"0" & x"4" & "00000" & "00" & "0" & x"4";
+        t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"4" & "00000" & "00" & "0" & x"4";
         wait for ClkPeriod;
 
+        -- MOV R15, R14
+        -- Should load back stored value of PC.
+        t_Instr <= x"E" & "00" & "0" & x"D" & "0" & x"0" & x"F" & "00000" & "00" & "0" & x"E";
+        wait for ClkPeriod;
+
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 31.7" severity error;
         t_Instr <= x"00000000";
         wait for ClkPeriod;
 
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000004") report "Failed ARM Test Case 31.3" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 31.8" severity error;
+        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
-        assert (t_MemWrite = '0' and t_ALUResult = x"00000003") report "Failed ARM Test Case 31.4" severity error;
+        assert (t_MemWrite = '0' and t_ALUResult = x"00000024") report "Failed ARM Test Case 31.9" severity error;
+        t_Instr <= x"00000000";
         wait for ClkPeriod;
 
         wait;
