@@ -37,7 +37,9 @@
 
 ; Configure all interrupts.
 		BL divisionbyzerointerruptlabel
+		STR R13, [R0], #0
 		BL illegalinstructioninterruptlabel
+		STR R13, [R0], #0
 
 ; Load necessary constants.
 		MOV R3, #1
