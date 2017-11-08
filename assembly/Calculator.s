@@ -156,14 +156,12 @@ computationdone
 
 divisionbyzerointerruptlabel
 		LDR R11, OOPS
-		LDR R12, [R11]
-		STR R12, [R8, #20]
+		STR R11, [R8, #20]
 		MOV R15, R14
 		
 illegalinstructioninterruptlabel
 		LDR R11, OOPS
-		LDR R12, [R11]
-		STR R12, [R8, #20]
+		STR R11, [R8, #20]
 		MOV R15, R14
 		
 
