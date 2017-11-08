@@ -37,9 +37,9 @@
 
 ; Configure all interrupts.
 		BL divisionbyzerointerruptlabel
-		STR R13, [R0], #0
+		STR R13, [R0], #0 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 		BL illegalinstructioninterruptlabel
-		STR R13, [R0], #0
+		STR R13, [R0], #1 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 
 ; Load necessary constants.
 		MOV R3, #1
