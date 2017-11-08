@@ -428,6 +428,7 @@ architecture ARM_arch of ARM is
     signal FinalRD3E : std_logic_vector(31 downto 0);
     signal OpResultE : std_logic_vector(31 downto 0);  -- Either ALU's or MCycle's result.
     signal WriteDataE : std_logic_vector(31 downto 0);
+    signal FinalRegWriteE : std_logic;
     signal FinalWA4E : std_logic_vector(3 downto 0);
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
@@ -440,10 +441,10 @@ architecture ARM_arch of ARM is
     -- Outputs
     -- signal RA2E : std_logic_vector(3 downto 0);
     -- signal PCSrcE : std_logic;
-    -- signal RegWriteE : std_logic;
+    -- signal FinalRegWriteE : std_logic;
     -- signal MemWriteE : std_logic;
     -- signal MemToRegE : std_logic;
-    -- signal OpResultE : std_logic_vector(31 downto 0);
+    -- signal FinalOpResultE : std_logic_vector(31 downto 0);
     -- signal WriteDataE : std_logic_vector(31 downto 0);
     -- signal WA4E : std_logic_vector(3 downto 0);
 
@@ -661,6 +662,7 @@ begin
                 InterruptControlWE <= '0';
                 FlagWE <= "000";
                 MCycleSE <= '0';
+                IllegalInstructionInterruptE <= '0';
             elsif StallE = '0' then
                 PCSE <= PCSD;
                 RegWE <= RegWD;
@@ -717,7 +719,7 @@ begin
     -- CarryFlagE
 
     -- MCycle inputs
-    FinalMCycleStartE <= MCycleStartE and not DivByZeroInterruptE and not IllegalInstructionInterruptE;
+    FinalMCycleStartE <= MCycleStartE and (not DivByZeroInterruptE) and (not IllegalInstructionInterruptE);
     -- MCycleOpE
     -- Rm comes from RD2, while Rs comes from RD1. Division should do Rm/Rs, so
     -- Operand1 for Division should be RD2. Switching it around makes no
@@ -735,6 +737,7 @@ begin
     WriteDataE <= FinalRD2E;
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
+    FinalRegWriteE <= '1' when IsInterruptRaised = '1' else RegWriteE;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
     WriteInterruptNumberE <= ExtImmE(0 downto 0);
     WriteHandlerAddressE <= FinalRD2E;
@@ -750,7 +753,7 @@ begin
             if FlushM = '0' then
                 RA2M <= RA2E;
                 PCSrcM <= PCSrcE;
-                RegWriteM <= RegWriteE;
+                RegWriteM <= FinalRegWriteE;
                 MemWriteM <= MemWriteE;
                 MemToRegM <= MemToRegE;
                 OpResultM <= FinalOpResultE;
