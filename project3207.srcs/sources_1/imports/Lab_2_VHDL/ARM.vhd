@@ -504,7 +504,6 @@ architecture ARM_arch of ARM is
     signal PC_INW : std_logic_vector(31 downto 0);
     signal WE_PCW : std_logic;
     signal PCW : std_logic_vector(31 downto 0);
-    signal FinalD3E : std_logic_vector(31 downto 0);
 
     -- Internal
     signal ToForwardPC_INW : std_logic;

@@ -15,11 +15,13 @@ architecture test_top_behavioral of test_top is
 
     component TOP
         generic (
-            CLK_DIV_BITS : integer);
+            CLK_DIV_BITS : integer:= 1);
         port (
             DIP : in std_logic_vector(15 downto 0);
             PB : in std_logic_vector(3 downto 0);
             LED : out std_logic_vector(15 downto 0);
+            SevenSegAn : out STD_LOGIC_VECTOR (7 downto 0); -- 7 Seg anodes. Common anode
+			SevenSegCat : out STD_LOGIC_VECTOR (6 downto 0); -- 7 Seg cathodes
             TX : out std_logic;
             RX : in std_logic;
             PAUSE : in std_logic;
@@ -34,6 +36,8 @@ architecture test_top_behavioral of test_top is
     signal t_PAUSE : std_logic := '0';
     signal t_RESET : std_logic := '0';
     signal t_CLK_undiv : std_logic := '0';
+    signal t_SevenSegAn : std_logic_vector(7 downto 0);
+    signal t_SevenSegCat : std_logic_vector(6 downto 0);
 
     --Outputs
     signal t_LED : std_logic_vector(15 downto 0);
@@ -54,6 +58,8 @@ begin
         DIP => t_DIP,
         PB => t_PB,
         RX => t_RX,
+        SevenSegAn => t_SevenSegAn,
+        SevenSegCat => t_SevenSegCat,
         PAUSE => t_PAUSE,
         RESET => t_RESET,
         CLK_undiv => t_CLK_undiv,
@@ -89,7 +95,7 @@ begin
         -- Enter 7 as input1.
         -- t_DIP <= x"0007"; t_PB <= x"8";
         wait for ClkPeriod * 34;
-        t_PB <= x"8";
+        -- t_PB <= x"8";
         --
         -- -- Processor should take input1 and start cycling, looking for button to turn off.
         -- wait for ClkPeriod * 12;

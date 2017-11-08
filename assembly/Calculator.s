@@ -36,10 +36,10 @@
 ; Total number of instructions should not exceed 127 (126 excluding the last line 'halt B halt').
 
 ; Configure all interrupts.
-		BL divisionbyzerointerruptlabel
-		STR R13, [R0], #0 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 		BL illegalinstructioninterruptlabel
 		STR R13, [R0], #1 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
+		BL divisionbyzerointerruptlabel
+		STR R13, [R0], #0 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 
 ; Load necessary constants.
 		MOV R3, #1
@@ -154,14 +154,16 @@ computationdone
 ; Loop back to input1 to restart input.
 		B  input1
 
-divisionbyzerointerruptlabel
-		LDR R11, OOPS
+illegalinstructioninterruptlabel
+		MOV R11, #1024
 		STR R11, [R8, #20]
+		STR R14, [R8, #-4]
 		MOV R15, R14
 		
-illegalinstructioninterruptlabel
-		LDR R11, OOPS
+divisionbyzerointerruptlabel
+		MOV R11, #2048
 		STR R11, [R8, #20]
+		STR R14, [R8, #-4]
 		MOV R15, R14
 		
 
@@ -178,6 +180,9 @@ illegalinstructioninterruptlabel
 DIPS
 		DCD 0x00000C04		; Address of DIP switches. //volatile unsigned int * const DIPS = (unsigned int*)0x00000C04;
 
+OOPS
+		DCD 0x00002215
+
 ; Rest of the constants should be declared below.
 
 ; ------- <constant memory (ROM mapped to Data Memory) ends>	
@@ -188,9 +193,6 @@ DIPS
 ; All variables should be declared in this section. This section is read-write.
 ; Total number of variables should not exceed 128. 
 ; No initialization possible in this region. In other words, you should write to a location before you can read from it (i.e., write to a location using STR before reading using LDR).
-
-OOPS
-		DCD 0x00002215
 
 
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	
