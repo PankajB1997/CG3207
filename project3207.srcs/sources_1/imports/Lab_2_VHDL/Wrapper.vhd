@@ -111,19 +111,21 @@ signal dec_DATA_CONST, dec_DATA_VAR, dec_LED, dec_DIP, dec_CONSOLE, dec_PB, dec_
 type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 words
 
 
+
 ----------------------------------------------------------------
 -- Instruction Memory
 ----------------------------------------------------------------
-constant INSTR_MEM : MEM_128x32 := (		x"EB00003F",
-											x"E480D001",
-											x"EB000041",
+constant INSTR_MEM : MEM_128x32 := (		x"EB000040",
 											x"E480D000",
+											x"EB000041",
+											x"E480D001",
 											x"E3A03001",
 											x"E3A09003",
 											x"E3A0A801",
 											x"E24AA001",
 											x"E59F81D8",
-											x"EC980004",
+											x"ECA00000",
+											x"E5980004",
 											x"E0101913",
 											x"0AFFFFFC",
 											x"E5984000",
@@ -179,13 +181,11 @@ constant INSTR_MEM : MEM_128x32 := (		x"EB00003F",
 											x"E0C47006",
 											x"E5087004",
 											x"EAFFFFC7",
-											x"E3A0BB01",
+											x"E59FB0F4",
 											x"E588B014",
-											x"E508E004",
 											x"E1A0F00E",
-											x"E3A0BB02",
+											x"E59FB0EC",
 											x"E588B014",
-											x"E508E004",
 											x"E1A0F00E",
 											others => x"00000000");
 
@@ -194,6 +194,7 @@ constant INSTR_MEM : MEM_128x32 := (		x"EB00003F",
 ----------------------------------------------------------------
 constant DATA_CONST_MEM : MEM_128x32 := (	x"00000C04",
 											x"00002215",
+											x"22150000",
 											others => x"00000000");
 
 

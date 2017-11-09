@@ -36,10 +36,10 @@
 ; Total number of instructions should not exceed 127 (126 excluding the last line 'halt B halt').
 
 ; Configure all interrupts.
-		BL illegalinstructioninterruptlabel
-		STR R13, [R0], #1 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 		BL divisionbyzerointerruptlabel
 		STR R13, [R0], #0 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
+		BL illegalinstructioninterruptlabel
+		STR R13, [R0], #1 ; R0 is a randomly chosen register as this cannibalized STR post-index instruction is simply used to store value of R13 into the HandlerAddressBank table
 
 ; Load necessary constants.
 		MOV R3, #1
@@ -47,6 +47,7 @@
 		MOV R10, #65536
 		SUB R10, R10, #1  ; R10 now stores 65535 = 2^16 - 1
 		LDR R8, DIPS
+		NOP
 
 
 ; Wait for user to signal input1 is ready.
@@ -154,18 +155,16 @@ computationdone
 ; Loop back to input1 to restart input.
 		B  input1
 
-illegalinstructioninterruptlabel
-		MOV R11, #1024
-		STR R11, [R8, #20]
-		STR R14, [R8, #-4]
-		MOV R15, R14
-		
 divisionbyzerointerruptlabel
-		MOV R11, #2048
+		LDR R11, OOPS1
 		STR R11, [R8, #20]
-		STR R14, [R8, #-4]
 		MOV R15, R14
 		
+illegalinstructioninterruptlabel
+		LDR R11, OOPS2
+		STR R11, [R8, #20]
+		MOV R15, R14
+
 
 ; ------- <\code memory (ROM mapped to Instruction Memory) ends>
 
@@ -180,8 +179,11 @@ divisionbyzerointerruptlabel
 DIPS
 		DCD 0x00000C04		; Address of DIP switches. //volatile unsigned int * const DIPS = (unsigned int*)0x00000C04;
 
-OOPS
+OOPS1
 		DCD 0x00002215
+
+OOPS2
+		DCD 0x22150000
 
 ; Rest of the constants should be declared below.
 
