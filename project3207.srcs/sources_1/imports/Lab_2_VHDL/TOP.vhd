@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date:   21:06:18 24/09/2015
 -- Design Name: 	TOP
 -- Target Devices: Nexys 4 (Artix 7 100T)
@@ -10,7 +10,7 @@
 --
 -- Dependencies: Uses uart.vhd by (c) Peter A Bennett
 --
--- Revision: 
+-- Revision:
 -- Revision 0.02
 -- Additional Comments: See the notes below. The interface (entity) as well as implementation (architecture) can be modified
 ----------------------------------------------------------------------------------
@@ -36,17 +36,17 @@ use ieee.math_real.exp;
 -- TOP level module interface
 ----------------------------------------------------------------
 entity TOP is
-		Generic 
+		Generic
 		(
 			constant N_LEDs_OUT	: integer := 8; -- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
-			-- LED(15-N_LEDs_OUT) showing the divided clock. 
+			-- LED(15-N_LEDs_OUT) showing the divided clock.
 			-- LED(15-N_LEDs_OUT-1 downto 0) showing the PC.
 			constant N_DIPs		: integer := 16;  -- Number of DIPs. 16 by default
 			constant N_PBs		: integer := 4  -- Number of PushButtons. 4 by default
 			-- Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
 			-- Note that BTNC is used as PAUSE
 		);
-		Port 
+		Port
 		(
 			DIP 			: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  -- DIP switch inputs. Not debounced.
 			PB    			: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);  -- PB switch inputs. Not debounced.
@@ -70,7 +70,7 @@ architecture arch_TOP of TOP is
 ----------------------------------------------------------------
 -- TOP Constants
 ----------------------------------------------------------------
-constant CLK_DIV_BITS : integer := 5; 	-- Set this to 26 for a ~1Hz clock. 0 for a 100MHz clock. Should not exceed 26. 
+constant CLK_DIV_BITS : integer := 5; 	-- Set this to 26 for a ~1Hz clock. 0 for a 100MHz clock. Should not exceed 26.
 										-- There is no need to change it for simulation, as this entity/module should not be simulated
 										-- If this is set to less than 17, you might need a software delay loop between successive reads / writes to/from UART.
 
@@ -78,15 +78,15 @@ constant CLK_DIV_BITS : integer := 5; 	-- Set this to 26 for a ~1Hz clock. 0 for
 -- Wrapper component
 ----------------------------------------------------------------------------
 component Wrapper is
-		Generic 
+		Generic
 		(
 			constant N_LEDs_OUT	: integer := 8;
 			constant N_DIPs		: integer := 16;
 			constant N_PBs		: integer := 4
 		);
-		Port 
+		Port
 		(
-			DIP 				: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0); 
+			DIP 				: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);
 			PB    				: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);
 			LED_OUT				: out  STD_LOGIC_VECTOR (N_LEDs_OUT-1 downto 0);
 			LED_PC 				: out  STD_LOGIC_VECTOR (6 downto 0);
@@ -104,16 +104,16 @@ end component Wrapper;
 
 ----------------------------------------------------------------------------
 -- Wrapper signals
-----------------------------------------------------------------------------  
+----------------------------------------------------------------------------
 signal	LED_OUT				: STD_LOGIC_VECTOR (N_LEDs_OUT-1 downto 0);
-signal	LED_PC 				: STD_LOGIC_VECTOR (6 downto 0); 		
-signal	SEVENSEGHEX 		: STD_LOGIC_VECTOR (31 downto 0); 		
+signal	LED_PC 				: STD_LOGIC_VECTOR (6 downto 0);
+signal	SEVENSEGHEX 		: STD_LOGIC_VECTOR (31 downto 0);
 signal	CONSOLE_OUT 		: STD_LOGIC_VECTOR (7 downto 0);
 signal  CONSOLE_OUT_ready	: STD_LOGIC := '1';
 signal	CONSOLE_OUT_valid 	: STD_LOGIC;
 signal	CONSOLE_IN 			: STD_LOGIC_VECTOR (7 downto 0);
 signal	CONSOLE_IN_valid 	: STD_LOGIC;
-signal	CONSOLE_IN_ack 		: STD_LOGIC;	
+signal	CONSOLE_IN_ack 		: STD_LOGIC;
 signal	CLK					: STD_LOGIC;
 
 
@@ -121,10 +121,10 @@ signal	CLK					: STD_LOGIC;
 -- Memory type declaration (Character map for 7-Seg
 ----------------------------------------------------------------
 type MEM_16x7 is array (0 to 15) of std_logic_vector (6 downto 0);
-constant SevenSegHexMap : MEM_16x7 := ("0111111", "0000110", "1011011", "1001111", "1100110", "1101101", "1111101", "0000111", "1111111", "1100111", "1110111", "1111100", "0111001", "1011110", "1111001", "1110001"); 
+constant SevenSegHexMap : MEM_16x7 := ("0111111", "1100111", "1011011", "1001111", "1100110", "1101101", "1111101", "0000111", "1111111", "1100111", "1110111", "1111100", "0111001", "1011110", "1111001", "1110001"); 
 -- SevenSeg display cathode bits (active low)
 --      0
---     ---  
+--     ---
 --  5 |   | 1
 --     ---   <- 6
 --  4 |   | 2
@@ -148,7 +148,7 @@ component UART is
         );
     port (  -- General
             CLOCK		        : in      std_logic;
-            RESET               : in      std_logic;    
+            RESET               : in      std_logic;
             DATA_STREAM_IN      : in      std_logic_vector(7 downto 0);
             DATA_STREAM_IN_STB  : in      std_logic;
             DATA_STREAM_IN_ACK  : out     std_logic;
@@ -159,7 +159,7 @@ component UART is
             RX                  : in      std_logic
          );
 end component UART;
- 
+
 ----------------------------------------------------------------------------
 -- UART signals
 ----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ signal uart_data_out            : std_logic_vector(7 downto 0);
 signal uart_data_in_stb         : std_logic;
 signal uart_data_in_ack         : std_logic;
 signal uart_data_out_stb        : std_logic;
-signal uart_data_out_ack        : std_logic;	 
+signal uart_data_out_ack        : std_logic;
 
 ----------------------------------------------------------------------------
 -- Other UART signals
@@ -177,42 +177,42 @@ signal uart_data_out_ack        : std_logic;
 type states is (WAITING, CONSOLE);
 signal recv_state : states := WAITING;
 signal CLK_uart : std_logic;
-signal RX_MSF1, RX_MSF2 : std_logic := '1'; -- metastable filter		
+signal RX_MSF1, RX_MSF2 : std_logic := '1'; -- metastable filter
 
 -- UART console related
 signal CONSOLE_OUT_valid_prev : std_logic := '0';
 signal CONSOLE_IN_ack_prev : std_logic := '0';
-signal uart_data_out_stb_prev: std_logic := '0'; 
+signal uart_data_out_stb_prev: std_logic := '0';
 
 signal RESET_INT, RESET_EFF : STD_LOGIC; 	-- internal and effective reset, for future use.
 signal RESET_EXT	: std_logic; 			-- internal reset
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- <TOP architecture>
 ----------------------------------------------------------------
-----------------------------------------------------------------	
-		
+----------------------------------------------------------------
+
 begin
 
 ----------------------------------------------------------------
 -- LEDs
-----------------------------------------------------------------			
+----------------------------------------------------------------
 LED(15-N_LEDs_OUT-1 downto 0) <= LED_PC; 	-- PC on LED(6 downto 0)
 LED(15-N_LEDs_OUT) <= CLK; 					-- clock on LED(7)
 LED(15 downto N_LEDs_OUT) <= LED_OUT;		-- Written by the processor
 
 ----------------------------------------------------------------
 -- Debug LEDs
-----------------------------------------------------------------	
-RESET_EXT <= not RESET; 				-- CPU_RESET is active low. 
+----------------------------------------------------------------
+RESET_EXT <= not RESET; 				-- CPU_RESET is active low.
 RESET_EFF <= RESET_INT or RESET_EXT; 	-- Reset sent to the Wrapper
-RESET_INT <= '0'; 						-- internal reset, for future use.	
+RESET_INT <= '0'; 						-- internal reset, for future use.
 
 ----------------------------------------------------------------------------
 -- Wrapper port map
-----------------------------------------------------------------------------			
+----------------------------------------------------------------------------
 Wrapper1 : Wrapper
-port map (			
+port map (
 		DIP 			 	=> 		DIP 			,
 		PB    			 	=>   	PB    			,
 		LED_OUT			 	=>   	LED_OUT			,
@@ -225,7 +225,7 @@ port map (
 		CONSOLE_IN_valid  	=>    	CONSOLE_IN_valid,
 		CONSOLE_IN_ack 	 	=>     	CONSOLE_IN_ack 	,
 		RESET			 	=>     	RESET_EFF		,
-		CLK				 	=>     	CLK	
+		CLK				 	=>     	CLK
 );
 
 ----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ generic map (
 		BAUD_RATE           => BAUD_RATE,
 		CLOCK_FREQUENCY     => CLOCK_FREQUENCY
 )
-port map (  
+port map (
 		CLOCK		        => CLK_uart,
 		RESET               => RESET_EXT,
 		DATA_STREAM_IN      => uart_data_in,
@@ -248,7 +248,7 @@ port map (
 		TX                  => TX,
 		RX                  => RX_MSF2
 );
-	
+
 ----------------------------------------------------------------
 -- UART
 ----------------------------------------------------------------
@@ -266,7 +266,7 @@ if CLK_uart'event and CLK_uart = '1' then
 		RX_MSF2					<= '1';
 		CONSOLE_OUT_ready		<= '1';
 		CONSOLE_IN_valid 		<= '0';
-		CONSOLE_IN				<= (others => '0'); -- not really required, as the valid flag will be 0 on reset. 
+		CONSOLE_IN				<= (others => '0'); -- not really required, as the valid flag will be 0 on reset.
    else
    		RX_MSF1					<= RX; -- metastable filter
    		RX_MSF2					<= RX_MSF1; -- metastable filter
@@ -286,31 +286,31 @@ if CLK_uart'event and CLK_uart = '1' then
 		---------------------
 		-- Receiving
 		---------------------
-		case recv_state is 
+		case recv_state is
 		when WAITING =>
 			if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then
 				uart_data_out_ack   <= '1';
-				recv_state <= CONSOLE;	
+				recv_state <= CONSOLE;
 				CONSOLE_IN <= uart_data_out;
 				CONSOLE_IN_valid <= '1';
 			end if;
-			
-		when CONSOLE =>	
+
+		when CONSOLE =>
 			if uart_data_out_stb = '1' and uart_data_out_stb_prev = '0' then -- just read and ignore further characters before the current valid character is read. To prevent this, do not send it from PC at a rate faster than your processor reads it.
 				uart_data_out_ack   <= '1';
 			end if;
 			if CONSOLE_IN_ack = '1' and CONSOLE_IN_ack_prev = '0' then
 				recv_state <= WAITING;
 				CONSOLE_IN_valid <= '0';
-			end if;	
-			
-		end case; 			
+			end if;
+
+		end case;
 		uart_data_out_stb_prev <= uart_data_out_stb;
 		CONSOLE_OUT_valid_prev <= CONSOLE_OUT_valid; -- No successive STRs
 		CONSOLE_IN_ack_prev <= CONSOLE_IN_ack;  -- No successive LDRs
 	end if;
 end if;
-end process;				
+end process;
 
 ----------------------------------------------------------------
 -- Seven Segment Display
@@ -331,8 +331,8 @@ end process;
 ----------------------------------------------------------------
 -- Clock divider
 ----------------------------------------------------------------
-CLK_uart <= CLK_undiv;	-- CLOCK_FREQUENCY should be set to 100000000 if this line is uncommented. 
-CLK_DIVIDER_OFF_SET: if CLK_DIV_BITS = 0 generate 
+CLK_uart <= CLK_undiv;	-- CLOCK_FREQUENCY should be set to 100000000 if this line is uncommented.
+CLK_DIVIDER_OFF_SET: if CLK_DIV_BITS = 0 generate
 	CLK <= CLK_undiv;
 end generate;
 CLK_DIVIDER_ON_SET: if CLK_DIV_BITS > 0 generate
@@ -343,7 +343,7 @@ begin
 		if PAUSE = '0' then
 			clk_counter := clk_counter+1;
 			CLK <= clk_counter(CLK_DIV_BITS);
-			--CLK_uart <= clk_counter(0); -- CLOCK_FREQUENCY should be set appropriately if this line is uncommented. 
+			--CLK_uart <= clk_counter(0); -- CLOCK_FREQUENCY should be set appropriately if this line is uncommented.
 		end if;
 	end if;
 end process;
@@ -351,7 +351,7 @@ end generate;
 
 end arch_TOP;
 
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- </TOP architecture>
 ----------------------------------------------------------------
