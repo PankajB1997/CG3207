@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- Company: NUS
 -- Engineer: (c) Rajesh Panicker
--- 
+--
 -- Create Date:   21:06:18 24/09/2015
 -- Design Name: 	Wrapper (ARM Wrapper)
 -- Target Devices: Nexys 4 (Artix 7 100T)
@@ -32,18 +32,18 @@ use IEEE.NUMERIC_STD.ALL;
 -- TOP level module interface
 ----------------------------------------------------------------
 entity Wrapper is
-		Generic 
+		Generic
 		(
 			constant N_LEDs_OUT	: integer := 8; 	-- Number of LEDs displaying Result. LED(15 downto 15-N_LEDs_OUT+1). 8 by default
 			constant N_DIPs		: integer := 16;  	-- Number of DIPs. 16 by default
 			constant N_PBs		: integer := 4  	-- Number of PushButtons. 4 by default
 													-- Note that BTNC is used as PAUSE
 		);
-		Port 
+		Port
 		(
-			DIP 			: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  	-- DIP switch inputs. Not debounced. Mapped to 0x00000C04. 
-																			-- Only the least significant 16 bits read from this location are valid. 
-			PB    			: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);  	-- PB switch inputs. Not debounced.	Mapped to 0x00000C08. 
+			DIP 			: in  STD_LOGIC_VECTOR (N_DIPs-1 downto 0);  	-- DIP switch inputs. Not debounced. Mapped to 0x00000C04.
+																			-- Only the least significant 16 bits read from this location are valid.
+			PB    			: in  STD_LOGIC_VECTOR (N_PBs-1 downto 0);  	-- PB switch inputs. Not debounced.	Mapped to 0x00000C08.
 																			-- Only the least significant 4 bits read from this location are valid. Order (3 downto 0) -> BTNU, BTNL, BTNR, BTND.
 			LED_OUT			: out  STD_LOGIC_VECTOR (N_LEDs_OUT-1 downto 0);-- LED(15 downto 8) mapped to 0x00000C00. Only the least significant 8 bits written to this location are used.
 			LED_PC 			: out  STD_LOGIC_VECTOR (6 downto 0); 			-- LED(6 downto 0) showing PC(8 downto 2).
@@ -58,7 +58,7 @@ entity Wrapper is
 			CONSOLE_IN 		: in STD_LOGIC_VECTOR (7 downto 0);				-- CONSOLE (UART) Input. Mapped to 0x00000C0C. The least significant 8 bits read from this location is the character received from PC via UART.
 																			-- Check if CONSOLE_IN_valid flag (0x00000C10)is set before reading from this location.
 																			-- Consecutive LDRs from this location not permitted (needs at least 1 instruction spacing between LDRs).
-																		    -- Also, note that there is no Tx FIFO implemented. DO NOT send characters from PC at a rate faster than 
+																		    -- Also, note that there is no Tx FIFO implemented. DO NOT send characters from PC at a rate faster than
                                                                             --  your processor (program) can read them. This means sending only 1 char every few seconds if your CLK_DIV_BITS is 26.
                                                                             -- 	This is not a problem if your processor runs at a high speed.
 			CONSOLE_IN_valid : in STD_LOGIC;								-- An indication to the wrapper/processor that there is a new data byte waiting to be read from the UART hardware.
@@ -98,7 +98,7 @@ signal Instr 			: STD_LOGIC_VECTOR (31 downto 0);
 signal ReadData			: STD_LOGIC_VECTOR (31 downto 0);
 signal ALUResult		: STD_LOGIC_VECTOR (31 downto 0);
 signal WriteData		: STD_LOGIC_VECTOR (31 downto 0);
-signal MemWrite 		: STD_LOGIC; 
+signal MemWrite 		: STD_LOGIC;
 
 ----------------------------------------------------------------
 -- Address Decode signals
@@ -110,47 +110,125 @@ signal dec_DATA_CONST, dec_DATA_VAR, dec_LED, dec_DIP, dec_CONSOLE, dec_PB, dec_
 ----------------------------------------------------------------
 type MEM_128x32 is array (0 to 127) of std_logic_vector (31 downto 0); -- 128 words
 
+
+
 ----------------------------------------------------------------
 -- Instruction Memory
 ----------------------------------------------------------------
-constant INSTR_MEM : MEM_128x32 := (others => x"00000000");
+constant INSTR_MEM : MEM_128x32 := (		x"EB000040",
+											x"E480D000",
+											x"EB000041",
+											x"E480D001",
+											x"E3A03001",
+											x"E3A09003",
+											x"E3A0A801",
+											x"E24AA001",
+											x"E59F81D8",
+											x"ECA00000",
+											x"E5980004",
+											x"E0101913",
+											x"0AFFFFFC",
+											x"E5984000",
+											x"E004400A",
+											x"E5980004",
+											x"E0101183",
+											x"1AFFFFFC",
+											x"E5980004",
+											x"E0101913",
+											x"0AFFFFFC",
+											x"E5985000",
+											x"E2055007",
+											x"E5980004",
+											x"E0101183",
+											x"1AFFFFFC",
+											x"E5980004",
+											x"E0101913",
+											x"0AFFFFFC",
+											x"E5986000",
+											x"E006600A",
+											x"E5980004",
+											x"E0101183",
+											x"1AFFFFFC",
+											x"E3550000",
+											x"0A00000C",
+											x"E3550001",
+											x"0A00000C",
+											x"E3550002",
+											x"0A00000C",
+											x"E3550003",
+											x"0A00000C",
+											x"E3350004",
+											x"0A00000C",
+											x"E3350005",
+											x"0A00000C",
+											x"E3350006",
+											x"0A00000C",
+											x"1A00000D",
+											x"E0847006",
+											x"EA00000C",
+											x"E0447006",
+											x"EA00000A",
+											x"E0070694",
+											x"EA000008",
+											x"E0275694",
+											x"EA000006",
+											x"E1C47006",
+											x"EA000004",
+											x"E0247006",
+											x"EA000002",
+											x"E0647006",
+											x"EA000000",
+											x"E0C47006",
+											x"E5087004",
+											x"EAFFFFC7",
+											x"E59FB0F4",
+											x"E588B014",
+											x"E1A0F00E",
+											x"E59FB0EC",
+											x"E588B014",
+											x"E1A0F00E",
+											others => x"00000000");
 
 ----------------------------------------------------------------
 -- Data (Constant) Memory
 ----------------------------------------------------------------
-constant DATA_CONST_MEM : MEM_128x32 := (others => x"00000000");
+constant DATA_CONST_MEM : MEM_128x32 := (	x"00000C04",
+											x"00002215",
+											x"22150000",
+											others => x"00000000");
+
 
 ----------------------------------------------------------------
 -- Data (Variable) Memory
 ----------------------------------------------------------------
-signal DATA_VAR_MEM : MEM_128x32 := (others=> x"00000000"); 
+signal DATA_VAR_MEM : MEM_128x32 := (others=> x"00000000");
 
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- <Wrapper architecture>
 ----------------------------------------------------------------
-----------------------------------------------------------------	
-		
+----------------------------------------------------------------
+
 begin
 
 ----------------------------------------------------------------
 -- Debug LEDs
-----------------------------------------------------------------			
+----------------------------------------------------------------
 LED_PC <= PC(15-N_LEDs_OUT+1 downto 2); -- debug showing PC
 
 ----------------------------------------------------------------
 -- ARM port map
 ----------------------------------------------------------------
-ARM1 : ARM port map ( 
+ARM1 : ARM port map (
 			CLK         =>  CLK,
-			RESET		=>	RESET,  
+			RESET		=>	RESET,
 			--Interrupt	=> 	Interrupt,
 			Instr 		=>  Instr,
 			ReadData	=>  ReadData,
 			MemWrite 	=>  MemWrite,
 			PC          =>  PC,
-			ALUResult   =>  ALUResult,			
-			WriteData	=>  WriteData					
+			ALUResult   =>  ALUResult,
+			WriteData	=>  WriteData
 			);
 
 ----------------------------------------------------------------
@@ -169,19 +247,19 @@ dec_7SEG	    <= '1' 	when ALUResult=x"00000C18" else '0';
 ----------------------------------------------------------------
 -- Data memory read
 ----------------------------------------------------------------
-ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1' 
-                else (31-N_PBs downto 0 => '0') & PB					when dec_PB = '1' 
+ReadData 	<= (31-N_DIPs downto 0 => '0') & DIP						when dec_DIP = '1'
+                else (31-N_PBs downto 0 => '0') & PB					when dec_PB = '1'
 				else DATA_VAR_MEM(conv_integer(ALUResult(8 downto 2)))	when dec_DATA_VAR = '1'
 				else DATA_CONST_MEM(conv_integer(ALUResult(8 downto 2)))when dec_DATA_CONST = '1'
 				else x"000000" & CONSOLE_IN 							when dec_CONSOLE = '1' and CONSOLE_IN_valid = '1'
 				else (0=>CONSOLE_IN_valid, others=>'0')					when dec_CONSOLE_IN_valid = '1'
 				else (0=>CONSOLE_OUT_ready, others=>'0')				when dec_CONSOLE_OUT_ready = '1'
 				else (others=>'0');
-				
+
 ----------------------------------------------------------------
 -- Instruction memory read
 ----------------------------------------------------------------
-Instr <= INSTR_MEM(conv_integer(PC(8 downto 2))) 
+Instr <= INSTR_MEM(conv_integer(PC(8 downto 2)))
 			when PC>=x"00000000" and PC<=x"000001FC" -- To check if address is in the valid range, assuming 128 word memory. Also helps minimize warnings
 			else x"00000000";
 
@@ -192,18 +270,18 @@ write_CONSOLE_n_ack: process (CLK)
 begin
 	if CLK'event and CLK = '1' then
 		CONSOLE_OUT_valid <= '0';
-		CONSOLE_IN_ack <= '0'; 
+		CONSOLE_IN_ack <= '0';
 		if MemWrite = '1' and dec_CONSOLE = '1' and CONSOLE_OUT_ready = '1' then
 			CONSOLE_OUT <= WriteData(7 downto 0);
 			CONSOLE_OUT_valid <= '1';
 		end if;
-		if MemWrite = '0' and dec_CONSOLE = '1' and CONSOLE_IN_valid = '1' then 
+		if MemWrite = '0' and dec_CONSOLE = '1' and CONSOLE_IN_valid = '1' then
 			CONSOLE_IN_ack <= '1';
 		end if;
 		-- Possible spurious CONSOLE_IN_ack and a lost character since we don't have a MemRead signal. Make sure ALUResult is never 0xC0C other than when accessing UART.
-		-- Also, the character received from PC in the CLK cycle immediately following a character read by the processor is lost. This is not that much of a problem in practice though.	
+		-- Also, the character received from PC in the CLK cycle immediately following a character read by the processor is lost. This is not that much of a problem in practice though.
 	end if;
-end process;			
+end process;
 
 ----------------------------------------------------------------
 -- Data Memory-mapped LED write
@@ -246,7 +324,7 @@ begin
 end process;
 
 end arch_Wrapper;
-----------------------------------------------------------------	
+----------------------------------------------------------------
 ----------------------------------------------------------------
 -- </Wrapper architecture>
 ----------------------------------------------------------------
