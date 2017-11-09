@@ -432,6 +432,7 @@ architecture ARM_arch of ARM is
     signal FinalWA4E : std_logic_vector(3 downto 0);
     signal FinalWD4E : std_logic_vector(3 downto 0);
     signal FinalOpResultE : std_logic_vector(31 downto 0);
+    signal FinalMemToRegE : std_logic;
     signal DivByZeroInterruptE : std_logic;
     signal IllegalInstructionInterruptD : std_logic;
     signal IllegalInstructionInterruptE : std_logic;
@@ -443,7 +444,7 @@ architecture ARM_arch of ARM is
     -- signal PCSrcE : std_logic;
     -- signal FinalRegWriteE : std_logic;
     -- signal MemWriteE : std_logic;
-    -- signal MemToRegE : std_logic;
+    -- signal FinalMemToRegE : std_logic;
     -- signal FinalOpResultE : std_logic_vector(31 downto 0);
     -- signal WriteDataE : std_logic_vector(31 downto 0);
     -- signal WA4E : std_logic_vector(3 downto 0);
@@ -735,6 +736,7 @@ begin
     OpResultE <= MCycleResultE when ALUResultSrcE = '1' else ALUResultE;
     WriteDataE <= FinalRD2E;
     FinalOpResultE <= PCPlus4E when IsInterruptRaised = '1' else OpResultE;
+    FinalMemToRegE <= '0' when IsInterruptRaised = '1' else MemToRegE;
     FinalWA4E <= x"E" when IsInterruptRaised = '1' else WA4E;
     FinalRegWriteE <= '1' when IsInterruptRaised = '1' else RegWriteE;
     DivByZeroInterruptE <= '1' when MCycleStartE = '1' and MCycleOpE(1) = '1' and Operand2E = x"00000000" else '0';
@@ -754,7 +756,7 @@ begin
                 PCSrcM <= PCSrcE;
                 RegWriteM <= FinalRegWriteE;
                 MemWriteM <= MemWriteE;
-                MemToRegM <= MemToRegE;
+                MemToRegM <= FinalMemToRegE;
                 OpResultM <= FinalOpResultE;
                 WriteDataM <= WriteDataE;
                 WA4M <= FinalWA4E;
